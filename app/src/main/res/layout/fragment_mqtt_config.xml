@@ -62,6 +62,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView22" />
 
+    <CheckBox
+        android:id="@+id/modifyDefaultCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/modify_default_broker"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mqttConfigurationSpinner" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/newConfigurationFrame"
         android:layout_width="match_parent"
@@ -76,7 +88,7 @@
         app:layout_constraintBottom_toTopOf="@+id/pairButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mqttConfigurationSpinner"
+        app:layout_constraintTop_toBottomOf="@+id/modifyDefaultCheckbox"
         tools:context=".ui.fragments.pair.ConfigureWifiFragment">
 
         <com.google.android.material.textfield.TextInputLayout

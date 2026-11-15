@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -28,16 +29,26 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        if (AndroidPreferencesManager.isDisclaimerAccepted(this)) {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+            return;
+        }
+
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
 
+        final CheckBox neverAskAgain = findViewById(R.id.neverAskAgainCheckBox);
         MaterialButton agreeButton = findViewById(R.id.acceptButton);
         agreeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (neverAskAgain.isChecked()) {
+                    AndroidPreferencesManager.setDisclaimerAccepted(SplashActivity.this, true);
+                }
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 finish();
             }

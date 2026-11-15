@@ -27,7 +27,18 @@ public class AndroidPreferencesManager {
     private static String PREFS_WIFI_CREDS = "org.localpairer.shared_preferences.wifi_creds";
     private static String KEY_MQTT_CONF = "mqtt";
     private static String KEY_HTTP_CONF = "http";
+    private static String KEY_DISCLAIMER_ACCEPTED = "disclaimer_accepted";
     private static Gson g = Utils.getGson();
+
+    public static boolean isDisclaimerAccepted(Context c) {
+        return c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .getBoolean(KEY_DISCLAIMER_ACCEPTED, false);
+    }
+
+    public static void setDisclaimerAccepted(Context c, boolean accepted) {
+        c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .edit().putBoolean(KEY_DISCLAIMER_ACCEPTED, accepted).apply();
+    }
 
     public static void storeNewMqttConfiguration(Context context, MqttConfiguration conf) {
         List<MqttConfiguration> allConfs = loadAllMqttConfigurations(context);

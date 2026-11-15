@@ -82,6 +82,9 @@
     <string name="refresh_device_list">Refresh device list</string>
     <string name="configuration">Configuration</string>
     <string name="quit">Quit</string>
+    <string name="never_ask_again">Never ask again</string>
+    <string name="modify_default_broker">Modify</string>
+    <string name="default_broker_name">default</string>
     <string name="back_to_devices">Back to devices</string>
     <string name="fragment_support_title">Supporting this app</string>
     <string name="support_this_app_text_intro">Meross Local Pairer is free and open source.</string>
