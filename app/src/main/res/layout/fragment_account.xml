@@ -115,6 +115,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Logout" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/accountBackToDevicesButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/back_to_devices" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -144,14 +151,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Login to (HA) Meross Local Addon" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/merossCloudLoginButton"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                android:text="Login to Official Meross Broker" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/setManualButton"

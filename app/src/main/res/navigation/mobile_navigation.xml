@@ -70,7 +70,7 @@
     <fragment
         android:id="@+id/devices_fragment"
         android:name="org.localpairer.ui.fragments.device.DeviceListFragment"
-        android:label="@string/title_device_list"
+        android:label=""
         tools:layout="@layout/fragment_device_list">
         <action
             android:id="@+id/action_devices_to_about"
@@ -78,6 +78,9 @@
         <action
             android:id="@+id/action_devices_to_pair"
             app:destination="@id/pair_activity" />
+        <action
+            android:id="@+id/action_devices_to_account"
+            app:destination="@id/account_fragment" />
     </fragment>
     <fragment
         android:id="@+id/supporting_this_app"

@@ -41,8 +41,8 @@ public class AccountFragment extends Fragment {
         final EditText httpTokenEditText = root.findViewById(R.id.httpTokenEditText);
         final EditText mqttKeyEditText = root.findViewById(R.id.mqttKeyEditText);
         final Button httpLogoutButton = root.findViewById(R.id.httpLogoutButton);
+        final Button accountBackToDevicesButton = root.findViewById(R.id.accountBackToDevicesButton);
         final Button haBrokerLoginButton = root.findViewById(R.id.haBrokerLoginButton);
-        final Button merossCloudLoginButton = root.findViewById(R.id.merossCloudLoginButton);
         final CardView loginCardView = root.findViewById(R.id.loginCard);
         final Button manualSetupButton = root.findViewById(R.id.setManualButton);
         final ImageView loggedInAccountLogoImageView = root.findViewById(R.id.loggedInAccountLogo);
@@ -52,8 +52,6 @@ public class AccountFragment extends Fragment {
             public void onChanged(ApiCredentials apiCredentials) {
                 if (apiCredentials == null || Strings.isEmpty(apiCredentials.getApiServer())) {
                     loggedInAccountLogoImageView.setImageResource(R.drawable.question_mark);
-                } else if (apiCredentials.getApiServer().compareTo(Constants.MEROSS_CLOUD_EP)==0) {
-                    loggedInAccountLogoImageView.setImageResource(R.drawable.meross_logo);
                 } else {
                     loggedInAccountLogoImageView.setImageResource(R.drawable.ha_logo);
                 }
@@ -92,7 +90,6 @@ public class AccountFragment extends Fragment {
                 httpInfoCard.setVisibility(apiCredentials == null ? View.GONE : View.VISIBLE);
                 loginCardView.setVisibility(apiCredentials == null ? View.VISIBLE : View.GONE);
                 haBrokerLoginButton.setEnabled(apiCredentials == null);
-                merossCloudLoginButton.setEnabled(apiCredentials == null);
                 manualSetupButton.setVisibility(apiCredentials == null ? View.VISIBLE : View.GONE);
             }
         });
@@ -110,16 +107,11 @@ public class AccountFragment extends Fragment {
                 NavHostFragment.findNavController(AccountFragment.this).navigate(R.id.login_fragment, args);
             }
         });
-        merossCloudLoginButton.setOnClickListener(new View.OnClickListener() {
+        accountBackToDevicesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bundle args = new Bundle();
-                args.putBoolean(LoginFragment.Args.ENABLE_BROKER_DISCOVERY, false);
-                args.putString(LoginFragment.Args.HTTP_BROKER_URL, Constants.MEROSS_CLOUD_EP);
-                args.putInt(LoginFragment.Args.INTRO_TEXT_RESOURCE_ID, R.string.login_intro_text_meross);
-                args.putInt(LoginFragment.Args.INTRO_IMAGE_RESOURCE_ID, R.drawable.meross_logo);
-                args.putBoolean(LoginFragment.Args.REQUIRES_WIFI_LOCATION, false);
-                NavHostFragment.findNavController(AccountFragment.this).navigate(R.id.login_fragment, args);
+                NavHostFragment.findNavController(AccountFragment.this)
+                        .navigate(R.id.action_account_to_devices);
             }
         });
 

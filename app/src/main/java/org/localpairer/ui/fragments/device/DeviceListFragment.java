@@ -36,6 +36,7 @@ public class DeviceListFragment extends Fragment {
     private DeviceRecyclerViewAdapter mAdapter;
     private FloatingActionButton mRefreshButton;
     private FloatingActionButton mPairButton;
+    private FloatingActionButton mSettingsButton;
 
     public DeviceListFragment() {
     }
@@ -62,6 +63,9 @@ public class DeviceListFragment extends Fragment {
         mRefreshButton.setOnClickListener(this.refreshButtonClickListener);
         mPairButton = view.findViewById(R.id.device_list_pair_fab);
         mPairButton.setOnClickListener(this.pairButtonClickListener);
+        mSettingsButton = view.findViewById(R.id.device_list_settings_fab);
+        mSettingsButton.setOnClickListener(this.settingsButtonClickListener);
+        view.findViewById(R.id.quitButton).setOnClickListener(v -> requireActivity().finishAffinity());
         return view;
     }
 
@@ -135,6 +139,14 @@ public class DeviceListFragment extends Fragment {
         public void onClick(View v) {
             NavHostFragment.findNavController(DeviceListFragment.this)
                     .navigate(R.id.action_devices_to_pair);
+        }
+    };
+
+    private View.OnClickListener settingsButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            NavHostFragment.findNavController(DeviceListFragment.this)
+                    .navigate(R.id.action_devices_to_account);
         }
     };
 }
