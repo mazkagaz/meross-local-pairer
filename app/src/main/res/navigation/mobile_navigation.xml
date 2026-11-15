@@ -49,8 +49,10 @@
             android:id="@+id/action_about_to_support"
             app:destination="@id/supporting_this_app" />
         <action
-            android:id="@+id/action_about_to_account"
-            app:destination="@id/account_fragment" />
+            android:id="@+id/action_about_to_devices"
+            app:destination="@id/devices_fragment"
+            app:popUpTo="@id/about_fragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <activity
         android:id="@+id/splash_activity"

@@ -102,7 +102,6 @@ public class AccountFragment extends Fragment {
                 args.putString(LoginFragment.Args.HTTP_BROKER_EMAIL, Constants.HA_ADDON_DEFAULT_EMAIL);
                 args.putString(LoginFragment.Args.HTTP_BROKER_PASSWORD, Constants.HA_ADDON_DEFAULT_PASSWORD);
                 args.putInt(LoginFragment.Args.INTRO_TEXT_RESOURCE_ID, R.string.login_intro_ha_broker);
-                args.putInt(LoginFragment.Args.INTRO_IMAGE_RESOURCE_ID, R.drawable.ha_logo);
                 args.putBoolean(LoginFragment.Args.REQUIRES_WIFI_LOCATION, true);
                 NavHostFragment.findNavController(AccountFragment.this).navigate(R.id.login_fragment, args);
             }

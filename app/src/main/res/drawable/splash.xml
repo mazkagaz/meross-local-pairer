@@ -2,6 +2,6 @@
     <item>
         <color android:color="@color/colorAccent" />
     </item>
-    <item android:drawable="@drawable/plug"
-        android:gravity="center" android:height="100pt" android:width="100pt" />
+    <item android:drawable="@drawable/pairer_banner"
+        android:gravity="center" android:height="132dp" android:width="240dp" />
 </layer-list>

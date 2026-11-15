@@ -29,15 +29,6 @@
             android:gravity="center"
             android:textSize="14sp" />
 
-        <ImageView
-            android:id="@+id/imageView7"
-            android:layout_width="160dp"
-            android:layout_height="154dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="12dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/plug" />
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -67,13 +58,6 @@
             android:text="@string/about_repository_link" />
 
         <TextView
-            android:id="@+id/aboutUpstreamLink"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/about_upstream_link" />
-
-        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -81,6 +65,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/aboutDisclosureTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -110,11 +95,11 @@
             android:text="@string/about_support_button" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/aboutAccountButton"
+            android:id="@+id/aboutBackToDevicesButton"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="@string/about_account_button" />
+            android:text="@string/back_to_devices" />
     </LinearLayout>
 </ScrollView>

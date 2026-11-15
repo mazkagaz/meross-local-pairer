@@ -28,16 +28,16 @@ public class AboutFragment extends Fragment {
         TextView repositoryLink = view.findViewById(R.id.aboutRepositoryLink);
         repositoryLink.setMovementMethod(LinkMovementMethod.getInstance());
 
-        TextView upstreamLink = view.findViewById(R.id.aboutUpstreamLink);
-        upstreamLink.setMovementMethod(LinkMovementMethod.getInstance());
+        TextView disclosure = view.findViewById(R.id.aboutDisclosureTextView);
+        disclosure.setMovementMethod(LinkMovementMethod.getInstance());
 
         view.findViewById(R.id.aboutSupportButton).setOnClickListener(v ->
                 NavHostFragment.findNavController(AboutFragment.this)
                         .navigate(R.id.action_about_to_support));
 
-        view.findViewById(R.id.aboutAccountButton).setOnClickListener(v ->
+        view.findViewById(R.id.aboutBackToDevicesButton).setOnClickListener(v ->
                 NavHostFragment.findNavController(AboutFragment.this)
-                        .navigate(R.id.action_about_to_account));
+                        .navigate(R.id.action_about_to_devices));
 
         return view;
     }

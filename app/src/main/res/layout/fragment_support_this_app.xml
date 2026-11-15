@@ -19,14 +19,6 @@
             android:text="@string/fragment_support_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
-        <ImageView
-            android:layout_width="144dp"
-            android:layout_height="124dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:contentDescription="@string/fragment_support_title"
-            android:src="@drawable/donate" />
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

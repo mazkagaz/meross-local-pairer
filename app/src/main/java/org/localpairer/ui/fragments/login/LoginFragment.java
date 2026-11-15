@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,7 +67,6 @@ public class LoginFragment extends Fragment {
     private MaterialButton mLoginButton;
     private MaterialButton mDiscoveryButton;
     private TextView httpLoginIntroText;
-    private ImageView loginLogo;
 
     private Timer mTimer;
     private Handler mUiHandler;
@@ -82,7 +80,6 @@ public class LoginFragment extends Fragment {
         public static final String HTTP_BROKER_PASSWORD = "org.localpairer.ui.fragments.account.AccountFragment.Args.HTTP_BROKER_PASSWORD";
         public static final String ENABLE_BROKER_DISCOVERY = "org.localpairer.ui.fragments.account.AccountFragment.Args.ENABLE_BROKER_DISCOVERY";
         public static final String INTRO_TEXT_RESOURCE_ID = "org.localpairer.ui.fragments.account.AccountFragment.Args.INTRO_TEXT_RESOURCE_ID";
-        public static final String INTRO_IMAGE_RESOURCE_ID = "org.localpairer.ui.fragments.account.AccountFragment.Args.INTRO_IMAGE_RESOURCE_ID";
         public static final String REQUIRES_WIFI_LOCATION = "org.localpairer.ui.fragments.account.AccountFragment.Args.REQUIRES_WIFI_LOCATION";
     }
 
@@ -110,7 +107,6 @@ public class LoginFragment extends Fragment {
         mLoginButton = view.findViewById(R.id.loginButton);
         mDiscoveryButton = view.findViewById(R.id.discoveryButton);
         httpLoginIntroText = view.findViewById(R.id.httpLoginIntroText);
-        loginLogo = view.findViewById(R.id.loginLogo);
 
         // Configure HostEditText for progress showing
         mSearchProgress = new CircularProgressIndicator(requireContext(), null);
@@ -172,7 +168,6 @@ public class LoginFragment extends Fragment {
         mDiscoveryButton.setEnabled(mDiscoveryEnabled);
         mDiscoveryButton.setVisibility(mDiscoveryEnabled ? View.VISIBLE : View.INVISIBLE);
         httpLoginIntroText.setText(args.getInt(Args.INTRO_TEXT_RESOURCE_ID, R.string.login_intro_text));
-        loginLogo.setImageResource(args.getInt(Args.INTRO_IMAGE_RESOURCE_ID, R.drawable.login_icon));
 
         return view;
     }
