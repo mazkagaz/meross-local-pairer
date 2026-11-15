@@ -10,7 +10,7 @@ lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 |---|---|---|
 | **Meross Local Pairer** | cette application Android | [mazkagaz/meross-local-pairer](https://github.com/mazkagaz/meross-local-pairer) |
 | **Meross Local Broker** | add-on Home Assistant (MQTT + API locale) | [mazkagaz/meross-local-broker](https://github.com/mazkagaz/meross-local-broker) |
-| **Meross Local Cloud** | intégration Home Assistant (HACS) | [mazkagaz/meross-cloud](https://github.com/mazkagaz/meross-cloud) |
+| **Meross Local Cloud** | intégration Home Assistant (HACS) | [mazkagaz/meross-local-cloud](https://github.com/mazkagaz/meross-local-cloud) |
 
 ```
 MRS100 ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> intégration HA
@@ -64,7 +64,7 @@ le mainteneur.
 7. Lancer l'appairage. L'appareil redémarre, rejoint le Wi-Fi et se connecte
    au broker en TLS.
 8. Vérifier dans l'add-on que l'appareil est **ONLINE**, puis ajouter
-   l'[intégration Home Assistant](https://github.com/mazkagaz/meross-cloud#installation-avec-hacs).
+   l'[intégration Home Assistant](https://github.com/mazkagaz/meross-local-cloud#installation-avec-hacs).
 
 Après l'appairage, les entités `cover`, `number`, boutons de calibration et
 capteur de statut sont créés dans Home Assistant.
