@@ -1,11 +1,8 @@
-# Meross Local Pairer 1.0.3
+# Meross Local Pairer 1.0.4
 
-Robustesse de l'appairage des appareils au firmware récent.
+Correctif d'affichage de l'écran de configuration du broker.
 
-- Quand l'appareil refuse la demande de scan Wi-Fi (« scan failed wifi
-  network »), l'app le relance jusqu'à trois fois, à deux secondes
-  d'intervalle, au lieu d'abandonner au premier refus.
-- Après trois refus, le message d'erreur indique de redémarrer l'appareil et
-  de réessayer.
-- Correction d'une fuite du thread de travail à la fermeture de l'écran
-  d'appairage.
+- Tout le contenu (broker, hôte, port, cases et champs avancés) est maintenant
+  placé dans une zone défilable ; le bouton d'appairage reste fixe en bas.
+- Le port et les champs du bas ne sont plus masqués sur les petits écrans ou
+  lorsque le clavier est ouvert.

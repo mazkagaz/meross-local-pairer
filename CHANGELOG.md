@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.4
+
+- L'écran de configuration du broker est désormais défilable : le port, les
+  cases et les champs avancés ne sont plus masqués par le bouton d'appairage
+  sur les petits écrans ou quand le clavier est ouvert.
+
+
 ## 1.0.3
 
 - Relance jusqu'à trois fois la demande de scan Wi-Fi adressée à l'appareil

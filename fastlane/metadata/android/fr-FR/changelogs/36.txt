@@ -1,0 +1,1 @@
+L'écran de configuration du broker est défilable ; le port et les champs avancés ne sont plus masqués par le bouton d'appairage.
