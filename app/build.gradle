@@ -10,8 +10,8 @@ android {
         minSdkVersion 16
         multiDexEnabled true
         targetSdkVersion 35
-        versionCode 31
-        versionName "0.1.9"
+        versionCode 32
+        versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -82,7 +82,6 @@ dependencies {
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
     implementation 'com.github.adorsys:secure-storage-android:0.0.2' // using jitpack to workaround mavencentral deprecation
-    implementation 'com.github.cdflynn:checkview:v1.1'
 
     // required to avoid crash on Android 12 API 31
     implementation 'androidx.work:work-runtime-ktx:2.7.1'

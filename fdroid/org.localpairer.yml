@@ -1,0 +1,35 @@
+Categories:
+  - Connectivity
+License: GPL-2.0-only
+AuthorName: mazkagaz
+WebSite: https://github.com/mazkagaz/meross-local-pairer
+SourceCode: https://github.com/mazkagaz/meross-local-pairer
+IssueTracker: https://github.com/mazkagaz/meross-local-pairer/issues
+Changelog: https://github.com/mazkagaz/meross-local-pairer/blob/main/CHANGELOG.md
+
+AutoName: Meross Local Pairer
+Summary: Pair Meross devices with a local MQTT broker
+Description: |-
+  Meross Local Pairer is an unofficial, local-only Android app that configures
+  Meross devices to connect to a self-hosted MQTT broker instead of the Meross
+  cloud. It is the pairing companion of the Meross Local Broker Home Assistant
+  add-on.
+
+  The app is used once to join a device to the LAN. It requires a local broker
+  and does not control devices by itself. It contains no ads, tracking or
+  analytics and never contacts the Meross cloud.
+
+RepoType: git
+Repo: https://github.com/mazkagaz/meross-local-pairer.git
+
+Builds:
+  - versionName: 1.0.0
+    versionCode: 32
+    commit: v1.0.0
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.0.0
+CurrentVersionCode: 32

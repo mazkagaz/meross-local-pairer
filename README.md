@@ -4,6 +4,10 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
+**Version stable 1.0.0.** Une recette F-Droid est préparée
+(`fdroid/org.localpairer.yml`) ; l'application n'apparaîtra dans F-Droid
+qu'après acceptation de la merge request dans `fdroiddata`.
+
 ## Les trois briques du montage
 
 | Brique | Rôle | Dépôt |
@@ -29,7 +33,8 @@ MRS100 ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> in
 
 L'application n'est pas publiée sur le Play Store. La version debug est signée
 et installable ; le fichier `unsigned` est réservé à la distribution signée par
-le mainteneur.
+le mainteneur. Voir `fdroid/README.md` pour la soumission F-Droid et la
+différence de signature.
 
 ## Avant l'appairage
 

@@ -1,0 +1,6 @@
+Première version stable.
+
+- Appairage des appareils Meross vers un broker MQTT local, sans cloud Meross.
+- Broker « default » prérempli et en lecture seule, modifiable via Modify.
+- Option « Never ask again » sur l'avertissement.
+- Icône launcher transparente et identité visuelle actualisée.

@@ -1,0 +1,1 @@
+Pair Meross devices with your local MQTT broker

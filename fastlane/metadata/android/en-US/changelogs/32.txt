@@ -1,0 +1,6 @@
+First stable release.
+
+- Pair Meross devices with a local MQTT broker, without the Meross cloud.
+- Prefilled read-only "default" broker, editable with the Modify checkbox.
+- "Never ask again" option on the disclaimer.
+- Transparent launcher icon and refreshed branding.

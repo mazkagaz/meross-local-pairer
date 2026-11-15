@@ -1,0 +1,25 @@
+# Changelog
+
+## 1.0.0 — première version stable
+
+- Appairage des appareils Meross vers un broker MQTT local, sans cloud.
+- Broker « default » prérempli depuis l'hôte de l'API (port 2001), en lecture
+  seule sauf case **Modify**.
+- Option **Never ask again** sur le disclaimer du splash.
+- Icône launcher, variantes sombres/2x et bannière générées depuis les visuels
+  transparents.
+- Suppression de la dépendance `checkview` (licence absente) pour préparer
+  l'inclusion F-Droid.
+- Recette F-Droid et métadonnées fastlane préparées.
+
+## 0.1.9
+
+- « Never ask again » et broker par défaut.
+
+## 0.1.8
+
+- Icônes launcher transparentes.
+
+## 0.1.7
+
+- Bannière sur tous les écrans, logo launcher, page About corrigée.

@@ -5,7 +5,7 @@
 - Upstream version: 0.0.11
 - Upstream license: GPL-2.0
 - Fork license: GPL-2.0 (see `LICENSE`)
-- Fork version: 0.1.9 (`versionCode` 31)
+- Fork version: 1.0.0 (`versionCode` 32)
 - Application id: `org.localpairer` (distinct from upstream)
 - Display name: **Meross Local Pairer** (unofficial)
 
@@ -38,7 +38,7 @@
 |---|---|
 | `AndroidPreferencesManager.java` | Store Meross API credentials with SecurePreferences; migrate legacy plaintext entries. |
 | `res/xml/network_security_config.xml` | Cleartext HTTP limited to the AP endpoint `10.10.10.1` and local `.local`/`.lan` API hostnames. |
-| `app/build.gradle` | Release builds are unsigned instead of debug-signed; version 0.1.9. |
+| `app/build.gradle` | Release builds are unsigned instead of debug-signed; version 1.0.0. |
 | `build.gradle` | Removed dead `jcenter()` and the Paho snapshot repository (both returned errors on CI); use Maven Central + JitPack. |
 | `.github/workflows/build.yaml` | Install Android SDK 35 explicitly before the Gradle build. |
 | Android package/namespace | Renamed to `org.localpairer`; app label changed to Meross Local Pairer. |
