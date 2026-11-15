@@ -1,0 +1,1 @@
+Les scans Wi-Fi différés sont annulés en quittant l'écran de scan ; ils ne perturbent plus l'appairage des appareils en firmware 7.

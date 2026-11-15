@@ -1,0 +1,1 @@
+Delayed Wi-Fi scans are cancelled when leaving the scan screen, so they can no longer disrupt pairing on firmware 7 devices.

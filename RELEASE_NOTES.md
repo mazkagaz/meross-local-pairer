@@ -1,8 +1,7 @@
-# Meross Local Pairer 1.0.4
+# Meross Local Pairer 1.0.5
 
-Correctif d'affichage de l'écran de configuration du broker.
+Correctif d'appairage.
 
-- Tout le contenu (broker, hôte, port, cases et champs avancés) est maintenant
-  placé dans une zone défilable ; le bouton d'appairage reste fixe en bas.
-- Le port et les champs du bas ne sont plus masqués sur les petits écrans ou
-  lorsque le clavier est ouvert.
+- Les scans Wi-Fi différés et les relances automatiques sont annulés quand
+  l'écran de scan est quitté. Ils ne perturbent plus la connexion à l'AP de
+  l'appareil pendant l'appairage, y compris sur les appareils en firmware 7.

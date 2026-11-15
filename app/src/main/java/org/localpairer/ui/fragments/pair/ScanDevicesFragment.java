@@ -70,6 +70,8 @@ public class ScanDevicesFragment extends Fragment {
     private boolean scanning;
     private boolean followUpScansScheduled;
     private Runnable pendingScanRetry;
+    private Runnable pendingFollowUpScan5;
+    private Runnable pendingFollowUpScan12;
     private ActivityResultLauncher<String[]> multiplePermissionLauncher;
     private static String[] REQUIRED_PERMISSIONS = null;
     private static final String STATE_N_TOKENS = "_state_num_tokens";
@@ -147,7 +149,17 @@ public class ScanDevicesFragment extends Fragment {
     @Override
     public void onDestroy() {
         cancelScanRetry();
+        cancelFollowUpScans();
         super.onDestroy();
+    }
+
+    @Override
+    public void onStop() {
+        // Never let a delayed scan fire while the user is connecting to the
+        // device AP (this fragment stays alive on the back stack).
+        cancelScanRetry();
+        cancelFollowUpScans();
+        super.onStop();
     }
 
     @Override
@@ -256,18 +268,43 @@ public class ScanDevicesFragment extends Fragment {
     public void onStart() {
         super.onStart();
         startScan();
-        if (!followUpScansScheduled) {
-            // Some devices bring their AP up a few seconds after the pairing
-            // LED blink; scan again automatically instead of waiting for the
-            // user to refresh.
-            followUpScansScheduled = true;
-            uiHandler.postDelayed(() -> {
-                if (!scanning) startScan();
-            }, 5000);
-            uiHandler.postDelayed(() -> {
-                if (!scanning) startScan();
-            }, 12000);
+        scheduleFollowUpScans();
+    }
+
+    private void scheduleFollowUpScans() {
+        if (followUpScansScheduled) {
+            return;
         }
+        // Some devices bring their AP up a few seconds after the pairing LED
+        // blink; scan again automatically instead of waiting for the user to
+        // refresh. These scans are cancelled on stop.
+        followUpScansScheduled = true;
+        pendingFollowUpScan5 = () -> {
+            pendingFollowUpScan5 = null;
+            if (isAdded() && isResumed() && !scanning) {
+                startScan();
+            }
+        };
+        pendingFollowUpScan12 = () -> {
+            pendingFollowUpScan12 = null;
+            if (isAdded() && isResumed() && !scanning) {
+                startScan();
+            }
+        };
+        uiHandler.postDelayed(pendingFollowUpScan5, 5000);
+        uiHandler.postDelayed(pendingFollowUpScan12, 12000);
+    }
+
+    private void cancelFollowUpScans() {
+        if (pendingFollowUpScan5 != null) {
+            uiHandler.removeCallbacks(pendingFollowUpScan5);
+            pendingFollowUpScan5 = null;
+        }
+        if (pendingFollowUpScan12 != null) {
+            uiHandler.removeCallbacks(pendingFollowUpScan12);
+            pendingFollowUpScan12 = null;
+        }
+        followUpScansScheduled = false;
     }
 
     private void startScan() {
@@ -360,7 +397,7 @@ public class ScanDevicesFragment extends Fragment {
         cancelScanRetry();
         pendingScanRetry = () -> {
             pendingScanRetry = null;
-            if (isAdded() && !scanning) {
+            if (isAdded() && isResumed() && !scanning) {
                 startScan();
             }
         };

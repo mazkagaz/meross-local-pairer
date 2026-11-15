@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.5
+
+- Les scans Wi-Fi différés (5 s/12 s) et les relances automatiques sont
+  annulés dès que l'écran de scan n'est plus visible. Ils ne peuvent plus se
+  déclencher pendant la connexion à l'AP de l'appareil, ce qui pouvait casser
+  l'appairage.
+
+
 ## 1.0.4
 
 - L'écran de configuration du broker est désormais défilable : le port, les
