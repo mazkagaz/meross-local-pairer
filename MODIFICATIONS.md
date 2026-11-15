@@ -9,6 +9,13 @@
 - Application id: `org.localpairer` (distinct from upstream)
 - Display name: **Meross Local Pairer** (unofficial)
 
+## Branding
+
+- Banner: `branding/meross-local-pairer-banner.jpeg`, displayed at the top of every screen
+  and as the splash art.
+- Launcher logo: `branding/meross-local-pairer-logo.jpeg`, used to generate the
+  `mipmap-*` launcher icons.
+
 ## Behavior fixes
 
 | File | Change |
