@@ -5,8 +5,11 @@
             <certificates src="system" />
         </trust-anchors>
     </base-config>
-    <!-- AP provisioning endpoint only. Everything else must use HTTPS. -->
+    <!-- Cleartext is limited to the AP endpoint and local mDNS/LAN API
+         hostnames. The local broker API is HTTP-only on port 2003. -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">10.10.10.1</domain>
+        <domain includeSubdomains="true">local</domain>
+        <domain includeSubdomains="true">lan</domain>
     </domain-config>
 </network-security-config>

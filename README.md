@@ -1,92 +1,103 @@
-# Local Pairer — Meross provisioning for local brokers (unofficial)
+# Local Pairer — appairage Meross vers un broker local (non officiel)
 
-Fork repository: https://github.com/mazkagaz/meross-local-pairer
+Application Android qui configure un appareil Meross pour qu'il se connecte à
+un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
+lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-Local Pairer is a fork of
-[Custom Pairer for Meross Devices](https://github.com/albertogeniola/Custom-Meross-Pairer)
-by Alberto Geniola. It configures Meross devices to use a local MQTT broker
-instead of the Meross cloud. It is **not affiliated with Meross or the upstream
-author**.
+## Les trois briques du montage
 
-The app talks to the device in its provisioning AP (`http://10.10.10.1/config`)
-and sends the standard Meross namespaces:
+| Brique | Rôle | Dépôt |
+|---|---|---|
+| **Local Pairer** | cette application Android | [mazkagaz/meross-local-pairer](https://github.com/mazkagaz/meross-local-pairer) |
+| **Meross Local Broker** | add-on Home Assistant (MQTT + API locale) | [mazkagaz/meross-local-broker](https://github.com/mazkagaz/meross-local-broker) |
+| **Meross Cloud IoT** | intégration Home Assistant (HACS) | [mazkagaz/meross-cloud](https://github.com/mazkagaz/meross-cloud) |
 
-- `Appliance.System.All` / `Appliance.Config.WifiList` to inspect the device;
-- `Appliance.Config.Key` to set the MQTT broker host/port and credentials;
-- `Appliance.Config.Wifi` to join the target Wi-Fi network.
-
-It works with the
-[HA Meross local broker add-on](https://github.com/albertogeniola/ha-meross-local-brocker)
-and any compatible MQTT broker.
-
-## Fixes in this fork
-
-- Custom UserId/Key override now reads the actual text fields and validates the
-  numeric UserId (upstream sent the `EditText` object instead of its text).
-- `Config.Key` sends `port`/`secondPort` as numbers and includes `redirect: 0`,
-  matching the official Meross app.
-- AP responses are validated: wrong method/namespace and `ERROR` replies are
-  rejected instead of being treated as success.
-- Device info is retried every second for up to 15 s instead of waiting a fixed
-  10 s.
-- `Config.Key` is checked before `Config.Wifi` is sent, with protocol error
-  details shown in the UI.
-- AP SSID detection accepts more firmware variants, including
-  `Meross_RS_chWF_*`.
-- Meross API credentials are stored with SecurePreferences; cleartext HTTP is
-  restricted to the AP endpoint; release builds are no longer debug-signed.
-- HTTP is bound to the target Wi-Fi on Android 6-9 (pre-Q connection path).
-
-## Build
-
-Requirements: JDK 17 and Android SDK 35.
-
-```bash
-./gradlew assembleDebug
-# APK: app/build/outputs/apk/debug/app-debug.apk
+```
+MRS100 ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> intégration HA
+                            ^
+                            │ appairage initial
+                       Local Pairer (Android)
 ```
 
-Release builds are intentionally unsigned:
+## Télécharger l'application
 
-```bash
-./gradlew assembleReleaseUnsigned
-```
+1. Ouvrir la page
+   [Releases](https://github.com/mazkagaz/meross-local-pairer/releases/latest).
+2. Télécharger `local-pairer-0.1.2-debug.apk`.
+3. Sur Android, autoriser l'installation depuis cette source si demandé.
+4. Installer l'APK.
 
-Sign the resulting APK/AAB with your own key before distributing it.
+L'application n'est pas publiée sur le Play Store. La version debug est signée
+et installable ; le fichier `unsigned` est réservé à la distribution signée par
+le mainteneur.
 
-Unit tests cover the `Config.Key` wire format and AP response validation:
+## Avant l'appairage
+
+- L'add-on **Meross Local Broker** est installé et démarré.
+- Un **compte local** existe dans l'add-on (email + mot de passe, Meross Link
+  désactivé).
+- Le téléphone et le MRS100 sont à portée Wi-Fi.
+- Le Wi-Fi domestique est en **2,4 GHz WPA2** (le MRS100 ne gère pas le 5 GHz
+  ni WPA3).
+- L'appareil est en mode appairage/AP : maintenir le bouton jusqu'au
+  clignotement, selon la notice du modèle.
+
+## Appairage pas à pas
+
+1. Ouvrir Local Pairer et accorder les permissions Wi-Fi et localisation.
+2. Se connecter au broker local :
+   - **recommandé** : écran de connexion HTTP, saisir
+     `http://homeassistant.local:2003`, l'email local et le mot de passe local ;
+   - **ou** : menu **Manual setup**, saisir `UserId` (souvent `1`) et la clé
+     `mqttKey` du compte local.
+
+   Avec la connexion HTTP, l'application récupère automatiquement les
+   identifiants et peut vérifier l'appairage. Si `homeassistant.local` ne
+   répond pas, utiliser l'adresse IP de Home Assistant ; si l'adresse IP est
+   refusée par Android, utiliser **Manual setup**.
+3. Revenir à l'écran d'appairage et scanner les réseaux.
+4. Sélectionner l'AP `Meross_RS_XXXX` (ou `Meross_RS_chWF_*`).
+5. Sélectionner le Wi-Fi domestique et saisir son mot de passe.
+6. Saisir le broker :
+   - hôte : adresse IP de Home Assistant (ou `homeassistant.local`) ;
+   - port : **2001**.
+7. Lancer l'appairage. L'appareil redémarre, rejoint le Wi-Fi et se connecte
+   au broker en TLS.
+8. Vérifier dans l'add-on que l'appareil est **ONLINE**, puis ajouter
+   l'[intégration Home Assistant](https://github.com/mazkagaz/meross-cloud#installation-avec-hacs).
+
+Après l'appairage, les entités `cover`, `number`, boutons de calibration et
+capteur de statut sont créés dans Home Assistant.
+
+## Dépannage
+
+| Problème | Vérifier |
+|---|---|
+| L'AP `Meross_*` n'apparaît pas | mode AP activé, permissions Wi-Fi/localisation, 2,4 GHz |
+| Connexion HTTP impossible | utiliser `homeassistant.local` ou **Manual setup** |
+| Échec des identifiants | compte local de l'add-on, `UserId`/`mqttKey` corrects |
+| L'appareil ne rejoint pas le Wi-Fi | WPA2 2,4 GHz, mot de passe, portée |
+| L'appareil n'est pas ONLINE | port 2001 joignable, broker démarré, logs de l'add-on |
+| Appareil déjà lié au cloud Meross | réinitialiser l'appareil avant l'appairage |
+| WPA3 uniquement | utiliser un SSID WPA2 ou un réseau 2,4 GHz dédié |
+
+## Pour les développeurs
 
 ```bash
 ./gradlew test
+./gradlew assembleDebug
+./gradlew assembleReleaseUnsigned
 ```
 
-## Usage
+Le build nécessite JDK 17 et Android SDK 35. Les tests couvrent le format
+`Appliance.Config.Key` et la validation des réponses AP (SETACK/ERROR).
 
-1. Put the Meross device in provisioning/AP mode (usually a long press on the
-   button until the LED blinks).
-2. Open Local Pairer, grant Wi-Fi/location permissions, and scan for the
-   `Meross_*` access point.
-3. Select your home Wi-Fi and enter its password.
-4. Enter the local broker host and port.
-5. Optionally override UserId/Key with the dedicated credentials created for
-   the local broker. Using dedicated credentials avoids reusing your Meross
-   cloud key.
-6. Start pairing. For the HA add-on, enable MQTT discovery if you want the
-   broker to pre-fill its address.
+## Origine et licence
 
-The device reboots onto your Wi-Fi and connects to the broker over TLS.
+Fork non officiel de
+[Custom Pairer for Meross Devices](https://github.com/albertogeniola/Custom-Meross-Pairer)
+par Alberto Geniola, sous **GPL-2.0**. Le README upstream est conservé dans
+`UPSTREAM_README.md` ; voir aussi `NOTICE` et `MODIFICATIONS.md`.
 
-## Known limitations
-
-- Legacy `/do_cmd.htm` provisioning and BLE provisioning are not implemented.
-- The AP address is currently fixed to `10.10.10.1`.
-- WPA3/SAE networks are not supported.
-- Pairing was not hardware-tested in this fork; the code builds and the protocol
-  unit tests pass, but a real MRS100/broker round-trip is still required.
-
-## License and attribution
-
-GPL-2.0. The original project and LICENSE are preserved; see NOTICE and
-MODIFICATIONS.md. The upstream README is kept as `UPSTREAM_README.md`.
-
-Meross is a trademark of its respective owner.
+Ce fork n'est ni affilié, ni approuvé, ni sponsorisé par Meross ou l'auteur
+upstream. Meross est une marque de son propriétaire respectif.
