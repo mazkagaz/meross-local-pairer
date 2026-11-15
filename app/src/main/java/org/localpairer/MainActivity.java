@@ -15,10 +15,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+
+import org.localpairer.ui.MainActivityViewModel;
 
 import static android.location.LocationManager.PROVIDERS_CHANGED_ACTION;
 import static android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION;
@@ -42,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
 
         final NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController);
+
+        // Share the stored credentials with the fragments (Account in particular).
+        MainActivityViewModel mainActivityViewModel =
+                new ViewModelProvider(this).get(MainActivityViewModel.class);
+        mainActivityViewModel.setCredentials(AndroidPreferencesManager.loadHttpCredentials(this));
 
         // Open the device list by default once an API is configured. Without
         // credentials, the account/login destination stays visible.
