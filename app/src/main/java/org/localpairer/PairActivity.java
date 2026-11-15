@@ -34,6 +34,21 @@ public class PairActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pair);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        findViewById(R.id.pairExitButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         wifiTextView = findViewById(R.id.pairWifiOffTextView);
         locationTextView = findViewById(R.id.pairLocationOffTextView);

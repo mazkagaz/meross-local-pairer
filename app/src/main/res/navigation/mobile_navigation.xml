@@ -18,6 +18,11 @@
             android:id="@+id/action_account_fragment_to_pairActivity"
             app:destination="@id/pair_activity" />
         <action
+            android:id="@+id/action_account_to_devices"
+            app:destination="@id/devices_fragment"
+            app:popUpTo="@id/account_fragment"
+            app:popUpToInclusive="true" />
+        <action
             android:id="@+id/action_nav_home_to_manual_setup"
             app:destination="@id/manual_setup_fragment"
             app:enterAnim="@anim/fade_in"
@@ -39,7 +44,14 @@
         android:id="@+id/about_fragment"
         android:name="org.localpairer.ui.fragments.about.AboutFragment"
         android:label="@string/about_fragment_title"
-        tools:layout="@layout/fragment_about" />
+        tools:layout="@layout/fragment_about">
+        <action
+            android:id="@+id/action_about_to_support"
+            app:destination="@id/supporting_this_app" />
+        <action
+            android:id="@+id/action_about_to_account"
+            app:destination="@id/account_fragment" />
+    </fragment>
     <activity
         android:id="@+id/splash_activity"
         android:name="org.localpairer.SplashActivity"
@@ -59,7 +71,14 @@
         android:id="@+id/devices_fragment"
         android:name="org.localpairer.ui.fragments.device.DeviceListFragment"
         android:label="@string/title_device_list"
-        tools:layout="@layout/fragment_device_list" />
+        tools:layout="@layout/fragment_device_list">
+        <action
+            android:id="@+id/action_devices_to_about"
+            app:destination="@id/about_fragment" />
+        <action
+            android:id="@+id/action_devices_to_pair"
+            app:destination="@id/pair_activity" />
+    </fragment>
     <fragment
         android:id="@+id/supporting_this_app"
         android:name="org.localpairer.ui.fragments.support_this_app.SupportThisApp"

@@ -4,6 +4,8 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,8 +78,12 @@ public class ManualSetupFragment extends Fragment {
             mainActivityViewModel.setCredentials(creds);
             AndroidPreferencesManager.storeHttpCredentials(requireContext(), creds);
 
-            // Navigate back
-            requireActivity().getSupportFragmentManager().popBackStack();
+            // Open the device list once the manual credentials are stored.
+            NavHostFragment.findNavController(ManualSetupFragment.this).navigate(
+                    R.id.devices_fragment, null,
+                    new NavOptions.Builder()
+                            .setPopUpTo(R.id.account_fragment, true)
+                            .build());
         }
     };
 

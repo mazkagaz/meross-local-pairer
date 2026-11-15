@@ -5,12 +5,17 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,6 +35,7 @@ import java.util.List;
 public class DeviceListFragment extends Fragment {
     private DeviceRecyclerViewAdapter mAdapter;
     private FloatingActionButton mRefreshButton;
+    private FloatingActionButton mPairButton;
 
     public DeviceListFragment() {
     }
@@ -43,6 +49,7 @@ public class DeviceListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAdapter = new DeviceRecyclerViewAdapter(new ArrayList<DeviceInfo>());
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -53,7 +60,24 @@ public class DeviceListFragment extends Fragment {
         recycler_view.setAdapter(mAdapter);
         mRefreshButton = view.findViewById(R.id.device_list_refresh_fab);
         mRefreshButton.setOnClickListener(this.refreshButtonClickListener);
+        mPairButton = view.findViewById(R.id.device_list_pair_fab);
+        mPairButton.setOnClickListener(this.pairButtonClickListener);
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.device_list_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_about) {
+            NavHostFragment.findNavController(this).navigate(R.id.action_devices_to_about);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -103,6 +127,14 @@ public class DeviceListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             updateData();
+        }
+    };
+
+    private View.OnClickListener pairButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            NavHostFragment.findNavController(DeviceListFragment.this)
+                    .navigate(R.id.action_devices_to_pair);
         }
     };
 }

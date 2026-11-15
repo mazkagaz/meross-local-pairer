@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.AndroidPreferencesManager;
@@ -305,7 +306,11 @@ public class LoginFragment extends Fragment {
                 dialog.dismiss();
                 MainActivityViewModel mainActivityViewModel = new ViewModelProvider(requireActivity()).get(MainActivityViewModel.class);
                 mainActivityViewModel.setCredentials(creds);
-                NavHostFragment.findNavController(LoginFragment.this).popBackStack();
+                NavHostFragment.findNavController(LoginFragment.this).navigate(
+                        R.id.devices_fragment, null,
+                        new NavOptions.Builder()
+                                .setPopUpTo(R.id.account_fragment, true)
+                                .build());
             }
 
             @Override

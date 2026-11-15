@@ -7,30 +7,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import org.localpairer.R;
 
 public class SupportThisApp extends Fragment {
-        public SupportThisApp() {
-        // Required empty public constructor
+
+    public SupportThisApp() {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_support_this_app, container, false);
-        TextView gitHubSponsorshipTextView = view.findViewById(R.id.gitHubSponsorshipTextView);
-        gitHubSponsorshipTextView.setMovementMethod(LinkMovementMethod.getInstance());
-
-        TextView buyMeCoffeTextView = view.findViewById(R.id.buyMeCoffeTextView);
-        buyMeCoffeTextView.setMovementMethod(LinkMovementMethod.getInstance());
+        TextView repositoryLink = view.findViewById(R.id.repositoryLinkTextView);
+        repositoryLink.setMovementMethod(LinkMovementMethod.getInstance());
         return view;
     }
 }

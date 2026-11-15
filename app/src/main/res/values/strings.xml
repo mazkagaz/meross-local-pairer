@@ -78,12 +78,14 @@
     <string name="account_activity_logged_info">Your account data is represented as follows.</string>
 
     <string name="title_device_list">Devices</string>
+    <string name="pair_new_device">Pair a new device</string>
+    <string name="refresh_device_list">Refresh device list</string>
+    <string name="back_to_devices">Back to devices</string>
     <string name="fragment_support_title">Supporting this app</string>
-    <string name="support_this_app_text_intro">First of all, if you reached this section of the app, it means you care about it, and <b>that\'s great!</b> </string>
-    <string name="support_this_app_text">This app, as well as almost all the other tools that I developed, is free &amp; opensource. If you feel thankful and would like to support my work, you can do that via in a couple of ways.</string>
-    <string name="support_this_app_links">Have a look at the following for more info:</string>
-    <string name="support_this_app_buy_me_a_coffe_link"><a href="https://www.buymeacoffee.com/albertogeniola">BuyMeACoffe program</a></string>
-    <string name="support_this_app_github_sponsorhip_link"><a href="https://github.com/sponsors/albertogeniola">GitHub Sponsorship program</a></string>
+    <string name="support_this_app_text_intro">Local Pairer is free and open source.</string>
+    <string name="support_this_app_text">If you find it useful, the best way to support it is to star the repository, report issues, or contribute improvements.</string>
+    <string name="support_this_app_links">Project links:</string>
+    <string name="support_this_app_repository_link"><a href="https://github.com/mazkagaz/meross-local-pairer">Local Pairer on GitHub</a></string>
 
 
     <string name="manual_setup_info">Use this option to manually set the UserId and Key values manually. Such values are usually provided by the Meross HTTP API broker or by the HA Local Addon. However, you can manually set such values in case you want to pair against third-party brokers: you sure know what you are doing.</string>
@@ -93,6 +95,17 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="menu_about">About...</string>
     <string name="about_text_title">What is Local Pairer?</string>
+    <string name="about_text_body">Local Pairer configures Meross devices to use a local MQTT broker instead of the Meross cloud. It works with the Meross Local Broker Home Assistant add-on and the meross-cloud integration.</string>
+    <string name="about_version_format">Version %1$s</string>
+    <string name="about_maintainer">Local Pairer is developed and maintained by mazkagaz.</string>
+    <string name="about_repository_link"><a href="https://github.com/mazkagaz/meross-local-pairer">github.com/mazkagaz/meross-local-pairer</a></string>
+    <string name="about_upstream_link"><a href="https://github.com/albertogeniola/Custom-Meross-Pairer">Custom Pairer by Alberto Geniola</a></string>
+    <string name="about_disclosure_title">Disclosure</string>
+    <string name="about_disclosure">Local Pairer is an unofficial fork of Alberto Geniola\'s Custom Pairer. The original protocol and application were created by Alberto Geniola. This fork fixes response validation, custom credential handling, provisioning reliability and security issues. Local Pairer is not affiliated with, endorsed by, or sponsored by Meross or the upstream author. Third-party trademarks, including Meross, remain the property of their respective owners. Source code is available under GPL-2.0.</string>
+    <string name="about_credits_title">Credits</string>
+    <string name="about_credits">Meross low-level library and documentation: Alberto Geniola. Icons made by Freepik from www.flaticon.com.</string>
+    <string name="about_support_button">Supporting this app</string>
+    <string name="about_account_button">Local account &amp; login</string>
     <string name="about_fragment_title">About this app</string>
 
 </resources>
