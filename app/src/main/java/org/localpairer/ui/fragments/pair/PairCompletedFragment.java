@@ -23,11 +23,13 @@ public class PairCompletedFragment extends Fragment {
     private ImageView mQuestionMarkView;
     private Button pairDoneButton;
     private boolean mVerified;
+    private String mTargetUuid;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mVerified = getArguments().getBoolean("verified", false);
+        mTargetUuid = getArguments().getString("targetUuid", null);
     }
 
     @Override
@@ -53,6 +55,12 @@ public class PairCompletedFragment extends Fragment {
         mCheckIcon = view.findViewById(R.id.pairDoneCheckIcon);
         mCheckIcon.setVisibility(mVerified ? View.VISIBLE : View.GONE);
         mQuestionMarkView.setVisibility(!mVerified ? View.VISIBLE : View.GONE);
-        mTextView.setText(mVerified ? R.string.pairing_done_verified : R.string.pairing_done_unverified);
+        String message = getString(mVerified
+                ? R.string.pairing_done_verified
+                : R.string.pairing_done_unverified);
+        if (mTargetUuid != null && !mTargetUuid.isEmpty()) {
+            message += "\n\nUUID appairé : " + mTargetUuid;
+        }
+        mTextView.setText(message);
     }
 }

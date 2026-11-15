@@ -16,6 +16,7 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.R;
+import org.localpairer.model.MerossDeviceAp;
 import org.localpairer.ui.PairActivityViewModel;
 import org.localpairer.merosslib.model.protocol.MessageGetSystemAllResponse;
 import org.localpairer.merosslib.model.protocol.payloads.GetSystemAllPayloadAllFirmware;
@@ -66,6 +67,14 @@ public class ShowDeviceInfoFragment extends Fragment {
         discoveredInnerIP = view.findViewById(R.id.discoveredInnerIP);
         discoveredWifiMac = view.findViewById(R.id.discoveredWifiMac);
         Button configureButton = view.findViewById(R.id.configureButton);
+
+        TextView identityNotice = view.findViewById(R.id.textView9);
+        MerossDeviceAp pairingAp = pairActivityViewModel.getMerossPairingAp().getValue();
+        if (pairingAp != null) {
+            identityNotice.setText("Appareil en cours d'appairage : " + pairingAp.getSsid()
+                    + "\nBSSID : " + pairingAp.getBssid()
+                    + "\n\nVérifiez que c'est bien le volet attendu avant de continuer.");
+        }
 
         configureButton.setOnClickListener(new OnClickListener() {
             @Override

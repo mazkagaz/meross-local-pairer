@@ -374,6 +374,12 @@ public class ScanDevicesFragment extends Fragment {
         fab.show();
         scanningProgressBar.setVisibility(View.GONE);
         this.scanning = false;
+
+        if (data.size() > 1 && isAdded() && getView() != null) {
+            Snackbar.make(getView(),
+                    "Several Meross devices are in pairing mode. Check the SSID and BSSID before choosing.",
+                    Snackbar.LENGTH_LONG).show();
+        }
     }
 
     @SuppressLint("MissingPermission") // Scan is only triggered upon permissions checks
@@ -438,6 +444,9 @@ public class ScanDevicesFragment extends Fragment {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // Drop any state left by a previous attempt before starting
+                    // a new pairing session.
+                    pairActivityViewModel.resetPairingState();
                     MerossDeviceAp targetAp = new MerossDeviceAp(sr.SSID,sr.BSSID);
                     pairActivityViewModel.setMerossPairingAp(targetAp);
                     NavHostFragment

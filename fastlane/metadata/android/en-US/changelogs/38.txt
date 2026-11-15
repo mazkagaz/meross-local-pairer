@@ -1,0 +1,1 @@
+Verify the connected AP against the selected SSID/BSSID, reset state between attempts, and show the UUID actually paired.

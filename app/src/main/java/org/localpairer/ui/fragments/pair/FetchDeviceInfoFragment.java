@@ -216,6 +216,9 @@ public class FetchDeviceInfoFragment extends AbstractWifiFragment {
         uiThreadHandler.post(new Runnable() {
             @Override
             public void run() {
+                if (!isAdded()) {
+                    return;
+                }
                 // Set done and proceed with the next fragment
                 pairActivityViewModel.setApDevice(device);
                 pairActivityViewModel.setDeviceInfo(deviceInfo);

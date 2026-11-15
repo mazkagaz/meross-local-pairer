@@ -14,6 +14,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
+import android.net.TransportInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -71,6 +72,8 @@ public abstract class AbstractWifiFragment extends Fragment {
 
     // Holds the callback for network connectivity (only used for version > LOLLIPOP)
     private ConnectivityManager.NetworkCallback mNetworkCallback;
+    private long mNetworkRequestId = 0;
+    private boolean mNetworkAttemptCompleted = false;
 
     private ActivityResultContracts.RequestMultiplePermissions multiplePermissionsContract;
     private ActivityResultLauncher<String[]> multiplePermissionLauncher;
@@ -106,11 +109,6 @@ public abstract class AbstractWifiFragment extends Fragment {
 
         mWifiManager = (WifiManager) requireContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         mConnectivityManager = (ConnectivityManager) requireContext().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        // Only init the network callback if we are going to use it
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            initNetworkCallBack();
-        }
 
         restoreState(savedInstanceState);
     }
@@ -151,8 +149,9 @@ public abstract class AbstractWifiFragment extends Fragment {
         }
 
         // Unregister network callbacks
-        if (mNetworkCallbackRegistered && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-            mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            cancelNetworkRequest();
+        }
     }
 
     @Override
@@ -328,6 +327,13 @@ public abstract class AbstractWifiFragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private void startWifiConnectionAndroidQ(String ssid, @Nullable String bssid, @Nullable String passphrase, int timeout) {
+        // A previous request may still be alive (e.g. the device AP from an
+        // earlier attempt). Cancel it first so its callback cannot be mistaken
+        // for the current connection.
+        cancelNetworkRequest();
+        mNetworkAttemptCompleted = false;
+        final long requestId = ++mNetworkRequestId;
+
         WifiNetworkSpecifier.Builder specifierBuilder = new WifiNetworkSpecifier.Builder()
                 .setSsid(ssid);
 
@@ -345,8 +351,91 @@ public abstract class AbstractWifiFragment extends Fragment {
                 .setNetworkSpecifier(specifier)
                 .build();
 
+        mNetworkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onUnavailable() {
+                super.onUnavailable();
+                if (requestId != mNetworkRequestId || mNetworkAttemptCompleted) {
+                    return;
+                }
+                mNetworkAttemptCompleted = true;
+                notifyWifiUnavailable();
+            }
+
+            @Override
+            public void onLost(@NonNull Network network) {
+                super.onLost(network);
+            }
+
+            @Override
+            public void onAvailable(@NonNull Network network) {
+                Log.i(TAG, "Found network " + network);
+                if (requestId != mNetworkRequestId || mNetworkAttemptCompleted) {
+                    return;
+                }
+                if (!isTargetNetwork(network, ssid, bssid)) {
+                    Log.w(TAG, "Ignoring network " + network + " because it is not "
+                            + ssid + "/" + bssid);
+                    return;
+                }
+
+                mNetworkAttemptCompleted = true;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    // To make sure that requests don't go over mobile data
+                    mConnectivityManager.bindProcessToNetwork(network);
+                } else {
+                    ConnectivityManager.setProcessDefaultNetwork(network);
+                }
+                notifyWifiConnected();
+            }
+        };
         mNetworkCallbackRegistered = true;
         mConnectivityManager.requestNetwork(networkRequest, mNetworkCallback, timeout);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private boolean isTargetNetwork(Network network, String targetSsid, @Nullable String targetBssid) {
+        NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
+        if (capabilities == null) {
+            return false;
+        }
+        TransportInfo transportInfo = capabilities.getTransportInfo();
+        if (!(transportInfo instanceof WifiInfo)) {
+            // Some OEMs do not expose transport info; the per-request callback
+            // already isolates this attempt from previous ones.
+            return true;
+        }
+        WifiInfo wifiInfo = (WifiInfo) transportInfo;
+        String connectedSsid = wifiInfo.getSSID();
+        String connectedBssid = wifiInfo.getBSSID();
+        if (connectedSsid != null) {
+            if (connectedSsid.startsWith("\"") && connectedSsid.endsWith("\"")
+                    && connectedSsid.length() >= 2) {
+                connectedSsid = connectedSsid.substring(1, connectedSsid.length() - 1);
+            }
+            if (targetSsid != null && !targetSsid.equals(connectedSsid)) {
+                return false;
+            }
+        }
+        if (targetBssid != null && connectedBssid != null
+                && !targetBssid.equalsIgnoreCase(connectedBssid)) {
+            return false;
+        }
+        return true;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void cancelNetworkRequest() {
+        mNetworkAttemptCompleted = true;
+        if (mNetworkCallback != null) {
+            try {
+                mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
+            } catch (IllegalArgumentException ignored) {
+                // Already unregistered.
+            }
+            mNetworkCallback = null;
+        }
+        mNetworkCallbackRegistered = false;
     }
 
     /**
@@ -417,35 +506,6 @@ public abstract class AbstractWifiFragment extends Fragment {
             mTimeoutTask = null;
         }
         onWifiUnavailable(mTargetSsid);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void initNetworkCallBack() {
-        mNetworkCallback = new ConnectivityManager.NetworkCallback() {
-            @Override
-            public void onUnavailable() {
-                super.onUnavailable();
-                notifyWifiUnavailable();
-            }
-
-            @Override
-            public void onLost(@NonNull Network network) {
-                super.onLost(network);
-            }
-
-            @Override
-            public void onAvailable(@NonNull Network network) {
-                Log.i(TAG, "Found network " + network);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    // To make sure that requests don't go over mobile data
-                    mConnectivityManager.bindProcessToNetwork(network);
-                } else {
-                    ConnectivityManager.setProcessDefaultNetwork(network);
-                }
-                notifyWifiConnected();
-            }
-        };
     }
 
     private class TimeoutTask extends TimerTask {

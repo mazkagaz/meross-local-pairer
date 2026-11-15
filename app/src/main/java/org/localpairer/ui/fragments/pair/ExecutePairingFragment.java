@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
@@ -38,7 +37,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 
@@ -58,6 +56,9 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
 
     private MerossDeviceAp mApDevice;
     private ApiCredentials mCreds;
+    private String targetUuid;
+    private volatile boolean destroyed;
+    private Runnable pendingWifiConnectedCheck;
 
     public ExecutePairingFragment() {
         worker = Executors.newSingleThreadScheduledExecutor();
@@ -104,6 +105,16 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
 
     @Override
     public void onDestroy() {
+        destroyed = true;
+        if (pendingWifiConnectedCheck != null) {
+            uiThreadHandler.removeCallbacks(pendingWifiConnectedCheck);
+            pendingWifiConnectedCheck = null;
+        }
+        if (worker != null) {
+            // Stop any pending verification loop: it must never report success
+            // for a later pairing attempt.
+            worker.shutdownNow();
+        }
         super.onDestroy();
         //requireActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
@@ -146,8 +157,22 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
     private void pollDeviceList() {
         state = State.VERIFYING_PAIRING_SUCCEEDED;
 
+        org.localpairer.merosslib.model.protocol.MessageGetSystemAllResponse deviceInfo =
+                pairActivityViewModel.getDeviceInfo().getValue();
+        org.localpairer.model.MerossDeviceAp pairingAp = pairActivityViewModel.getMerossPairingAp().getValue();
+        if (deviceInfo == null || pairingAp == null || mCreds == null) {
+            error = "Pairing information is incomplete. Scan the device again.";
+            stateMachine(Signal.ERROR);
+            return;
+        }
+
+        final String requestedUuid = deviceInfo.getPayload().getAll().getSystem().getHardware().getUuid();
+        final String requestedBssid = pairingAp.getBssid();
+        final ApiCredentials requestedCreds = mCreds;
+        targetUuid = requestedUuid;
+
         final long timeout = GregorianCalendar.getInstance().getTimeInMillis() + Constants.PAIRING_VERIFY_TIMEOUT_MILLISECONDS;
-        ScheduledFuture<?> future = worker.schedule(new Runnable() {
+        worker.schedule(new Runnable() {
             private @Nullable DeviceInfo findDevice(Collection<DeviceInfo> devices, String deviceUuid) {
                 for (DeviceInfo d : devices) {
                     Log.d(TAG, "Device " + d.getUuid() + " has been found with status: " + d.getOnlineStatus());
@@ -160,22 +185,21 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
 
             @Override
             public void run() {
-                MerossHttpClient client = new MerossHttpClient(mCreds);
-                String targetUuid = pairActivityViewModel.getDeviceInfo().getValue().getPayload().getAll().getSystem().getHardware().getUuid();
+                MerossHttpClient client = new MerossHttpClient(requestedCreds);
                 boolean succeed = false;
                 boolean timedOut = GregorianCalendar.getInstance().getTimeInMillis() >= timeout;
                 boolean exitNow = false;
                 while(!exitNow && !succeed && !Thread.currentThread().isInterrupted() && !timedOut) {
                     try {
                         List<DeviceInfo> devices = client.listDevices();
-                        DeviceInfo d = findDevice(devices, targetUuid);
+                        DeviceInfo d = findDevice(devices, requestedUuid);
                         if (d == null) {
-                            Log.i(TAG, "Device " +targetUuid + " not paired yet.");
+                            Log.i(TAG, "Device " + requestedUuid + " not paired yet.");
                         } else if (d.getOnlineStatus() == OnlineStatus.ONLINE) {
-                            Log.i(TAG, "Device " +targetUuid + " is online.");
+                            Log.i(TAG, "Device " + requestedUuid + " is online.");
                             succeed = true;
                         } else {
-                            Log.i(TAG, "Device " +targetUuid + " is paired, but not ready yet or in an unknown status.");
+                            Log.i(TAG, "Device " + requestedUuid + " is paired, but not ready yet or in an unknown status.");
                         }
                     } catch (HttpApiException e) {
                         e.printStackTrace();
@@ -205,6 +229,16 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
                 uiThreadHandler.post(new Runnable() {
                     @Override
                     public void run() {
+                        if (destroyed || !isAdded()) {
+                            return;
+                        }
+                        org.localpairer.model.MerossDeviceAp currentAp = pairActivityViewModel.getMerossPairingAp().getValue();
+                        boolean sameAttempt = currentAp != null && requestedBssid != null
+                                && requestedBssid.equalsIgnoreCase(currentAp.getBssid());
+                        if (!sameAttempt) {
+                            Log.w(TAG, "Ignoring verification result from a previous pairing attempt.");
+                            return;
+                        }
                         if (finalSucceed)
                             stateMachine(Signal.DEVICE_PAIRED);
                         else if (finalTimedOut)
@@ -219,18 +253,26 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
 
     private void configureDevice() {
         state = State.SENDING_PAIRING_COMMAND;
+        if (mApDevice == null || mCreds == null
+                || pairActivityViewModel.getTargetMqttConfig().getValue() == null
+                || pairActivityViewModel.getMerossConfiguredWifi().getValue() == null) {
+            error = "Pairing information is incomplete. Scan the device again.";
+            stateMachine(Signal.ERROR);
+            return;
+        }
         // In custom credentials has been specified, override userId/key
         final String userId = pairActivityViewModel.getOverridedUserId().getValue() != null ? pairActivityViewModel.getOverridedUserId().getValue() : mCreds.getUserId();
         final String key = pairActivityViewModel.getOverridedKey().getValue() != null ? pairActivityViewModel.getOverridedKey().getValue() : mCreds.getKey();
+        final MqttConfiguration targetConfig = pairActivityViewModel.getTargetMqttConfig().getValue();
+        final org.localpairer.model.WifiConfiguration targetWifi = pairActivityViewModel.getMerossConfiguredWifi().getValue();
 
         worker.schedule(new Runnable() {
             @Override
             public void run() {
                 try {
-                    LiveData<MqttConfiguration> mqttConfig = pairActivityViewModel.getTargetMqttConfig();
                     mApDevice.setConfigKey(
-                            mqttConfig.getValue().getHostname(),
-                            mqttConfig.getValue().getPort(),
+                            targetConfig.getHostname(),
+                            targetConfig.getPort(),
                                     key,
                                     userId);
                 } catch (IOException e) {
@@ -262,9 +304,8 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
                     return;
                 }
 
-                org.localpairer.model.WifiConfiguration credentials = pairActivityViewModel.getMerossConfiguredWifi().getValue();
                 try {
-                    mApDevice.setConfigWifi(credentials.getScannedWifi(), credentials.getWifiPasswordBase64());
+                    mApDevice.setConfigWifi(targetWifi.getScannedWifi(), targetWifi.getWifiPasswordBase64());
                     stateMachine(Signal.DEVICE_CONFIGURED);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -286,11 +327,15 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
         Runnable uiUpdater = new Runnable() {
             @Override
             public void run() {
+                if (destroyed || !isAdded()) {
+                    return;
+                }
                 state = State.DONE;
                 updateUi();
                 NavController ctrl = NavHostFragment.findNavController(ExecutePairingFragment.this);
                 Bundle args = new Bundle();
                 args.putBoolean("verified", verified);
+                args.putString("targetUuid", targetUuid);
                 ctrl.navigate(R.id.action_executePair_to_pairCompleted, args, new NavOptions.Builder().setEnterAnim(android.R.animator.fade_in).setExitAnim(android.R.animator.fade_out).build());
             }
         };
@@ -377,18 +422,32 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
 
     @Override
     protected void onWifiConnected(final String ssid) {
-        uiThreadHandler.postDelayed(new Runnable() {
+        if (pendingWifiConnectedCheck != null) {
+            uiThreadHandler.removeCallbacks(pendingWifiConnectedCheck);
+        }
+        pendingWifiConnectedCheck = new Runnable() {
             @Override
             public void run() {
+                pendingWifiConnectedCheck = null;
+                if (destroyed || !isAdded()) {
+                    return;
+                }
+                if (pairActivityViewModel.getMerossConfiguredWifi().getValue() == null
+                        || pairActivityViewModel.getMerossPairingAp().getValue() == null) {
+                    error = "Pairing information is incomplete. Scan the device again.";
+                    stateMachine(Signal.ERROR);
+                    return;
+                }
                 String targetLocalSSID = pairActivityViewModel.getMerossConfiguredWifi().getValue().getScannedWifi().getSsid();
-                String targetApSSID = pairActivityViewModel.getMerossPairingAp().getValue().getSsid() ;
+                String targetApSSID = pairActivityViewModel.getMerossPairingAp().getValue().getSsid();
                 if (targetLocalSSID.compareTo(ssid) == 0) {
                     stateMachine(Signal.LOCAL_WIFI_CONNECTED);
                 } else if (targetApSSID.compareTo(ssid) == 0) {
                     stateMachine(Signal.DEVICE_WIFI_CONNECTED);
                 }
             }
-        }, WIFI_CONNECT_DELAY);
+        };
+        uiThreadHandler.postDelayed(pendingWifiConnectedCheck, WIFI_CONNECT_DELAY);
     }
 
     @Override

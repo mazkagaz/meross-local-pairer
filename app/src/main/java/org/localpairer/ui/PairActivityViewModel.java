@@ -37,6 +37,22 @@ public class PairActivityViewModel extends ViewModel {
         overridedUserId = new MutableLiveData<>(null);
     }
 
+    /**
+     * Clears every piece of state tied to a pairing attempt. Called before a
+     * new device is selected so a failed attempt cannot leak its AP, UUID or
+     * broker configuration into the next one.
+     */
+    public void resetPairingState() {
+        apDevice.setValue(null);
+        merossDeviceWifiAp.setValue(null);
+        localWifiNetwork.setValue(null);
+        deviceAvailableWifis.setValue(null);
+        targetMqttConfig.setValue(null);
+        deviceInfo.setValue(null);
+        overridedKey.setValue(null);
+        overridedUserId.setValue(null);
+    }
+
     public LiveData<org.localpairer.merosslib.MerossDeviceAp> getDevice() {
         return apDevice;
     }

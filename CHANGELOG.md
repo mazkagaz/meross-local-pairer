@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.6
+
+- Vérifie que le réseau Wi-Fi effectivement connecté correspond bien au SSID et
+  au BSSID demandés ; une connexion résiduelle à l'AP d'un appareil précédent
+  ne peut plus être prise pour l'appareil en cours d'appairage.
+- Annule la requête réseau précédente avant chaque nouvelle connexion et
+  arrête la boucle de vérification à la destruction de l'écran.
+- Réinitialise l'AP, l'UUID et la configuration broker entre deux tentatives.
+- Affiche l'identité réellement appairée (SSID/BSSID puis UUID) et avertit
+  lorsque plusieurs appareils Meross sont en mode appairage.
+
+
 ## 1.0.5
 
 - Les scans Wi-Fi différés (5 s/12 s) et les relances automatiques sont
