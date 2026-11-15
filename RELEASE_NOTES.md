@@ -1,9 +1,11 @@
-# Meross Local Pairer 1.0.2
+# Meross Local Pairer 1.0.3
 
-Correctif du scan d'appairage.
+Robustesse de l'appairage des appareils au firmware récent.
 
-- Un scan Wi-Fi refusé ou limité par Android n'affiche plus « Scan failed wifi
-  networks » : les résultats précédents sont conservés et un nouveau scan est
-  lancé automatiquement après 3 secondes.
-- Cette relance complète les scans automatiques à 5 s et 12 s déjà ajoutés en
-  1.0.1, utile pour les appareils dont l'AP démarre en retard.
+- Quand l'appareil refuse la demande de scan Wi-Fi (« scan failed wifi
+  network »), l'app le relance jusqu'à trois fois, à deux secondes
+  d'intervalle, au lieu d'abandonner au premier refus.
+- Après trois refus, le message d'erreur indique de redémarrer l'appareil et
+  de réessayer.
+- Correction d'une fuite du thread de travail à la fermeture de l'écran
+  d'appairage.

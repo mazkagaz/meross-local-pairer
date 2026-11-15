@@ -1,0 +1,1 @@
+Retry the device Wi-Fi scan up to three times when the firmware refuses it ("scan failed wifi network"), with a clearer final error.

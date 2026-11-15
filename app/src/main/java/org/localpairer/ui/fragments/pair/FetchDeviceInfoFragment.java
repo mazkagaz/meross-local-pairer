@@ -63,6 +63,8 @@ public class FetchDeviceInfoFragment extends AbstractWifiFragment {
     private static final int CONNECT_AP_TIMEOUT = 20000;
     private static final int AP_INFO_TIMEOUT = 15000;
     private static final int AP_INFO_RETRY_DELAY = 1000;
+    private static final int DEVICE_WIFI_SCAN_ATTEMPTS = 3;
+    private static final int DEVICE_WIFI_SCAN_RETRY_DELAY = 2;
 
     private TaskLine wifiConnectTask;
     private TaskLine fetchDeviceInfoTask;
@@ -76,6 +78,7 @@ public class FetchDeviceInfoFragment extends AbstractWifiFragment {
     private MerossDeviceAp device = new MerossDeviceAp();
     private MessageGetSystemAllResponse deviceInfo;
     private MessageGetConfigWifiListResponse deviceAvailableWifis;
+    private int deviceWifiScanAttempt = 0;
 
     private PairActivityViewModel pairActivityViewModel;
 
@@ -135,15 +138,41 @@ public class FetchDeviceInfoFragment extends AbstractWifiFragment {
     }
 
     private void startDeviceWifiScan() {
+        deviceWifiScanAttempt = 0;
+        attemptDeviceWifiScan();
+    }
+
+    private void attemptDeviceWifiScan() {
         try {
             deviceAvailableWifis = device.scanWifi();
             stateMachine(Signal.WIFI_SCAN_COMPLETED);
         } catch (IOException e) {
+            deviceWifiScanAttempt++;
+            Log.w(TAG, "Device Wi-Fi scan refused (attempt " + deviceWifiScanAttempt + "/"
+                    + DEVICE_WIFI_SCAN_ATTEMPTS + "): " + e.getMessage());
+            if (deviceWifiScanAttempt < DEVICE_WIFI_SCAN_ATTEMPTS) {
+                uiThreadHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isAdded() && getView() != null) {
+                            Snackbar.make(getView(), "The device refused the Wi-Fi scan; retrying...",
+                                    Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                worker.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        attemptDeviceWifiScan();
+                    }
+                }, DEVICE_WIFI_SCAN_RETRY_DELAY, TimeUnit.SECONDS);
+                return;
+            }
             e.printStackTrace();
             uiThreadHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    error = "Error occurred while performing device wifi scanning";
+                    error = "The device refused the Wi-Fi scan after several attempts. Power-cycle it and retry.";
                     stateMachine(Signal.ERROR);
                 }
             });
@@ -254,6 +283,7 @@ public class FetchDeviceInfoFragment extends AbstractWifiFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        worker.shutdownNow();
         //requireActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.3
+
+- Relance jusqu'à trois fois la demande de scan Wi-Fi adressée à l'appareil
+  quand le firmware la refuse (message « scan failed wifi network »), au lieu
+  d'abandonner immédiatement. Message d'erreur final plus explicite.
+
+
 ## 1.0.2
 
 - A refused/throttled Wi-Fi scan no longer reports "scan failed": the previous
