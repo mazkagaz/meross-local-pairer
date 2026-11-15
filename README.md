@@ -23,7 +23,7 @@ MRS100 ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> in
 
 1. Ouvrir la page
    [Releases](https://github.com/mazkagaz/meross-local-pairer/releases/latest).
-2. Télécharger `local-pairer-0.1.2-debug.apk`.
+2. Télécharger le fichier `.apk` de la dernière release (asset debug).
 3. Sur Android, autoriser l'installation depuis cette source si demandé.
 4. Installer l'APK.
 
