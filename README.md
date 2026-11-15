@@ -1,4 +1,4 @@
-# Local Pairer — appairage Meross vers un broker local (non officiel)
+# Meross Local Pairer — appairage Meross vers un broker local (non officiel)
 
 Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
@@ -8,7 +8,7 @@ lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
 | Brique | Rôle | Dépôt |
 |---|---|---|
-| **Local Pairer** | cette application Android | [mazkagaz/meross-local-pairer](https://github.com/mazkagaz/meross-local-pairer) |
+| **Meross Local Pairer** | cette application Android | [mazkagaz/meross-local-pairer](https://github.com/mazkagaz/meross-local-pairer) |
 | **Meross Local Broker** | add-on Home Assistant (MQTT + API locale) | [mazkagaz/meross-local-broker](https://github.com/mazkagaz/meross-local-broker) |
 | **Meross Cloud IoT** | intégration Home Assistant (HACS) | [mazkagaz/meross-cloud](https://github.com/mazkagaz/meross-cloud) |
 
@@ -16,7 +16,7 @@ lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 MRS100 ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> intégration HA
                             ^
                             │ appairage initial
-                       Local Pairer (Android)
+                 Meross Local Pairer (Android)
 ```
 
 ## Télécharger l'application
@@ -44,7 +44,7 @@ le mainteneur.
 
 ## Appairage pas à pas
 
-1. Ouvrir Local Pairer et accorder les permissions Wi-Fi et localisation.
+1. Ouvrir Meross Local Pairer et accorder les permissions Wi-Fi et localisation.
 2. Se connecter au broker local :
    - **recommandé** : écran de connexion HTTP, saisir
      `http://homeassistant.local:2003`, l'email local et le mot de passe local ;

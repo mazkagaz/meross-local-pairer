@@ -1,7 +1,7 @@
 package org.localpairer;
 
 public class Constants {
-    public static final String LOG_TAG = "Custom Meross Pairer";
+    public static final String LOG_TAG = "Meross Local Pairer";
 
     public static final String HA_ADDON_DEFAULT_EMAIL = "";
     public static final String HA_ADDON_DEFAULT_PASSWORD = "";

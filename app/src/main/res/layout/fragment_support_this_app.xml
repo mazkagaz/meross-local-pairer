@@ -55,5 +55,13 @@
             android:layout_marginTop="8dp"
             android:text="@string/support_this_app_repository_link"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <TextView
+            android:id="@+id/buyMeACoffeeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/support_this_app_buy_me_a_coffee_link"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
     </LinearLayout>
 </ScrollView>

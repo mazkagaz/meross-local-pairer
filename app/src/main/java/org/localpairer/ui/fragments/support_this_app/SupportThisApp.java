@@ -24,6 +24,9 @@ public class SupportThisApp extends Fragment {
         View view = inflater.inflate(R.layout.fragment_support_this_app, container, false);
         TextView repositoryLink = view.findViewById(R.id.repositoryLinkTextView);
         repositoryLink.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView buyMeACoffeeLink = view.findViewById(R.id.buyMeACoffeeTextView);
+        buyMeACoffeeLink.setMovementMethod(LinkMovementMethod.getInstance());
         return view;
     }
 }
