@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.7
+
+- Ignore les valeurs `unknown` renvoyées par certains Android pour le SSID ou
+  le BSSID, afin que la vérification d'identité ne rejette pas une connexion
+  pourtant correcte.
+
+
 ## 1.0.6
 
 - Vérifie que le réseau Wi-Fi effectivement connecté correspond bien au SSID et

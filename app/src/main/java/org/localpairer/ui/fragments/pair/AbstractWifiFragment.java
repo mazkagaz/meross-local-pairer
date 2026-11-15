@@ -408,7 +408,9 @@ public abstract class AbstractWifiFragment extends Fragment {
         WifiInfo wifiInfo = (WifiInfo) transportInfo;
         String connectedSsid = wifiInfo.getSSID();
         String connectedBssid = wifiInfo.getBSSID();
-        if (connectedSsid != null) {
+        if (connectedSsid != null
+                && !connectedSsid.contains("unknown")
+                && !connectedSsid.contains("UNKNOWN")) {
             if (connectedSsid.startsWith("\"") && connectedSsid.endsWith("\"")
                     && connectedSsid.length() >= 2) {
                 connectedSsid = connectedSsid.substring(1, connectedSsid.length() - 1);
@@ -418,6 +420,7 @@ public abstract class AbstractWifiFragment extends Fragment {
             }
         }
         if (targetBssid != null && connectedBssid != null
+                && !"02:00:00:00:00:00".equals(connectedBssid)
                 && !targetBssid.equalsIgnoreCase(connectedBssid)) {
             return false;
         }

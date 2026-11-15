@@ -1,0 +1,1 @@
+Tolère les valeurs SSID/BSSID inconnues de certains Android, avec tous les correctifs d'identité de la 1.0.6.

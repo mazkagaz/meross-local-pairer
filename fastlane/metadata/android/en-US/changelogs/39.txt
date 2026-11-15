@@ -1,0 +1,1 @@
+Tolerate unknown SSID/BSSID values on some Android devices, plus all identity fixes from 1.0.6.
