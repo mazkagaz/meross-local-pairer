@@ -55,8 +55,11 @@ import com.google.android.material.snackbar.Snackbar;
 import org.isomorphism.util.TokenBucket;
 import org.isomorphism.util.TokenBuckets;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class ScanDevicesFragment extends Fragment {
@@ -67,7 +70,10 @@ public class ScanDevicesFragment extends Fragment {
     private FloatingActionButton fab;
     private MerossWifiScanAdapter adapter = new MerossWifiScanAdapter();
     private SwipeRefreshLayout swipeContainer;
+    private TextView scanStatusTextView;
     private Handler uiHandler;
+    private final SimpleDateFormat scanTimeFormat =
+            new SimpleDateFormat("HH:mm:ss", Locale.US);
     private boolean scanning;
     private boolean followUpScansScheduled;
     private Runnable pendingScanRetry;
@@ -213,6 +219,7 @@ public class ScanDevicesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         swipeContainer = view.findViewById(R.id.swipeContainer);
+        scanStatusTextView = view.findViewById(R.id.scanStatusTextView);
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -315,6 +322,12 @@ public class ScanDevicesFragment extends Fragment {
         }
     }
 
+    private void updateScanStatus(String message) {
+        if (scanStatusTextView != null) {
+            scanStatusTextView.setText(message);
+        }
+    }
+
     private void startScan() {
         startScan(true);
     }
@@ -324,6 +337,8 @@ public class ScanDevicesFragment extends Fragment {
             if (userInitiated) {
                 long seconds = scanBucket.getDurationUntilNextRefill(TimeUnit.SECONDS);
                 showScanMessage("Scan limit reached; retry in " + seconds + " s.", Snackbar.LENGTH_LONG);
+                updateScanStatus("Android scan limit reached. Automatic search resumes in "
+                        + seconds + " s.");
             }
             return ;
         }
@@ -366,6 +381,7 @@ public class ScanDevicesFragment extends Fragment {
             fab.hide();
             scanning = true;
             scanningProgressBar.setVisibility(View.VISIBLE);
+            updateScanStatus("Scan in progress...");
             boolean success = wifiManager.startScan();
             // Setup a timer
             uiHandler.postDelayed(new Runnable() {
@@ -419,6 +435,18 @@ public class ScanDevicesFragment extends Fragment {
             found.append(r.SSID).append('/').append(r.BSSID);
         }
         PairingLog.log("scan", "found " + data.size() + " Meross AP(s): " + found);
+
+        String scanTime;
+        synchronized (scanTimeFormat) {
+            scanTime = scanTimeFormat.format(new Date());
+        }
+        if (data.isEmpty()) {
+            updateScanStatus("Last scan at " + scanTime
+                    + ": 0 Meross device. Automatic search every 30 s.");
+        } else {
+            updateScanStatus("Last scan at " + scanTime + ": " + data.size()
+                    + " Meross device(s). Tap one to pair it.");
+        }
 
         if (data.size() > 1 && isAdded() && getView() != null) {
             Snackbar.make(getView(),

@@ -1,0 +1,1 @@
+Show a persistent scan status (last scan, device count, automatic search every 30 s) so the short spinner is no longer misleading.

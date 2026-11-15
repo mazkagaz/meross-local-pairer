@@ -1,0 +1,1 @@
+Affiche un statut de scan persistant (dernier scan, nombre d'appareils, recherche toutes les 30 s) : le spinner court n'est plus trompeur.

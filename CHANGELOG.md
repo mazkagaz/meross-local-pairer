@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.11
+
+- L'écran de scan affiche un statut persistant : heure du dernier scan, nombre
+  d'appareils Meross trouvés et recherche automatique toutes les 30 s. Le
+  spinner peut s'arrêter après quelques secondes, mais la recherche continue.
+
+
 ## 1.0.10
 
 - Les scans automatiques ne consomment plus le quota Android : ils sont
