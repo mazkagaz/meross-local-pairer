@@ -16,6 +16,9 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-35 build-tools;35.0.0'
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4

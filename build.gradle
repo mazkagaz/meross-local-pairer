@@ -4,10 +4,10 @@ buildscript {
 
     repositories {
         google()
+        mavenCentral()
         maven {
             url 'https://jitpack.io'
         }
-        //mavenCentral()
     }
 
     dependencies {
@@ -26,8 +26,7 @@ plugins {
 allprojects {
     repositories {
         google()
-        jcenter()
-        maven { url "https://repo.eclipse.org/content/repositories/paho-snapshots/" }
+        mavenCentral()
         maven { url 'https://jitpack.io' }
     }
 }
