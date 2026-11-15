@@ -68,6 +68,7 @@ public class ScanDevicesFragment extends Fragment {
     private SwipeRefreshLayout swipeContainer;
     private Handler uiHandler;
     private boolean scanning;
+    private boolean followUpScansScheduled;
     private ActivityResultLauncher<String[]> multiplePermissionLauncher;
     private static String[] REQUIRED_PERMISSIONS = null;
     private static final String STATE_N_TOKENS = "_state_num_tokens";
@@ -253,6 +254,18 @@ public class ScanDevicesFragment extends Fragment {
     public void onStart() {
         super.onStart();
         startScan();
+        if (!followUpScansScheduled) {
+            // Some devices bring their AP up a few seconds after the pairing
+            // LED blink; scan again automatically instead of waiting for the
+            // user to refresh.
+            followUpScansScheduled = true;
+            uiHandler.postDelayed(() -> {
+                if (!scanning) startScan();
+            }, 5000);
+            uiHandler.postDelayed(() -> {
+                if (!scanning) startScan();
+            }, 12000);
+        }
     }
 
     private void startScan() {

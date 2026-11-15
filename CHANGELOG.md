@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- Relance automatiquement le scan Wi-Fi 5 s et 12 s après le premier scan,
+  pour les appareils qui démarrent leur AP avec un peu de retard.
+
+
 ## 1.0.0 — première version stable
 
 - Appairage des appareils Meross vers un broker MQTT local, sans cloud.

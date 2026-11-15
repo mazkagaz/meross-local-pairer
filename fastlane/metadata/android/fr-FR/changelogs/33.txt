@@ -1,0 +1,1 @@
+Relance automatiquement le scan Wi-Fi après 5 et 12 secondes pour détecter les appareils dont le point d'accès démarre en retard.

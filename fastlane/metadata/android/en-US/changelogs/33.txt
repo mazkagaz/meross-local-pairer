@@ -1,0 +1,1 @@
+Automatically retry the Wi-Fi scan after 5 and 12 seconds so devices that start their pairing AP late are detected.
