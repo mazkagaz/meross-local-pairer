@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:showIn="@layout/app_bar_main"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/wifiLocationStatusLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FF424242"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/wifiOffTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_signal_wifi_off_black_24dp"
+            android:drawablePadding="5dp"
+            android:text="Wifi is OFF or unconnected. \nPlease connect to your Local Wifi."
+            android:textColor="#FFFFFF"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/wifiMerossWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableLeft="@android:drawable/stat_sys_warning"
+            android:drawablePadding="5dp"
+            android:text="You are connected to a Meross AP. Connect to your WIFI instead."
+            android:textColor="#FFFFFF"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/locationOffTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_location_off_black_24dp"
+            android:drawablePadding="5dp"
+            android:text="Location is OFF. \nPlease enable it."
+            android:textColor="#FFFFFF"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <fragment
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:defaultNavHost="true"
+            app:navGraph="@navigation/mobile_navigation" />
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

@@ -1,0 +1,20 @@
+Local Pairer — unofficial fork
+==============================
+
+This repository is a fork of:
+  https://github.com/albertogeniola/Custom-Meross-Pairer
+
+Original project: Custom Pairer for Meross Devices
+Original author: Alberto Geniola
+Original license: GNU General Public License v2.0 (GPL-2.0)
+Original app package: com.albertogeniola.merossconf
+
+This fork is renamed Local Pairer, uses the distinct Android application id
+`org.localpairer`, and is not affiliated with, endorsed by, or sponsored by
+Meross or the upstream author.
+
+Fork modifications: Copyright (c) 2026 the Local Pairer fork contributors,
+licensed under GPL-2.0. See MODIFICATIONS.md and LICENSE.
+
+Meross is a trademark of its respective owner. The name is used only to
+describe the devices this tool can provision.

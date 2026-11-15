@@ -1,0 +1,93 @@
+apply plugin: 'com.android.application'
+
+android {
+
+    namespace "org.localpairer"
+    compileSdkVersion 35
+
+    defaultConfig {
+        applicationId "org.localpairer"
+        minSdkVersion 16
+        multiDexEnabled true
+        targetSdkVersion 35
+        versionCode 22
+        versionName "0.1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type.
+            minifyEnabled true
+
+            // Enables resource shrinking, which is performed by the
+            // Android Gradle plugin.
+            shrinkResources true
+
+            // Includes the default ProGuard rules files that are packaged with
+            // the Android Gradle plugin. To learn more, go to the section about
+            // R8 configuration files.
+            proguardFiles getDefaultProguardFile(
+                    'proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+            // Intentionally unsigned: sign with your own key for distribution.
+        }
+        releaseUnsigned.initWith(buildTypes.release)
+        releaseUnsigned {
+            signingConfig null
+        }
+    }
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        viewBinding true
+        buildConfig true
+    }
+
+}
+
+dependencies {
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    def nav_version = "2.3.5"
+    def fragment_version = "1.3.4"
+    def appcompat_version = "1.3.0"
+    def material_version = "1.4.0"
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "com.google.android.material:material:$material_version"
+    implementation "androidx.fragment:fragment:$fragment_version"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation "androidx.navigation:navigation-fragment:$nav_version"
+    implementation "androidx.navigation:navigation-ui:$nav_version"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    //noinspection AnnotationProcessorOnCompilePath
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    implementation project(path: ':merosslib')
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.work:work-runtime:2.5.0'
+
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+
+    implementation 'com.github.adorsys:secure-storage-android:0.0.2' // using jitpack to workaround mavencentral deprecation
+    implementation 'com.github.cdflynn:checkview:v1.1'
+
+    // required to avoid crash on Android 12 API 31
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+
+    // Token bucket
+    implementation ('org.isomorphism:token-bucket:1.7')
+    implementation 'com.google.guava:guava:33.3.1-android'
+}

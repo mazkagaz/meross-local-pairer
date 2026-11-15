@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/account_fragment">
+
+    <fragment
+        android:id="@+id/account_fragment"
+        android:name="org.localpairer.ui.fragments.account.AccountFragment"
+        android:label="@string/menu_account"
+        tools:layout="@layout/fragment_account">
+
+        <action
+            android:id="@+id/action_nav_home_to_login_fragment"
+            app:destination="@id/login_fragment" />
+        <action
+            android:id="@+id/action_account_fragment_to_pairActivity"
+            app:destination="@id/pair_activity" />
+        <action
+            android:id="@+id/action_nav_home_to_manual_setup"
+            app:destination="@id/manual_setup_fragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popUpTo="@id/account_fragment"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out" />
+    </fragment>
+    <fragment
+        android:id="@+id/login_fragment"
+        android:name="org.localpairer.ui.fragments.login.LoginFragment"
+        android:label="@string/title_activity_login" />
+    <activity
+        android:id="@+id/pair_activity"
+        android:name="org.localpairer.PairActivity"
+        android:label="activity_pair"
+        tools:layout="@layout/activity_pair" />
+    <fragment
+        android:id="@+id/about_fragment"
+        android:name="org.localpairer.ui.fragments.about.AboutFragment"
+        android:label="@string/about_fragment_title"
+        tools:layout="@layout/fragment_about" />
+    <activity
+        android:id="@+id/splash_activity"
+        android:name="org.localpairer.SplashActivity"
+        android:label="activity_splash"
+        tools:layout="@layout/activity_splash" />
+    <activity
+        android:id="@+id/main_activity"
+        android:name="org.localpairer.MainActivity"
+        android:label="app_bar_main"
+        tools:layout="@layout/app_bar_main" />
+    <fragment
+        android:id="@+id/manual_setup_fragment"
+        android:name="org.localpairer.ui.fragments.login.ManualSetupFragment"
+        android:label="@string/title_manual_setup"
+        tools:layout="@layout/fragment_manual_setup" />
+    <fragment
+        android:id="@+id/devices_fragment"
+        android:name="org.localpairer.ui.fragments.device.DeviceListFragment"
+        android:label="@string/title_device_list"
+        tools:layout="@layout/fragment_device_list" />
+    <fragment
+        android:id="@+id/supporting_this_app"
+        android:name="org.localpairer.ui.fragments.support_this_app.SupportThisApp"
+        android:label="@string/fragment_support_title"
+        tools:layout="@layout/fragment_support_this_app" />
+</navigation>
