@@ -69,6 +69,7 @@ public class ScanDevicesFragment extends Fragment {
     private Handler uiHandler;
     private boolean scanning;
     private boolean followUpScansScheduled;
+    private Runnable pendingScanRetry;
     private ActivityResultLauncher<String[]> multiplePermissionLauncher;
     private static String[] REQUIRED_PERMISSIONS = null;
     private static final String STATE_N_TOKENS = "_state_num_tokens";
@@ -145,6 +146,7 @@ public class ScanDevicesFragment extends Fragment {
 
     @Override
     public void onDestroy() {
+        cancelScanRetry();
         super.onDestroy();
     }
 
@@ -339,18 +341,37 @@ public class ScanDevicesFragment extends Fragment {
 
     @SuppressLint("MissingPermission") // Scan is only triggered upon permissions checks
     private void scanSuccess() {
+        cancelScanRetry();
         updateScanData(wifiManager.getScanResults());
     }
 
     @SuppressLint("MissingPermission") // Scan is only triggered upon permissions checks
     private void scanFailure() {
-        // handle failure: new scan did NOT succeed
-        // consider using old scan results: these are the OLD results!
+        // Android can refuse a scan (rate limiting, Wi-Fi busy). Keep the last
+        // results and retry shortly instead of treating it as "no device".
         updateScanData(wifiManager.getScanResults());
-        fab.show();
-        scanningProgressBar.setVisibility(View.GONE);
-        Toast.makeText(getContext(), "Scan failed wifi networks", Toast.LENGTH_SHORT).show();
-        this.scanning = false;
+        if (getContext() != null) {
+            Toast.makeText(getContext(), "Wi-Fi scan busy; retrying...", Toast.LENGTH_SHORT).show();
+        }
+        scheduleScanRetry();
+    }
+
+    private void scheduleScanRetry() {
+        cancelScanRetry();
+        pendingScanRetry = () -> {
+            pendingScanRetry = null;
+            if (isAdded() && !scanning) {
+                startScan();
+            }
+        };
+        uiHandler.postDelayed(pendingScanRetry, 3000);
+    }
+
+    private void cancelScanRetry() {
+        if (pendingScanRetry != null) {
+            uiHandler.removeCallbacks(pendingScanRetry);
+            pendingScanRetry = null;
+        }
     }
 
     class MerossWifiScanAdapter extends RecyclerView.Adapter<MerossWifiScanAdapter.MyViewHolder>{

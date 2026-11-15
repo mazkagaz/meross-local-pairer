@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2
+
+- A refused/throttled Wi-Fi scan no longer reports "scan failed": the previous
+  results are kept and the scan is retried automatically after 3 seconds.
+
+
 ## 1.0.1
 
 - Relance automatiquement le scan Wi-Fi 5 s et 12 s après le premier scan,

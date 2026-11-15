@@ -1,0 +1,1 @@
+Relance automatiquement un scan Wi-Fi refusé ou limité par Android au lieu d'afficher un échec.

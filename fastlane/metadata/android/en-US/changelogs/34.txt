@@ -1,0 +1,1 @@
+Retry throttled or refused Wi-Fi scans automatically instead of reporting a scan failure.
