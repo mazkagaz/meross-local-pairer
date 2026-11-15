@@ -33,5 +33,5 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             app/build/outputs/apk/debug/app-debug.apk \
-            --title "Local Pairer $GITHUB_REF_NAME" \
-            --notes "Local Pairer build $GITHUB_REF_NAME"
+            --title "Meross Local Pairer $GITHUB_REF_NAME" \
+            --notes "Meross Local Pairer build $GITHUB_REF_NAME"

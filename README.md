@@ -10,7 +10,7 @@ lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 |---|---|---|
 | **Meross Local Pairer** | cette application Android | [mazkagaz/meross-local-pairer](https://github.com/mazkagaz/meross-local-pairer) |
 | **Meross Local Broker** | add-on Home Assistant (MQTT + API locale) | [mazkagaz/meross-local-broker](https://github.com/mazkagaz/meross-local-broker) |
-| **Meross Cloud IoT** | intégration Home Assistant (HACS) | [mazkagaz/meross-cloud](https://github.com/mazkagaz/meross-cloud) |
+| **Meross Local Cloud** | intégration Home Assistant (HACS) | [mazkagaz/meross-cloud](https://github.com/mazkagaz/meross-cloud) |
 
 ```
 MRS100 ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> intégration HA
