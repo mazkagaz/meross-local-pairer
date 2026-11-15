@@ -1,7 +1,6 @@
-# Meross Local Pairer 1.0.9
+# Meross Local Pairer 1.0.10
 
-Diagnostic du FW8.
-
-- Le journal enregistre tous les AP Wi-Fi bruts, avant filtrage Meross.
-- Scans automatiques espacés de 30 s tant qu'aucun appareil n'est visible.
-- Suppression du popup transitoire d'échec mDNS (journalisé à la place).
+- Scans automatiques silencieux, espacés de 30 s et sans épuiser le quota
+  Android ; les messages de limite restent réservés au bouton manuel.
+- Reprend les diagnostics de la 1.0.9 : AP bruts journalisés, popup mDNS
+  supprimé.

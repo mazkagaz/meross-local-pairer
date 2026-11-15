@@ -1,0 +1,1 @@
+Scans automatiques silencieux toutes les 30 s, sans épuiser le quota Android ; messages réservés au rescan manuel.

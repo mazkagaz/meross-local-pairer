@@ -268,7 +268,7 @@ public class ScanDevicesFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        startScan();
+        startScan(false);
         scheduleFollowUpScans();
     }
 
@@ -291,7 +291,7 @@ public class ScanDevicesFragment extends Fragment {
                     return;
                 }
                 if (!scanning) {
-                    startScan();
+                    startScan(false);
                 }
                 pendingAutoScan = this;
                 uiHandler.postDelayed(this, AUTO_SCAN_INTERVAL_MS);
@@ -316,15 +316,23 @@ public class ScanDevicesFragment extends Fragment {
     }
 
     private void startScan() {
+        startScan(true);
+    }
+
+    private void startScan(boolean userInitiated) {
         if (!scanBucket.tryConsume(1)) {
-            long seconds = scanBucket.getDurationUntilNextRefill(TimeUnit.SECONDS);
-            showScanMessage("Scan limit reached; retry in " + seconds + " s.", Snackbar.LENGTH_LONG);
+            if (userInitiated) {
+                long seconds = scanBucket.getDurationUntilNextRefill(TimeUnit.SECONDS);
+                showScanMessage("Scan limit reached; retry in " + seconds + " s.", Snackbar.LENGTH_LONG);
+            }
             return ;
         }
 
         if (scanning) {
-            showScanMessage("A scan is already running. Results will refresh shortly.",
-                    Snackbar.LENGTH_SHORT);
+            if (userInitiated) {
+                showScanMessage("A scan is already running. Results will refresh shortly.",
+                        Snackbar.LENGTH_SHORT);
+            }
             return;
         }
 
@@ -332,7 +340,9 @@ public class ScanDevicesFragment extends Fragment {
             return;
         }
 
-        showScanMessage("Scanning for Meross devices in pairing mode...", Snackbar.LENGTH_SHORT);
+        if (userInitiated) {
+            showScanMessage("Scanning for Meross devices in pairing mode...", Snackbar.LENGTH_SHORT);
+        }
 
         if (!AndroidUtils.checkPermissions(requireContext(), REQUIRED_PERMISSIONS)) {
             AlertDialog.Builder permissionAlert = new AlertDialog.Builder(requireContext());
@@ -437,7 +447,7 @@ public class ScanDevicesFragment extends Fragment {
         pendingScanRetry = () -> {
             pendingScanRetry = null;
             if (isAdded() && isResumed() && !scanning) {
-                startScan();
+                startScan(false);
             }
         };
         uiHandler.postDelayed(pendingScanRetry, 3000);

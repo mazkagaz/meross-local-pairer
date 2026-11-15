@@ -1,0 +1,1 @@
+Silent 30 s automatic scans that preserve Android's scan budget; manual rescan keeps the explanatory messages.

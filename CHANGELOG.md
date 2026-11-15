@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.10
+
+- Les scans automatiques ne consomment plus le quota Android : ils sont
+  silencieux et espacés de 30 s, et seul le bouton manuel affiche les messages
+  de limite ou de scan en cours.
+
+
 ## 1.0.9
 
 - Le journal de diagnostic enregistre désormais **tous** les réseaux Wi-Fi
