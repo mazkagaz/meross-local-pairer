@@ -1,0 +1,1 @@
+Add copyable pairing diagnostics, prevent overlapping pairing sessions, and clarify the rescan button.

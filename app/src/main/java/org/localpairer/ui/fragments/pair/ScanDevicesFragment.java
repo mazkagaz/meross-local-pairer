@@ -44,6 +44,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.localpairer.AndroidUtils;
 import org.localpairer.MerossUtils;
+import org.localpairer.PairingLog;
 import org.localpairer.R;
 import org.localpairer.model.MerossDeviceAp;
 import org.localpairer.model.WifiLocationStatus;
@@ -272,7 +273,7 @@ public class ScanDevicesFragment extends Fragment {
     }
 
     private void scheduleFollowUpScans() {
-        if (followUpScansScheduled) {
+        if (followUpScansScheduled || adapter.getItemCount() > 0) {
             return;
         }
         // Some devices bring their AP up a few seconds after the pairing LED
@@ -307,21 +308,31 @@ public class ScanDevicesFragment extends Fragment {
         followUpScansScheduled = false;
     }
 
+    private void showScanMessage(String message, int length) {
+        PairingLog.log("scan", message);
+        if (isAdded() && getView() != null) {
+            Snackbar.make(getView(), message, length).show();
+        }
+    }
+
     private void startScan() {
         if (!scanBucket.tryConsume(1)) {
             long seconds = scanBucket.getDurationUntilNextRefill(TimeUnit.SECONDS);
-            Toast.makeText(ScanDevicesFragment.this.getContext(), "Scan rate limited. Wait " + seconds + " seconds before scanning again.", Toast.LENGTH_SHORT).show();
+            showScanMessage("Scan limit reached; retry in " + seconds + " s.", Snackbar.LENGTH_LONG);
             return ;
         }
 
         if (scanning) {
-            Toast.makeText(ScanDevicesFragment.this.getContext(), "Scan already in progress.", Toast.LENGTH_SHORT).show();
+            showScanMessage("A scan is already running. Results will refresh shortly.",
+                    Snackbar.LENGTH_SHORT);
             return;
         }
 
         if (!checkWifiAndLocation()) {
             return;
         }
+
+        showScanMessage("Scanning for Meross devices in pairing mode...", Snackbar.LENGTH_SHORT);
 
         if (!AndroidUtils.checkPermissions(requireContext(), REQUIRED_PERMISSIONS)) {
             AlertDialog.Builder permissionAlert = new AlertDialog.Builder(requireContext());
@@ -371,9 +382,21 @@ public class ScanDevicesFragment extends Fragment {
         }
 
         adapter.updateData(data);
+        if (!data.isEmpty()) {
+            // A visible device is enough: keep the remaining scan budget for
+            // the manual rescan button.
+            cancelFollowUpScans();
+        }
         fab.show();
         scanningProgressBar.setVisibility(View.GONE);
         this.scanning = false;
+
+        StringBuilder found = new StringBuilder();
+        for (ScanResult r : data) {
+            if (found.length() > 0) found.append(", ");
+            found.append(r.SSID).append('/').append(r.BSSID);
+        }
+        PairingLog.log("scan", "found " + data.size() + " Meross AP(s): " + found);
 
         if (data.size() > 1 && isAdded() && getView() != null) {
             Snackbar.make(getView(),
@@ -393,9 +416,7 @@ public class ScanDevicesFragment extends Fragment {
         // Android can refuse a scan (rate limiting, Wi-Fi busy). Keep the last
         // results and retry shortly instead of treating it as "no device".
         updateScanData(wifiManager.getScanResults());
-        if (getContext() != null) {
-            Toast.makeText(getContext(), "Wi-Fi scan busy; retrying...", Toast.LENGTH_SHORT).show();
-        }
+        showScanMessage("Wi-Fi scan busy; retrying in 3 s...", Snackbar.LENGTH_SHORT);
         scheduleScanRetry();
     }
 
@@ -449,6 +470,8 @@ public class ScanDevicesFragment extends Fragment {
                     pairActivityViewModel.resetPairingState();
                     MerossDeviceAp targetAp = new MerossDeviceAp(sr.SSID,sr.BSSID);
                     pairActivityViewModel.setMerossPairingAp(targetAp);
+                    PairingLog.log("scan", "selected SSID=" + sr.SSID + " BSSID=" + sr.BSSID
+                            + " RSSI=" + sr.level);
                     NavHostFragment
                             .findNavController(ScanDevicesFragment.this)
                             .navigate(R.id.action_scan_to_fetchDeviceInfo,null, new NavOptions.Builder().setEnterAnim(android.R.animator.fade_in).setExitAnim(android.R.animator.fade_out).build());

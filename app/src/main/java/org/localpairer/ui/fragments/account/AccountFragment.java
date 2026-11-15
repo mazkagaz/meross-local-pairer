@@ -1,5 +1,8 @@
 package org.localpairer.ui.fragments.account;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,7 +25,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.Constants;
 import org.localpairer.MainActivity;
+import org.localpairer.PairingLog;
 import org.localpairer.R;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import org.localpairer.model.HttpClientManager;
 import org.localpairer.ui.MainActivityViewModel;
 import org.localpairer.ui.fragments.login.LoginFragment;
@@ -161,6 +166,33 @@ public class AccountFragment extends Fragment {
                 }).create();
                 dialog.show();
             }
+        });
+
+        final SwitchMaterial pairingDebugSwitch = root.findViewById(R.id.pairingDebugSwitch);
+        final Button copyPairingLogsButton = root.findViewById(R.id.copyPairingLogsButton);
+        final Button clearPairingLogsButton = root.findViewById(R.id.clearPairingLogsButton);
+
+        pairingDebugSwitch.setChecked(AndroidPreferencesManager.isPairingDebugEnabled(requireContext()));
+        PairingLog.setEnabled(pairingDebugSwitch.isChecked());
+        pairingDebugSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            AndroidPreferencesManager.setPairingDebugEnabled(requireContext(), isChecked);
+            PairingLog.setEnabled(isChecked);
+            PairingLog.log("app", "pairing logs " + (isChecked ? "enabled" : "disabled"));
+        });
+
+        copyPairingLogsButton.setOnClickListener(v -> {
+            String logs = PairingLog.dump();
+            ClipboardManager clipboard = (ClipboardManager)
+                    requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboard.setPrimaryClip(ClipData.newPlainText("Meross Local Pairer log", logs));
+            Toast.makeText(requireContext(), "Pairing logs copied to clipboard.",
+                    Toast.LENGTH_SHORT).show();
+        });
+
+        clearPairingLogsButton.setOnClickListener(v -> {
+            PairingLog.clear();
+            PairingLog.log("app", "pairing logs cleared");
+            Toast.makeText(requireContext(), "Pairing logs cleared.", Toast.LENGTH_SHORT).show();
         });
 
         return root;

@@ -20,6 +20,7 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.AndroidPreferencesManager;
+import org.localpairer.PairingLog;
 import org.localpairer.R;
 import org.localpairer.model.MqttConfiguration;
 import org.localpairer.ui.PairActivityViewModel;
@@ -275,8 +276,13 @@ public class ConfigureMqttFragment extends Fragment {
                     }
 
                     pairActivityViewModel.setTargetMqttConfig(tmpConf);
+                    PairingLog.log("broker", "selected edited broker name=" + tmpConf.getName()
+                            + " host=" + tmpConf.getHostname() + " port=" + tmpConf.getPort());
                 } else {
                     pairActivityViewModel.setTargetMqttConfig(selected);
+                    PairingLog.log("broker", "selected name=" + selected.getName()
+                            + " host=" + selected.getHostname() + " port=" + selected.getPort()
+                            + " default=" + (selected == defaultConfiguration));
                 }
 
                 if (overrideMqttParamsCheckbox.isChecked()) {

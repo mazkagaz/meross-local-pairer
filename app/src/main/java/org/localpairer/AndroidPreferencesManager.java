@@ -28,7 +28,18 @@ public class AndroidPreferencesManager {
     private static String KEY_MQTT_CONF = "mqtt";
     private static String KEY_HTTP_CONF = "http";
     private static String KEY_DISCLAIMER_ACCEPTED = "disclaimer_accepted";
+    private static String KEY_PAIRING_DEBUG = "pairing_debug";
     private static Gson g = Utils.getGson();
+
+    public static boolean isPairingDebugEnabled(Context c) {
+        return c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .getBoolean(KEY_PAIRING_DEBUG, false);
+    }
+
+    public static void setPairingDebugEnabled(Context c, boolean enabled) {
+        c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .edit().putBoolean(KEY_PAIRING_DEBUG, enabled).apply();
+    }
 
     public static boolean isDisclaimerAccepted(Context c) {
         return c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)

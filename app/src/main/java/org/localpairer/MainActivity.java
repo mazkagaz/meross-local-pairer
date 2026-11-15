@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        PairingLog.setEnabled(AndroidPreferencesManager.isPairingDebugEnabled(this));
         hideSystemUI();
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

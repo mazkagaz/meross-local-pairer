@@ -1,0 +1,1 @@
+Ajoute des diagnostics d'appairage copiables, empêche les sessions concurrentes et clarifie le bouton de rescan.

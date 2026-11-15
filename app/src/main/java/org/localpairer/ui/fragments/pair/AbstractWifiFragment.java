@@ -32,6 +32,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import org.localpairer.AndroidUtils;
+import org.localpairer.PairingLog;
 import org.localpairer.model.exception.PermissionNotGrantedException;
 
 import org.eclipse.paho.client.mqttv3.util.Strings;
@@ -358,6 +359,8 @@ public abstract class AbstractWifiFragment extends Fragment {
                 if (requestId != mNetworkRequestId || mNetworkAttemptCompleted) {
                     return;
                 }
+                PairingLog.log("wifi", "requestNetwork unavailable for ssid=" + ssid
+                        + " bssid=" + bssid);
                 mNetworkAttemptCompleted = true;
                 notifyWifiUnavailable();
             }
@@ -373,9 +376,11 @@ public abstract class AbstractWifiFragment extends Fragment {
                 if (requestId != mNetworkRequestId || mNetworkAttemptCompleted) {
                     return;
                 }
+                PairingLog.log("wifi", "network available " + network + " target=" + ssid + "/" + bssid);
                 if (!isTargetNetwork(network, ssid, bssid)) {
                     Log.w(TAG, "Ignoring network " + network + " because it is not "
                             + ssid + "/" + bssid);
+                    PairingLog.log("wifi", "ignoring network: actual SSID/BSSID does not match target");
                     return;
                 }
 
@@ -390,6 +395,8 @@ public abstract class AbstractWifiFragment extends Fragment {
             }
         };
         mNetworkCallbackRegistered = true;
+        PairingLog.log("wifi", "requestNetwork ssid=" + ssid + " bssid=" + bssid
+                + " timeoutMs=" + timeout);
         mConnectivityManager.requestNetwork(networkRequest, mNetworkCallback, timeout);
     }
 
@@ -408,6 +415,7 @@ public abstract class AbstractWifiFragment extends Fragment {
         WifiInfo wifiInfo = (WifiInfo) transportInfo;
         String connectedSsid = wifiInfo.getSSID();
         String connectedBssid = wifiInfo.getBSSID();
+        PairingLog.log("wifi", "actual network ssid=" + connectedSsid + " bssid=" + connectedBssid);
         if (connectedSsid != null
                 && !connectedSsid.contains("unknown")
                 && !connectedSsid.contains("UNKNOWN")) {

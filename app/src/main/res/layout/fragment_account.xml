@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    tools:context=".ui.fragments.account.AccountFragment">
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingBottom="16dp"
+        tools:context=".ui.fragments.account.AccountFragment">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/httpInfoCard"
@@ -154,4 +160,54 @@
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-</LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/diagnosticsCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10sp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pairing diagnostics"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Enable verbose pairing logs, reproduce the problem, then copy the log and paste it elsewhere." />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/pairingDebugSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Enable pairing logs" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/copyPairingLogsButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Copy pairing logs" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clearPairingLogsButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Clear pairing logs" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</ScrollView>

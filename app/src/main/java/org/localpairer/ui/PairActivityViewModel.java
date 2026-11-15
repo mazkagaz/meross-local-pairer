@@ -23,6 +23,7 @@ public class PairActivityViewModel extends ViewModel {
     private MutableLiveData<WifiLocationStatus> wifiLocationStatus;
     private MutableLiveData<String> overridedKey;
     private MutableLiveData<String> overridedUserId;
+    private long pairingSessionId;
 
 
     public PairActivityViewModel() {
@@ -42,6 +43,15 @@ public class PairActivityViewModel extends ViewModel {
      * new device is selected so a failed attempt cannot leak its AP, UUID or
      * broker configuration into the next one.
      */
+    public long beginPairingSession() {
+        pairingSessionId = org.localpairer.PairingSession.begin();
+        return pairingSessionId;
+    }
+
+    public long getPairingSessionId() {
+        return pairingSessionId;
+    }
+
     public void resetPairingState() {
         apDevice.setValue(null);
         merossDeviceWifiAp.setValue(null);

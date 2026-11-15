@@ -58,6 +58,8 @@ public class PairActivity extends AppCompatActivity {
         locationTextView = findViewById(R.id.pairLocationOffTextView);
         wifiLocationStatusLayout = findViewById(R.id.pairWifiLocationStatusLayout);
         this.viewModel = new ViewModelProvider(this).get(PairActivityViewModel.class);
+        this.viewModel.beginPairingSession();
+        PairingLog.log("activity", "pairing session started");
         this.mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -105,6 +107,10 @@ public class PairActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (viewModel != null) {
+            PairingSession.invalidate(viewModel.getPairingSessionId());
+            PairingLog.log("activity", "pairing session finished");
+        }
         super.onDestroy();
     }
 

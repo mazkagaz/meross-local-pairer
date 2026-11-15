@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.8
+
+- Ajout d'un mode diagnostic dans les paramètres : journal d'appairage
+  activable, copiable dans le presse-papiers et effaçable.
+- Une seule session d'appairage peut agir à la fois ; une tentative laissée
+  en arrière-plan est invalidée dès qu'une nouvelle commence.
+- Le bouton de rescan explique désormais ce qu'il fait et pourquoi il peut
+  être temporisé ; les scans automatiques ne consomment plus le quota quand
+  un appareil est déjà visible.
+
+
 ## 1.0.7
 
 - Ignore les valeurs `unknown` renvoyées par certains Android pour le SSID ou

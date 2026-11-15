@@ -33,6 +33,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.Constants;
 import org.localpairer.MerossUtils;
+import org.localpairer.PairingLog;
 import org.localpairer.R;
 import org.localpairer.model.WifiConfiguration;
 import org.localpairer.model.exception.PermissionNotGrantedException;
@@ -251,6 +252,9 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
         public void onClick(View view) {
             // Just store the current configuration and proceed to the next fragment
             pairActivityViewModel.setMerossWifiConfiguration(mSelectedWifi);
+            PairingLog.log("wifi", "selected home wifi ssid="
+                    + mSelectedWifi.getScannedWifi().getSsid()
+                    + " bssid=" + mSelectedWifi.getScannedWifi().getBssid());
 
             // Store the password, if required
             if (mSaveWifiPasswordCheckBox.isChecked())
@@ -476,6 +480,9 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
                 public void run() {
                     // Just store the current configuration and proceed to the next fragment
                     pairActivityViewModel.setMerossWifiConfiguration(mSelectedWifi);
+                    PairingLog.log("wifi", "selected home wifi ssid="
+                            + mSelectedWifi.getScannedWifi().getSsid()
+                            + " bssid=" + mSelectedWifi.getScannedWifi().getBssid());
 
                     // Launch the next fragment
                     NavController ctrl = NavHostFragment.findNavController(ConfigureWifiFragment.this);

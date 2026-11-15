@@ -37,6 +37,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.localpairer.PairingLog;
 import org.localpairer.R;
 import org.localpairer.model.exception.PermissionNotGrantedException;
 import org.localpairer.ui.PairActivityViewModel;
@@ -145,11 +146,14 @@ public class FetchDeviceInfoFragment extends AbstractWifiFragment {
     private void attemptDeviceWifiScan() {
         try {
             deviceAvailableWifis = device.scanWifi();
+            PairingLog.log("device", "device Wi-Fi scan succeeded");
             stateMachine(Signal.WIFI_SCAN_COMPLETED);
         } catch (IOException e) {
             deviceWifiScanAttempt++;
             Log.w(TAG, "Device Wi-Fi scan refused (attempt " + deviceWifiScanAttempt + "/"
                     + DEVICE_WIFI_SCAN_ATTEMPTS + "): " + e.getMessage());
+            PairingLog.log("device", "device Wi-Fi scan refused (attempt " + deviceWifiScanAttempt
+                    + "/" + DEVICE_WIFI_SCAN_ATTEMPTS + "): " + e.getMessage());
             if (deviceWifiScanAttempt < DEVICE_WIFI_SCAN_ATTEMPTS) {
                 uiThreadHandler.post(new Runnable() {
                     @Override
@@ -218,6 +222,14 @@ public class FetchDeviceInfoFragment extends AbstractWifiFragment {
             public void run() {
                 if (!isAdded()) {
                     return;
+                }
+                if (deviceInfo != null) {
+                    org.localpairer.merosslib.model.protocol.payloads.GetSystemAllPayloadAllHardrware hardware =
+                            deviceInfo.getPayload().getAll().getSystem().getHardware();
+                    PairingLog.log("device", "info type=" + hardware.getType()
+                            + " uuid=" + hardware.getUuid()
+                            + " mac=" + hardware.getMacAddress()
+                            + " fw=" + deviceInfo.getPayload().getAll().getSystem().getFirmware().getVersion());
                 }
                 // Set done and proceed with the next fragment
                 pairActivityViewModel.setApDevice(device);

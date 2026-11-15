@@ -1,6 +1,10 @@
-# Meross Local Pairer 1.0.7
+# Meross Local Pairer 1.0.8
 
-- La vérification SSID/BSSID tolère les valeurs `unknown` renvoyées par
-  certains Android, sans rejeter une connexion correcte.
-- Reprend tous les correctifs d'identité de la 1.0.6 : vérification de l'AP,
-  réinitialisation entre deux tentatives, UUID réellement appairé affiché.
+Diagnostic et robustesse de l'appairage.
+
+- Paramètres → **Pairing diagnostics** : active les logs détaillés, puis
+  « Copy pairing logs » copie le journal dans le presse-papiers.
+- Une nouvelle tentative invalide toute session d'appairage précédente ; deux
+  tentatives ne peuvent plus se télescoper.
+- Le bouton de rescan affiche son rôle et les raisons d'une temporisation.
+- Les scans automatiques sont annulés dès qu'un appareil Meross est trouvé.
