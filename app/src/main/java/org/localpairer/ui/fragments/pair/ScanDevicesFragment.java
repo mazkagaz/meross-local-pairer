@@ -71,8 +71,8 @@ public class ScanDevicesFragment extends Fragment {
     private boolean scanning;
     private boolean followUpScansScheduled;
     private Runnable pendingScanRetry;
-    private Runnable pendingFollowUpScan5;
-    private Runnable pendingFollowUpScan12;
+    private Runnable pendingAutoScan;
+    private static final long AUTO_SCAN_INTERVAL_MS = 30000;
     private ActivityResultLauncher<String[]> multiplePermissionLauncher;
     private static String[] REQUIRED_PERMISSIONS = null;
     private static final String STATE_N_TOKENS = "_state_num_tokens";
@@ -276,34 +276,34 @@ public class ScanDevicesFragment extends Fragment {
         if (followUpScansScheduled || adapter.getItemCount() > 0) {
             return;
         }
-        // Some devices bring their AP up a few seconds after the pairing LED
-        // blink; scan again automatically instead of waiting for the user to
-        // refresh. These scans are cancelled on stop.
+        // Some devices bring their AP up late, or keep it for a short time.
+        // Keep a slow automatic scan running while the screen is visible and
+        // no device was found; 30 s stays within Android's scan budget.
         followUpScansScheduled = true;
-        pendingFollowUpScan5 = () -> {
-            pendingFollowUpScan5 = null;
-            if (isAdded() && isResumed() && !scanning) {
-                startScan();
+        pendingAutoScan = new Runnable() {
+            @Override
+            public void run() {
+                pendingAutoScan = null;
+                if (!isAdded() || !isResumed()) {
+                    return;
+                }
+                if (adapter.getItemCount() > 0) {
+                    return;
+                }
+                if (!scanning) {
+                    startScan();
+                }
+                pendingAutoScan = this;
+                uiHandler.postDelayed(this, AUTO_SCAN_INTERVAL_MS);
             }
         };
-        pendingFollowUpScan12 = () -> {
-            pendingFollowUpScan12 = null;
-            if (isAdded() && isResumed() && !scanning) {
-                startScan();
-            }
-        };
-        uiHandler.postDelayed(pendingFollowUpScan5, 5000);
-        uiHandler.postDelayed(pendingFollowUpScan12, 12000);
+        uiHandler.postDelayed(pendingAutoScan, AUTO_SCAN_INTERVAL_MS);
     }
 
     private void cancelFollowUpScans() {
-        if (pendingFollowUpScan5 != null) {
-            uiHandler.removeCallbacks(pendingFollowUpScan5);
-            pendingFollowUpScan5 = null;
-        }
-        if (pendingFollowUpScan12 != null) {
-            uiHandler.removeCallbacks(pendingFollowUpScan12);
-            pendingFollowUpScan12 = null;
+        if (pendingAutoScan != null) {
+            uiHandler.removeCallbacks(pendingAutoScan);
+            pendingAutoScan = null;
         }
         followUpScansScheduled = false;
     }
@@ -374,6 +374,18 @@ public class ScanDevicesFragment extends Fragment {
     }
 
     private void updateScanData(List<ScanResult> wifiNetworks) {
+        // Keep the raw scan visible in diagnostics: an AP with an unexpected
+        // SSID must not silently disappear behind the Meross filter.
+        StringBuilder raw = new StringBuilder();
+        int rawLimit = Math.min(wifiNetworks.size(), 30);
+        for (int i = 0; i < rawLimit; i++) {
+            ScanResult r = wifiNetworks.get(i);
+            if (raw.length() > 0) raw.append(", ");
+            raw.append(r.SSID).append('/').append(r.BSSID);
+        }
+        if (wifiNetworks.size() > rawLimit) raw.append(", ...");
+        PairingLog.log("scan", "raw scan " + wifiNetworks.size() + " AP(s): " + raw);
+
         // Only filter access points that match the Meross
         ArrayList<ScanResult> data = new ArrayList<>();
         for (ScanResult r : wifiNetworks) {

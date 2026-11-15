@@ -1,0 +1,1 @@
+Log raw Wi-Fi scan results, scan every 30 s while no device is found, and drop the transient mDNS error popup.

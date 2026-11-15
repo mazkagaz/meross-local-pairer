@@ -464,6 +464,9 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
                 return;
             }
 
+            PairingLog.log("broker", "mDNS resolved host=" + serviceInfo.getHost().getHostAddress()
+                    + " name=" + serviceInfo.getHost().getHostName()
+                    + " port=" + serviceInfo.getPort());
             configureUi(false, VALIDATE_AND_PROCEED, null);
             notifyResolveCompleted(serviceInfo.getHost().getHostName(), serviceInfo.getPort());
         }
@@ -488,7 +491,8 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
                     NavController ctrl = NavHostFragment.findNavController(ConfigureWifiFragment.this);
                     ctrl.navigate(R.id.action_configureWifi_to_configureMqtt, null, new NavOptions.Builder().setEnterAnim(android.R.animator.fade_in).setExitAnim(android.R.animator.fade_out).build());
 
-                    configureUi(true,  VALIDATE_AND_PROCEED, "Failed to locate MQTT endpoint via mDNS");
+                    PairingLog.log("broker", "mDNS discovery timed out; using default/manual broker");
+                    configureUi(true, VALIDATE_AND_PROCEED, null);
                 }
             });
         }

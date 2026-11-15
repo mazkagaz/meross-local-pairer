@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.9
+
+- Le journal de diagnostic enregistre désormais **tous** les réseaux Wi-Fi
+  vus, avant le filtre Meross, pour vérifier si un AP au nom inattendu est
+  présent.
+- Scans automatiques espacés de 30 s tant qu'aucun appareil n'est trouvé, au
+  lieu de consommer le quota Android dès les premières secondes.
+- Le message transitoire « Failed to locate MQTT endpoint via mDNS » n'est plus
+  affiché : l'échec mDNS est journalisé et le broker par défaut est utilisé.
+
+
 ## 1.0.8
 
 - Ajout d'un mode diagnostic dans les paramètres : journal d'appairage

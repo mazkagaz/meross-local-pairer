@@ -1,0 +1,1 @@
+Journalise tous les AP scannés, scanne toutes les 30 s sans appareil trouvé et supprime le popup mDNS transitoire.

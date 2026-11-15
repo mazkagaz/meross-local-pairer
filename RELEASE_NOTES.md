@@ -1,10 +1,7 @@
-# Meross Local Pairer 1.0.8
+# Meross Local Pairer 1.0.9
 
-Diagnostic et robustesse de l'appairage.
+Diagnostic du FW8.
 
-- Paramètres → **Pairing diagnostics** : active les logs détaillés, puis
-  « Copy pairing logs » copie le journal dans le presse-papiers.
-- Une nouvelle tentative invalide toute session d'appairage précédente ; deux
-  tentatives ne peuvent plus se télescoper.
-- Le bouton de rescan affiche son rôle et les raisons d'une temporisation.
-- Les scans automatiques sont annulés dès qu'un appareil Meross est trouvé.
+- Le journal enregistre tous les AP Wi-Fi bruts, avant filtrage Meross.
+- Scans automatiques espacés de 30 s tant qu'aucun appareil n'est visible.
+- Suppression du popup transitoire d'échec mDNS (journalisé à la place).
