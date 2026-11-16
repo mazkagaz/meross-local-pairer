@@ -38,13 +38,16 @@
 |---|---|
 | `AndroidPreferencesManager.java` | Store Meross API credentials with SecurePreferences; migrate legacy plaintext entries. |
 | `res/xml/network_security_config.xml` | Cleartext HTTP limited to the AP endpoint `10.10.10.1` and local `.local`/`.lan` API hostnames. |
-| `app/build.gradle` | Release builds are unsigned instead of debug-signed; version 1.0.2. |
+| `app/build.gradle` | APKs signed with a stable project key when the CI signing variables are present; version 1.1.0. |
+| `app/.../ble/MerossBleClient.java`, `MerossBleProtocol.java`, `BlePairActivity.java` | **New**: Bluetooth LE provisioning for firmware 8 devices (service A00A, B002 write, B003 notify, JSON framing, AES Wi-Fi password). |
 | `build.gradle` | Removed dead `jcenter()` and the Paho snapshot repository (both returned errors on CI); use Maven Central + JitPack. |
 | `.github/workflows/build.yaml` | Install Android SDK 35 explicitly before the Gradle build. |
 | Android package/namespace | Renamed to `org.localpairer`; app label changed to Meross Local Pairer. |
 
-The Meross provisioning protocol was not changed: `Appliance.Config.Key`,
+The Wi-Fi provisioning protocol was not changed: `Appliance.Config.Key`,
 `Appliance.Config.WifiList`, `Appliance.Config.Wifi` and
 `Appliance.System.All` payloads remain compatible with the official app.
+Firmware 8 adds a Bluetooth LE transport for the same protocol, using
+`Appliance.Config.Key` + `Appliance.Config.WifiX` frames over GATT A00A.
 
 All source files remain under GPL-2.0. The upstream LICENSE is preserved.
