@@ -34,12 +34,12 @@ MRS100 ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> in
 3. Sur Android, autoriser l'installation depuis cette source si demandé.
 4. Installer l'APK.
 
-L'application n'est pas publiée sur le Play Store. Les APK de release sont
-signés par une clé stable du projet : les mises à jour s'installent par-dessus
-la version précédente. Une désinstallation unique est nécessaire au passage
-d'une ancienne build signée avec une autre clé (et plus tard au passage à
-F-Droid, qui utilise sa propre clé). Voir `fdroid/README.md` pour la soumission
-F-Droid.
+L'application n'est pas publiée sur le Play Store. La CI est configurée pour
+signer les APK de release avec une clé stable du projet : les mises à jour
+s'installeront ensuite par-dessus la version précédente. Une désinstallation
+unique est nécessaire au passage d'une ancienne build signée avec une autre
+clé (et plus tard au passage à F-Droid, qui utilise sa propre clé). Voir
+`fdroid/README.md` pour la soumission F-Droid.
 
 ## Avant l'appairage
 
