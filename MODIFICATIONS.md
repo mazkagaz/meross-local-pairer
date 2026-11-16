@@ -5,7 +5,7 @@
 - Upstream version: 0.0.11
 - Upstream license: GPL-2.0
 - Fork license: GPL-2.0 (see `LICENSE`)
-- Fork version: 1.0.2 (`versionCode` 34)
+- Fork version: 1.1.0 (`versionCode` 44)
 - Application id: `org.localpairer` (distinct from upstream)
 - Display name: **Meross Local Pairer** (unofficial)
 
