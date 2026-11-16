@@ -1,0 +1,1 @@
+Ajoute l'appairage Bluetooth LE des appareils firmware 8 (MRS100 FW 8.x), avec configuration broker/Wi-Fi et vérification ONLINE.

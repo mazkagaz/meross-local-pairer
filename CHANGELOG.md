@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0
+
+- Ajout de l'appairage **Bluetooth LE** pour les appareils au firmware 8
+  (MRS100 FW 8.x), dont l'AP Wi-Fi n'est pas disponible sans confirmation BLE.
+- Le bouton « Firmware 8: pair via Bluetooth » scanne le service Meross A00A,
+  lit l'identité de l'appareil, récupère sa liste Wi-Fi, envoie les
+  identifiants du broker local puis les paramètres Wi-Fi, et vérifie que
+  l'appareil devient ONLINE dans le broker.
+
+
 ## 1.0.11
 
 - L'écran de scan affiche un statut persistant : heure du dernier scan, nombre

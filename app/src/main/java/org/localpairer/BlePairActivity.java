@@ -1,0 +1,490 @@
+package org.localpairer;
+
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.InputType;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import org.json.JSONObject;
+import org.localpairer.ble.MerossBleClient;
+import org.localpairer.ble.MerossBleProtocol;
+import org.localpairer.merosslib.MerossHttpClient;
+import org.localpairer.merosslib.model.OnlineStatus;
+import org.localpairer.merosslib.model.http.ApiCredentials;
+import org.localpairer.merosslib.model.http.DeviceInfo;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
+/** Bluetooth provisioning path for firmware 8 devices such as the MRS100. */
+public class BlePairActivity extends AppCompatActivity implements MerossBleClient.Callback {
+    private static final int REQUEST_BLE_PERMISSIONS = 21;
+    private static final int REQUEST_ENABLE_BT = 22;
+    private static final int BROKER_PORT = 2001;
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final List<BluetoothDevice> devices = new ArrayList<>();
+    private final List<String> deviceLabels = new ArrayList<>();
+
+    private MerossBleClient ble;
+    private TextView statusView;
+    private TextView deviceInfoView;
+    private Spinner deviceSpinner;
+    private Spinner wifiSpinner;
+    private EditText passwordInput;
+    private Button pairButton;
+    private ArrayAdapter<String> deviceAdapter;
+    private ArrayAdapter<String> wifiAdapter;
+    private List<MerossBleProtocol.WifiEntry> wifiEntries = new ArrayList<>();
+
+    private String deviceType;
+    private String deviceUuid;
+    private String deviceMac;
+    private boolean pairingSent;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTitle("Bluetooth pairing (firmware 8)");
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        buildUi();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            setStatus("Bluetooth LE pairing requires Android 5.0 or newer.");
+            return;
+        }
+        ble = new MerossBleClient(this, this);
+        PairingLog.log("ble", "BLE pairing screen opened");
+        if (!ble.isSupported()) {
+            setStatus("This phone does not support Bluetooth LE.");
+            return;
+        }
+        requestPermissionsAndStart();
+    }
+
+    private void buildUi() {
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(20), dp(20), dp(20), dp(20));
+        scroll.addView(root, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        statusView = new TextView(this);
+        statusView.setTextSize(15);
+        statusView.setText("Preparing Bluetooth...");
+        root.addView(statusView);
+
+        deviceInfoView = new TextView(this);
+        deviceInfoView.setTextSize(14);
+        deviceInfoView.setPadding(0, dp(12), 0, dp(12));
+        root.addView(deviceInfoView);
+
+        root.addView(label("1. Meross BLE device"));
+        deviceSpinner = new Spinner(this);
+        deviceAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item, deviceLabels);
+        deviceSpinner.setAdapter(deviceAdapter);
+        root.addView(deviceSpinner);
+
+        Button scanButton = new Button(this);
+        scanButton.setText("Rescan Bluetooth");
+        scanButton.setOnClickListener(v -> startScan());
+        root.addView(scanButton);
+
+        Button connectButton = new Button(this);
+        connectButton.setText("Connect to selected device");
+        connectButton.setOnClickListener(v -> connectSelected());
+        root.addView(connectButton);
+
+        root.addView(label("2. Home Wi-Fi"));
+        wifiSpinner = new Spinner(this);
+        wifiAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item, new ArrayList<>());
+        wifiSpinner.setAdapter(wifiAdapter);
+        root.addView(wifiSpinner);
+
+        passwordInput = new EditText(this);
+        passwordInput.setHint("Wi-Fi password");
+        passwordInput.setInputType(InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        root.addView(passwordInput);
+
+        pairButton = new Button(this);
+        pairButton.setText("Configure device");
+        pairButton.setEnabled(false);
+        pairButton.setOnClickListener(v -> configureDevice());
+        root.addView(pairButton);
+
+        setContentView(scroll);
+    }
+
+    private TextView label(String text) {
+        TextView view = new TextView(this);
+        view.setText(text);
+        view.setTextSize(16);
+        view.setGravity(Gravity.START);
+        view.setPadding(0, dp(16), 0, dp(4));
+        return view;
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private void requestPermissionsAndStart() {
+        String[] permissions;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions = new String[]{
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT};
+        } else {
+            permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+            if (!AndroidUtils.isLocationEnabled(this)) {
+                setStatus("Enable location services: Android needs them for Bluetooth scanning.");
+            }
+        }
+        boolean missing = false;
+        for (String permission : permissions) {
+            if (ActivityCompat.checkSelfPermission(this, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                missing = true;
+                break;
+            }
+        }
+        if (missing) {
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_BLE_PERMISSIONS);
+            return;
+        }
+        startBluetooth();
+    }
+
+    private void startBluetooth() {
+        if (!ble.isEnabled()) {
+            setStatus("Bluetooth is disabled. Enable it to continue.");
+            Intent enable = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enable, REQUEST_ENABLE_BT);
+            return;
+        }
+        startScan();
+    }
+
+    private void startScan() {
+        devices.clear();
+        deviceLabels.clear();
+        deviceAdapter.notifyDataSetChanged();
+        setStatus("Scanning for Meross BLE devices...");
+        PairingLog.log("ble", "starting BLE scan");
+        ble.startScan();
+    }
+
+    private void connectSelected() {
+        int position = deviceSpinner.getSelectedItemPosition();
+        if (position < 0 || position >= devices.size()) {
+            Toast.makeText(this, "Select a device first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        BluetoothDevice device = devices.get(position);
+        setStatus("Connecting to " + device.getAddress() + "...");
+        PairingLog.log("ble", "connecting to " + device.getAddress());
+        ble.connect(device.getAddress());
+    }
+
+    private void configureDevice() {
+        if (pairingSent) {
+            return;
+        }
+        ApiCredentials credentials = AndroidPreferencesManager.loadHttpCredentials(this);
+        if (credentials == null || isEmpty(credentials.getApiServer())
+                || isEmpty(credentials.getUserId()) || isEmpty(credentials.getKey())) {
+            setStatus("No local broker credentials. Configure the account first.");
+            return;
+        }
+        String host = extractHost(credentials.getApiServer());
+        if (host == null) {
+            setStatus("Invalid broker address: " + credentials.getApiServer());
+            return;
+        }
+        int position = wifiSpinner.getSelectedItemPosition();
+        if (position < 0 || position >= wifiEntries.size()) {
+            Toast.makeText(this, "Select a Wi-Fi network first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        MerossBleProtocol.WifiEntry wifi = wifiEntries.get(position);
+        String password = passwordInput.getText().toString();
+        if (wifi.encryption != 0 && password.isEmpty()) {
+            Toast.makeText(this, "Enter the Wi-Fi password.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            pairingSent = true;
+            pairButton.setEnabled(false);
+            setStatus("Sending broker configuration...");
+            String encrypted = MerossBleProtocol.encryptWifiPassword(
+                    password, deviceType, deviceUuid, deviceMac);
+
+            JSONObject key = new JSONObject();
+            key.put("userId", credentials.getUserId());
+            key.put("key", credentials.getKey());
+            JSONObject gateway = new JSONObject();
+            gateway.put("host", host);
+            gateway.put("port", BROKER_PORT);
+            gateway.put("secondHost", host);
+            gateway.put("secondPort", BROKER_PORT);
+            key.put("gateway", gateway);
+            JSONObject keyPayload = new JSONObject();
+            keyPayload.put("key", key);
+            PairingLog.log("ble", "SET Appliance.Config.Key broker=" + host + ":" + BROKER_PORT
+                    + " userId=" + credentials.getUserId() + " uuid=" + deviceUuid);
+            ble.send(MerossBleProtocol.packet(
+                    "Appliance.Config.Key", "SET", keyPayload));
+
+            JSONObject wifiPayload = new JSONObject();
+            wifiPayload.put("wifi", wifi.toPayload(encrypted));
+            handler.postDelayed(() -> {
+                PairingLog.log("ble", "SET Appliance.Config.WifiX ssid=" + wifi.ssid);
+                setStatus("Sending Wi-Fi configuration...");
+                ble.send(MerossBleProtocol.packet(
+                        "Appliance.Config.WifiX", "SET", wifiPayload));
+                setStatus("Configuration sent. Waiting for the device to connect...");
+                PairingLog.log("ble", "configuration sent for uuid " + deviceUuid);
+                handler.postDelayed(() -> {
+                    ble.disconnect();
+                    verifyOnline(credentials, deviceUuid);
+                }, 2500);
+            }, 1200);
+        } catch (Exception e) {
+            PairingLog.log("ble", "configuration error: " + e.getMessage());
+            setStatus("Configuration error: " + e.getMessage());
+            pairingSent = false;
+            pairButton.setEnabled(true);
+        }
+    }
+
+    private void verifyOnline(ApiCredentials credentials, String uuid) {
+        setStatus("Checking that the device is online in the broker...");
+        final Handler main = new Handler(Looper.getMainLooper());
+        new Thread(() -> {
+            long deadline = System.currentTimeMillis() + 60000;
+            while (System.currentTimeMillis() < deadline) {
+                try {
+                    MerossHttpClient client = new MerossHttpClient(credentials);
+                    List<DeviceInfo> list = client.listDevices();
+                    for (DeviceInfo info : list) {
+                        if (uuid != null && uuid.equals(info.getUuid())
+                                && info.getOnlineStatus() == OnlineStatus.ONLINE) {
+                            PairingLog.log("ble", "device " + uuid + " is ONLINE");
+                            main.post(() -> {
+                                setStatus("Device paired and ONLINE: " + uuid);
+                                Toast.makeText(this, "Device paired and online.",
+                                        Toast.LENGTH_LONG).show();
+                                main.postDelayed(this::finish, 1500);
+                            });
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    PairingLog.log("ble", "verification error: " + e.getMessage());
+                }
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+            main.post(() -> setStatus("Configuration sent, but the device is not ONLINE yet: "
+                    + uuid + "\nCheck the broker and the device Wi-Fi."));
+        }).start();
+    }
+
+    private void setStatus(String message) {
+        statusView.setText(message);
+        PairingLog.log("ble", message);
+    }
+
+    private static boolean isEmpty(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private static String extractHost(String apiServer) {
+        if (isEmpty(apiServer)) {
+            return null;
+        }
+        String value = apiServer.trim();
+        try {
+            URI uri = new URI(value.contains("://") ? value : "http://" + value);
+            if (uri.getHost() != null && !uri.getHost().isEmpty()) {
+                return uri.getHost();
+            }
+        } catch (URISyntaxException ignored) {
+        }
+        String host = value.replaceFirst("^[a-zA-Z]+://", "");
+        int slash = host.indexOf('/');
+        if (slash >= 0) {
+            host = host.substring(0, slash);
+        }
+        int colon = host.indexOf(':');
+        if (colon >= 0) {
+            host = host.substring(0, colon);
+        }
+        return host.isEmpty() ? null : host;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_BLE_PERMISSIONS) {
+            boolean granted = grantResults.length > 0;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    granted = false;
+                }
+            }
+            if (granted) {
+                startBluetooth();
+            } else {
+                setStatus("Bluetooth permissions are required for firmware 8 pairing.");
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (resultCode == RESULT_OK) {
+                startScan();
+            } else {
+                setStatus("Bluetooth must be enabled to pair this firmware.");
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (ble != null) {
+            ble.disconnect();
+        }
+        super.onDestroy();
+    }
+
+    // MerossBleClient callbacks
+
+    @Override
+    public void onDeviceFound(BluetoothDevice device, String name) {
+        runOnUiThread(() -> {
+            for (BluetoothDevice known : devices) {
+                if (known.getAddress().equals(device.getAddress())) {
+                    return;
+                }
+            }
+            devices.add(device);
+            deviceLabels.add((name != null ? name : "BLE device") + " (" + device.getAddress() + ")");
+            deviceAdapter.notifyDataSetChanged();
+            setStatus("Found " + devices.size() + " Meross BLE device(s). Select one and connect.");
+            PairingLog.log("ble", "found " + name + " " + device.getAddress());
+        });
+    }
+
+    @Override
+    public void onReady() {
+        runOnUiThread(() -> {
+            setStatus("Connected. Reading device information...");
+            deviceInfoView.setText("");
+            ble.send(MerossBleProtocol.packet("Appliance.System.All", "GET", null));
+        });
+    }
+
+    @Override
+    public void onPacket(JSONObject packet) {
+        runOnUiThread(() -> {
+            try {
+                String namespace = packet.getJSONObject("header").getString("namespace");
+                JSONObject payload = packet.optJSONObject("payload");
+                PairingLog.log("ble", "packet " + namespace + " " + payload);
+                if ("Appliance.System.All".equals(namespace) && payload != null) {
+                    handleSystemAll(payload);
+                } else if ("Appliance.Config.WifiList".equals(namespace) && payload != null) {
+                    handleWifiList(payload);
+                }
+            } catch (Exception e) {
+                setStatus("Invalid BLE response: " + e.getMessage());
+            }
+        });
+    }
+
+    private void handleSystemAll(JSONObject payload) {
+        try {
+            JSONObject system = payload.getJSONObject("all").getJSONObject("system");
+            JSONObject hardware = system.getJSONObject("hardware");
+            JSONObject firmware = system.getJSONObject("firmware");
+            deviceType = hardware.getString("type");
+            deviceUuid = hardware.getString("uuid");
+            deviceMac = hardware.getString("macAddress");
+            String firmwareVersion = firmware.getString("version");
+            deviceInfoView.setText("Device: " + deviceType
+                    + "\nUUID: " + deviceUuid
+                    + "\nMAC: " + deviceMac
+                    + "\nFirmware: " + firmwareVersion);
+            setStatus("Device identified. Reading its Wi-Fi list...");
+            ble.send(MerossBleProtocol.packet(
+                    "Appliance.Config.WifiList", "GET", null));
+        } catch (Exception e) {
+            setStatus("Could not parse device info: " + e.getMessage());
+        }
+    }
+
+    private void handleWifiList(JSONObject payload) {
+        try {
+            wifiEntries = MerossBleProtocol.parseWifiList(payload);
+            List<String> labels = new ArrayList<>();
+            for (MerossBleProtocol.WifiEntry entry : wifiEntries) {
+                labels.add(entry.ssid + " (" + entry.bssid + ")");
+            }
+            wifiAdapter.clear();
+            wifiAdapter.addAll(labels);
+            wifiAdapter.notifyDataSetChanged();
+            pairButton.setEnabled(!wifiEntries.isEmpty());
+            setStatus(wifiEntries.isEmpty()
+                    ? "The device did not report any Wi-Fi network."
+                    : "Select the home Wi-Fi and enter its password.");
+        } catch (Exception e) {
+            setStatus("Could not parse Wi-Fi list: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onError(String message) {
+        runOnUiThread(() -> setStatus("BLE error: " + message));
+    }
+
+    @Override
+    public void onDisconnected() {
+        runOnUiThread(() -> PairingLog.log("ble", "BLE disconnected"));
+    }
+}

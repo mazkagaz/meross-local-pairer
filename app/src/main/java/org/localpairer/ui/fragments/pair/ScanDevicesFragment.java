@@ -43,6 +43,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.localpairer.AndroidUtils;
+import org.localpairer.BlePairActivity;
 import org.localpairer.MerossUtils;
 import org.localpairer.PairingLog;
 import org.localpairer.R;
@@ -220,6 +221,12 @@ public class ScanDevicesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         swipeContainer = view.findViewById(R.id.swipeContainer);
         scanStatusTextView = view.findViewById(R.id.scanStatusTextView);
+        View blePairButton = view.findViewById(R.id.blePairButton);
+        boolean bleSupported = requireContext().getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+        blePairButton.setVisibility(bleSupported ? View.VISIBLE : View.GONE);
+        blePairButton.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), BlePairActivity.class)));
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
