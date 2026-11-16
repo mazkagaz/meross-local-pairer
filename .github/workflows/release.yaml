@@ -47,18 +47,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NOTES=(--notes "Meross Local Pairer build $GITHUB_REF_NAME")
-          if [ -f RELEASE_NOTES.md ]; then
-            NOTES=(--notes-file RELEASE_NOTES.md)
+          VERSION="${GITHUB_REF_NAME#v}"
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          awk -v ver="$VERSION" '
+            /^## / { if (found) exit; if ($2 == ver) found = 1 }
+            found { print }
+          ' CHANGELOG.md > "$NOTES_FILE"
+          if [ ! -s "$NOTES_FILE" ]; then
+            printf 'Meross Local Pairer %s\n' "$GITHUB_REF_NAME" > "$NOTES_FILE"
           fi
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" \
               app/build/outputs/apk/debug/app-debug.apk --clobber
             gh release edit "$GITHUB_REF_NAME" \
-              --title "Meross Local Pairer $GITHUB_REF_NAME" "${NOTES[@]}"
+              --title "Meross Local Pairer $GITHUB_REF_NAME" \
+              --notes-file "$NOTES_FILE"
           else
             gh release create "$GITHUB_REF_NAME" \
               app/build/outputs/apk/debug/app-debug.apk \
               --title "Meross Local Pairer $GITHUB_REF_NAME" \
-              "${NOTES[@]}"
+              --notes-file "$NOTES_FILE"
           fi
