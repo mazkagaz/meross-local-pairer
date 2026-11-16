@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,6 +31,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.AndroidUtils;
+import org.localpairer.BrokerDiscovery;
 import org.localpairer.BrokerEndpoint;
 import org.localpairer.MainActivity;
 import org.localpairer.NetworkPolicy;
@@ -48,6 +50,11 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -56,12 +63,13 @@ import static org.localpairer.AndroidUtils.dpToPx;
 
 public class LoginFragment extends Fragment {
     // Constants
-    private static final String SERVICE_TYPE = "_meross-api._tcp.";
+    private static final String SERVICE_TYPE = "_meross-api._tcp";
     private static final  String TAG = "Login";
 
     // Instance attributes
     private Context mAppContext = null;
     private boolean mDiscoveryInProgress = false;
+    private boolean mResolutionInProgress = false;
     private boolean mDiscoveryEnabled = false;
     private boolean mRequiresWifiLocation = false;
     private NsdManager mNsdManager;
@@ -257,6 +265,7 @@ public class LoginFragment extends Fragment {
 
     private void startApiDiscovery() {
         // Setup UI
+        mResolutionInProgress = false;
         configureUi(false,  true, null, null);
 
         // Start mDNS discovery
@@ -462,24 +471,101 @@ public class LoginFragment extends Fragment {
         }
         @Override
         public void onServiceResolved(final NsdServiceInfo serviceInfo) {
-            Log.e(TAG, "Found local API!. " + serviceInfo);
-            // Make sure we only rely on IPv4 Addresses. IPV4 are 4 bytes long.
-            if (serviceInfo.getHost().getAddress().length!=4) {
-                Log.w(TAG, "Ignoring discovered IP " + serviceInfo.getHost().getHostAddress() + " as it is not a valid IPv4 address");
+            if (mResolutionInProgress) {
                 return;
             }
+            mResolutionInProgress = true;
+            Log.i(TAG, "Found local API! " + serviceInfo);
 
-            // Keep the user's HTTP/HTTPS choice and derived ports; discovery
-            // only supplies the host.
-            String host = BrokerEndpoint.sanitizeHost(
-                    serviceInfo.getHost().getHostName());
-            mTimer.cancel();
-            mTimer = null;
-            if (mDiscoveryInProgress)
+            if (mTimer != null) {
+                mTimer.cancel();
+                mTimer = null;
+            }
+            if (mDiscoveryInProgress) {
                 mNsdManager.stopServiceDiscovery(mDiscoveryListener);
-            configureUi(true, false, host, "Found local API service!");
+            }
+
+            Map<String, byte[]> attributes = Collections.emptyMap();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                    && serviceInfo.getAttributes() != null) {
+                attributes = serviceInfo.getAttributes();
+            }
+            String hostTxt = BrokerDiscovery.decode(attributes, "host");
+            String httpTxt = BrokerDiscovery.decode(attributes, "http_port");
+            String httpsTxt = BrokerDiscovery.decode(attributes, "https_port");
+            boolean hasTxt = hostTxt != null || httpTxt != null || httpsTxt != null;
+
+            String fallback = serviceInfo.getHost() != null
+                    ? serviceInfo.getHost().getHostAddress() : null;
+            final List<String> candidates = BrokerDiscovery.hostCandidates(hostTxt, fallback);
+            final int httpPort = BrokerDiscovery.parsePort(
+                    httpTxt, BrokerEndpoint.DEFAULT_HTTP_PORT);
+            final int advertisedHttpsPort = hasTxt
+                    ? BrokerDiscovery.parsePort(httpsTxt, 0)
+                    : BrokerEndpoint.DEFAULT_HTTPS_PORT;
+            final int httpsPortForUi = advertisedHttpsPort > 0
+                    ? advertisedHttpsPort : BrokerEndpoint.DEFAULT_HTTPS_PORT;
+            final boolean preferHttps = hasTxt && advertisedHttpsPort > 0;
+            final boolean updateEndpoint = hasTxt;
+            final int probePort = preferHttps ? advertisedHttpsPort : httpPort;
+
+            new Thread(() -> {
+                String chosen = null;
+                boolean useHttps = preferHttps;
+                for (String candidate : candidates) {
+                    if (reachable(candidate, probePort)) {
+                        chosen = candidate;
+                        break;
+                    }
+                }
+                if (chosen == null && preferHttps && httpPort > 0) {
+                    for (String candidate : candidates) {
+                        if (reachable(candidate, httpPort)) {
+                            chosen = candidate;
+                            useHttps = false;
+                            break;
+                        }
+                    }
+                }
+                final String resultHost = chosen;
+                final boolean resultHttps = useHttps;
+                mUiHandler.post(() -> {
+                    mResolutionInProgress = false;
+                    if (resultHost == null) {
+                        configureUi(true, false, null,
+                                "Local service found, but no advertised address is reachable.");
+                        return;
+                    }
+                    if (updateEndpoint) {
+                        mHttpsSwitch.setChecked(resultHttps);
+                        mHttpPortEditText.setText(String.valueOf(httpPort));
+                        mHttpsPortEditText.setText(String.valueOf(httpsPortForUi));
+                    }
+                    configureUi(true, false, resultHost, "Found local API service!");
+                    updateEndpointSummary();
+                });
+            }).start();
         }
     };
+
+    private static boolean reachable(String host, int port) {
+        String address = host;
+        if (address.startsWith("[") && address.endsWith("]")) {
+            address = address.substring(1, address.length() - 1);
+        }
+        Socket socket = new Socket();
+        try {
+            socket.connect(new InetSocketAddress(address, port), 1200);
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            try {
+                socket.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
 
     private class TimeoutTask extends TimerTask {
         @Override

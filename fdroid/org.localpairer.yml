@@ -23,6 +23,11 @@ RepoType: git
 Repo: https://github.com/mazkagaz/meross-local-pairer.git
 
 Builds:
+  - versionName: 1.4.7
+    versionCode: 58
+    commit: v1.4.7
+    gradle:
+      - yes
   - versionName: 1.4.6
     versionCode: 57
     commit: v1.4.6

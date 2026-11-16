@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.7
+
+- La découverte mDNS utilise désormais les enregistrements TXT publiés par le
+  broker `alpha75` : adresses LAN de Home Assistant, port HTTP et port HTTPS.
+  L'application teste la joignabilité de chaque adresse, préfère HTTPS quand il
+  est annoncé, puis préremplit l'hôte et les ports. Aucune adresse n'est
+  préremplie si aucune ne répond.
+- Repli sur l'adresse IP résolue (et non plus le nom SRV) pour les brokers
+  antérieurs ; le type de service mDNS n'a plus de point final.
+
 ## 1.4.6
 
 - Corrige la flèche retour de la barre d'outils : elle est maintenant affichée
