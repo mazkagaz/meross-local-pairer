@@ -61,7 +61,9 @@ donc de leur parler sur un réseau non validé. Au premier usage, une boîte de
 dialogue propose d'autoriser le Wi-Fi courant. La liste se gère dans
 **Paramètres → Allowed Wi-Fi networks** (autoriser le réseau courant, retirer
 un réseau). Les AP d'appairage `Meross_*` restent implicitement autorisés
-pendant l'appairage.
+pendant l'appairage. Android exige les permissions Wi-Fi/Localisation et les
+services de localisation pour lire le nom du réseau ; l'application les
+demande au moment de l'autorisation.
 
 ## Appairage pas à pas
 
