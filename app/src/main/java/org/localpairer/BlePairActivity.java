@@ -58,6 +58,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
     private Spinner deviceSpinner;
     private Spinner wifiSpinner;
     private EditText passwordInput;
+    private EditText deviceNameInput;
     private Button pairButton;
     private ArrayAdapter<String> deviceAdapter;
     private ArrayAdapter<String> wifiAdapter;
@@ -143,6 +144,11 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         passwordInput.setInputType(InputType.TYPE_CLASS_TEXT
                 | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         root.addView(passwordInput);
+
+        deviceNameInput = new EditText(this);
+        deviceNameInput.setHint("Device name (optional)");
+        deviceNameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        root.addView(deviceNameInput);
 
         pairButton = new Button(this);
         pairButton.setText("Configure device");
@@ -312,8 +318,11 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         setStatus("Checking that the device is online in the broker...");
         final Handler main = new Handler(Looper.getMainLooper());
         final String mac = deviceMac;
+        final String requestedName = deviceNameInput != null
+                ? deviceNameInput.getText().toString().trim() : "";
         new Thread(() -> {
             MerossHttpClient client = new MerossHttpClient(credentials);
+            boolean renamed = requestedName.isEmpty();
             // Re-pairing a forgotten device must lift its broker revocation
             // before the device can log in again.
             if (mac != null) {
@@ -329,8 +338,21 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
                 try {
                     List<DeviceInfo> list = client.listDevices();
                     for (DeviceInfo info : list) {
-                        if (uuid != null && uuid.equals(info.getUuid())
-                                && info.getOnlineStatus() == OnlineStatus.ONLINE) {
+                        if (uuid == null || !uuid.equals(info.getUuid())) {
+                            continue;
+                        }
+                        if (!renamed) {
+                            try {
+                                client.renameDevice(uuid, requestedName);
+                                renamed = true;
+                                PairingLog.log("ble", "renamed uuid " + uuid
+                                        + " to " + requestedName);
+                            } catch (Exception renameError) {
+                                PairingLog.log("ble", "rename failed: "
+                                        + renameError.getMessage());
+                            }
+                        }
+                        if (info.getOnlineStatus() == OnlineStatus.ONLINE) {
                             PairingLog.log("ble", "device " + uuid + " is ONLINE");
                             main.post(() -> {
                                 setStatus("Device paired and ONLINE: " + uuid);

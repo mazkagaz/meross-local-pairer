@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.3
+
+- Champ **Device name (optional)** pendant l'appairage (écran du broker en
+  firmware 7, écran Bluetooth en firmware 8). Le nom est enregistré dans le
+  broker via `POST /v1/Device/name` (broker `alpha73` ou plus récent) et
+  apparaît dans la liste des appareils et dans Home Assistant.
+- Si le broker est plus ancien, le nom est ignoré sans faire échouer
+  l'appairage.
+
 ## 1.4.2
 
 - Le réseau Wi-Fi choisi pour les appareils IoT est ajouté automatiquement aux

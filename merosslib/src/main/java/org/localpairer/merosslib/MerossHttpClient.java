@@ -151,6 +151,15 @@ public class MerossHttpClient implements Serializable {
                 this.mCredentials.getToken(), Object.class);
     }
 
+    /** Sets the display name stored by the broker for a paired device. */
+    public void renameDevice(String uuid, String name) throws IOException, HttpApiException, HttpApiInvalidCredentialsException {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("uuid", uuid);
+        data.put("name", name);
+        authenticatedPost(mCredentials.getApiServer() + "/v1/Device/name", data,
+                this.mCredentials.getToken(), Object.class);
+    }
+
     public void logout() throws HttpApiInvalidCredentialsException, HttpApiException, IOException {
         if (mCredentials == null) {
             throw new IllegalStateException("Invalid logout operation: this client is not logged in.");

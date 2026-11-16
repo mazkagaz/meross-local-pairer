@@ -23,6 +23,7 @@ public class PairActivityViewModel extends ViewModel {
     private MutableLiveData<WifiLocationStatus> wifiLocationStatus;
     private MutableLiveData<String> overridedKey;
     private MutableLiveData<String> overridedUserId;
+    private MutableLiveData<String> targetDeviceName;
     private long pairingSessionId;
 
 
@@ -36,6 +37,7 @@ public class PairActivityViewModel extends ViewModel {
         wifiLocationStatus = new MutableLiveData<>(null);
         overridedKey = new MutableLiveData<>(null);
         overridedUserId = new MutableLiveData<>(null);
+        targetDeviceName = new MutableLiveData<>(null);
     }
 
     /**
@@ -61,6 +63,7 @@ public class PairActivityViewModel extends ViewModel {
         deviceInfo.setValue(null);
         overridedKey.setValue(null);
         overridedUserId.setValue(null);
+        targetDeviceName.setValue(null);
     }
 
     public LiveData<org.localpairer.merosslib.MerossDeviceAp> getDevice() {
@@ -124,5 +127,12 @@ public class PairActivityViewModel extends ViewModel {
     }
     public void setOverrideKey(String overrideKey) {
         this.overridedKey.setValue(overrideKey);
+    }
+
+    public LiveData<String> getTargetDeviceName() {
+        return this.targetDeviceName;
+    }
+    public void setTargetDeviceName(String deviceName) {
+        this.targetDeviceName.setValue(deviceName);
     }
 }

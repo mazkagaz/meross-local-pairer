@@ -129,6 +129,8 @@ public class ConfigureMqttFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mqttConfigurationSpinner = view.findViewById(R.id.mqttConfigurationSpinner);
+        final TextInputLayout deviceNameInputLayout =
+                view.findViewById(R.id.deviceNameInputLayout);
         mqttConfigurationNameEditText = view.findViewById(R.id.mqttConfigurationNameEditText);
         mqttHostEditText = view.findViewById(R.id.mqttHostnameEditText);
         mqttPortEditText = view.findViewById(R.id.mqttPortEditText);
@@ -311,6 +313,11 @@ public class ConfigureMqttFragment extends Fragment {
                     pairActivityViewModel.setOverrideKey(null);
                     pairActivityViewModel.setOverrideUserId(null);
                 }
+
+                String deviceName = deviceNameInputLayout.getEditText()
+                        .getText().toString().trim();
+                pairActivityViewModel.setTargetDeviceName(
+                        deviceName.isEmpty() ? null : deviceName);
 
                 NavController ctrl = NavHostFragment.findNavController(ConfigureMqttFragment.this);
                 ctrl.navigate(R.id.action_configureMqtt_to_executePair, null, new NavOptions.Builder().setEnterAnim(android.R.animator.fade_in).setExitAnim(android.R.animator.fade_out).build());

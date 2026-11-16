@@ -188,6 +188,7 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
         final String requestedMac = deviceInfo.getPayload().getAll().getSystem().getHardware().getMacAddress();
         final String requestedBssid = pairingAp.getBssid();
         final ApiCredentials requestedCreds = mCreds;
+        final String requestedName = pairActivityViewModel.getTargetDeviceName().getValue();
         targetUuid = requestedUuid;
         PairingLog.log("pairing", "verifying uuid=" + requestedUuid + " mac=" + requestedMac
                 + " bssid=" + requestedBssid);
@@ -219,12 +220,25 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
                     }
                 }
                 boolean succeed = false;
+                boolean renamed = false;
                 boolean timedOut = GregorianCalendar.getInstance().getTimeInMillis() >= timeout;
                 boolean exitNow = false;
                 while(!exitNow && !succeed && !Thread.currentThread().isInterrupted() && !timedOut) {
                     try {
                         List<DeviceInfo> devices = client.listDevices();
                         DeviceInfo d = findDevice(devices, requestedUuid);
+                        if (d != null && !renamed && requestedName != null
+                                && !requestedName.trim().isEmpty()) {
+                            try {
+                                client.renameDevice(requestedUuid, requestedName.trim());
+                                renamed = true;
+                                PairingLog.log("pairing", "renamed uuid " + requestedUuid
+                                        + " to " + requestedName.trim());
+                            } catch (Exception renameError) {
+                                PairingLog.log("pairing", "rename failed: "
+                                        + renameError.getMessage());
+                            }
+                        }
                         if (d == null) {
                             Log.i(TAG, "Device " + requestedUuid + " not paired yet.");
                             PairingLog.log("verify", "uuid " + requestedUuid + " not in broker list");
