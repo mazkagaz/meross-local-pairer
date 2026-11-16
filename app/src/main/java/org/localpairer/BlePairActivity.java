@@ -41,6 +41,9 @@ import java.util.List;
 
 /** Bluetooth provisioning path for firmware 8 devices such as the MRS100. */
 public class BlePairActivity extends AppCompatActivity implements MerossBleClient.Callback {
+    public static final String EXTRA_ADDRESS = "ble_address";
+    public static final String EXTRA_NAME = "ble_name";
+
     private static final int REQUEST_BLE_PERMISSIONS = 21;
     private static final int REQUEST_ENABLE_BT = 22;
     private static final int BROKER_PORT = 2001;
@@ -64,10 +67,14 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
     private String deviceUuid;
     private String deviceMac;
     private boolean pairingSent;
+    private String initialAddress;
+    private String initialName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initialAddress = getIntent().getStringExtra(EXTRA_ADDRESS);
+        initialName = getIntent().getStringExtra(EXTRA_NAME);
         setTitle("Bluetooth pairing (firmware 8)");
         getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         buildUi();
@@ -102,22 +109,27 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         deviceInfoView.setPadding(0, dp(12), 0, dp(12));
         root.addView(deviceInfoView);
 
-        root.addView(label("1. Meross BLE device"));
-        deviceSpinner = new Spinner(this);
-        deviceAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, deviceLabels);
-        deviceSpinner.setAdapter(deviceAdapter);
-        root.addView(deviceSpinner);
+        if (initialAddress == null) {
+            root.addView(label("1. Meross BLE device"));
+            deviceSpinner = new Spinner(this);
+            deviceAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_dropdown_item, deviceLabels);
+            deviceSpinner.setAdapter(deviceAdapter);
+            root.addView(deviceSpinner);
 
-        Button scanButton = new Button(this);
-        scanButton.setText("Rescan Bluetooth");
-        scanButton.setOnClickListener(v -> startScan());
-        root.addView(scanButton);
+            Button scanButton = new Button(this);
+            scanButton.setText("Rescan Bluetooth");
+            scanButton.setOnClickListener(v -> startScan());
+            root.addView(scanButton);
 
-        Button connectButton = new Button(this);
-        connectButton.setText("Connect to selected device");
-        connectButton.setOnClickListener(v -> connectSelected());
-        root.addView(connectButton);
+            Button connectButton = new Button(this);
+            connectButton.setText("Connect to selected device");
+            connectButton.setOnClickListener(v -> connectSelected());
+            root.addView(connectButton);
+        } else {
+            setStatus("Bluetooth device " + (initialName != null ? initialName : initialAddress)
+                    + " selected. Connecting...");
+        }
 
         root.addView(label("2. Home Wi-Fi"));
         wifiSpinner = new Spinner(this);
@@ -188,7 +200,11 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             startActivityForResult(enable, REQUEST_ENABLE_BT);
             return;
         }
-        startScan();
+        if (initialAddress != null) {
+            connectToAddress(initialAddress);
+        } else {
+            startScan();
+        }
     }
 
     private void startScan() {
@@ -207,9 +223,13 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             return;
         }
         BluetoothDevice device = devices.get(position);
-        setStatus("Connecting to " + device.getAddress() + "...");
-        PairingLog.log("ble", "connecting to " + device.getAddress());
-        ble.connect(device.getAddress());
+        connectToAddress(device.getAddress());
+    }
+
+    private void connectToAddress(String address) {
+        setStatus("Connecting to " + address + "...");
+        PairingLog.log("ble", "connecting to " + address);
+        ble.connect(address);
     }
 
     private void configureDevice() {
@@ -233,6 +253,10 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             return;
         }
         MerossBleProtocol.WifiEntry wifi = wifiEntries.get(position);
+        if (!AllowedWifiNetworks.isAllowed(this, wifi.ssid, wifi.bssid)) {
+            NetworkPolicy.ensureAllowed(this, wifi.ssid, wifi.bssid, this::configureDevice);
+            return;
+        }
         String password = passwordInput.getText().toString();
         if (wifi.encryption != 0 && password.isEmpty()) {
             Toast.makeText(this, "Enter the Wi-Fi password.", Toast.LENGTH_SHORT).show();
@@ -378,7 +402,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_ENABLE_BT) {
             if (resultCode == RESULT_OK) {
-                startScan();
+                startBluetooth();
             } else {
                 setStatus("Bluetooth must be enabled to pair this firmware.");
             }

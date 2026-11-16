@@ -22,9 +22,11 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.localpairer.AllowedWifiNetworks;
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.Constants;
 import org.localpairer.MainActivity;
+import org.localpairer.MerossUtils;
 import org.localpairer.PairingLog;
 import org.localpairer.R;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -34,6 +36,8 @@ import org.localpairer.ui.fragments.login.LoginFragment;
 import org.localpairer.merosslib.model.http.ApiCredentials;
 
 import org.eclipse.paho.client.mqttv3.util.Strings;
+
+import java.util.List;
 
 public class AccountFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -195,7 +199,74 @@ public class AccountFragment extends Fragment {
             Toast.makeText(requireContext(), "Pairing logs cleared.", Toast.LENGTH_SHORT).show();
         });
 
+        final TextView allowedWifiSummary = root.findViewById(R.id.allowedWifiSummary);
+        final Button allowCurrentWifiButton = root.findViewById(R.id.allowCurrentWifiButton);
+        final Button manageAllowedWifiButton = root.findViewById(R.id.manageAllowedWifiButton);
+        refreshAllowedWifiSummary(allowedWifiSummary);
+
+        allowCurrentWifiButton.setOnClickListener(v -> {
+            AllowedWifiNetworks.Entry current = AllowedWifiNetworks.current(requireContext());
+            if (current == null) {
+                Toast.makeText(requireContext(),
+                        "Connect to a Wi-Fi network first.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            AllowedWifiNetworks.add(requireContext(), current.ssid, current.bssid);
+            PairingLog.log("network", "allowed current " + current.ssid + "/" + current.bssid);
+            refreshAllowedWifiSummary(allowedWifiSummary);
+        });
+
+        manageAllowedWifiButton.setOnClickListener(v -> {
+            List<AllowedWifiNetworks.Entry> entries =
+                    AllowedWifiNetworks.load(requireContext());
+            if (entries.isEmpty()) {
+                Toast.makeText(requireContext(),
+                        "No allowed network yet.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String[] labels = new String[entries.size()];
+            boolean[] selected = new boolean[entries.size()];
+            for (int i = 0; i < entries.size(); i++) {
+                labels[i] = entries.get(i).label();
+            }
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Select networks to remove")
+                    .setMultiChoiceItems(labels, selected,
+                            (dialog, which, isChecked) -> selected[which] = isChecked)
+                    .setPositiveButton("Remove", (dialog, which) -> {
+                        for (int i = entries.size() - 1; i >= 0; i--) {
+                            if (selected[i]) {
+                                AllowedWifiNetworks.remove(requireContext(), entries.get(i));
+                            }
+                        }
+                        refreshAllowedWifiSummary(allowedWifiSummary);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+
         return root;
+    }
+
+    private void refreshAllowedWifiSummary(TextView summary) {
+        List<AllowedWifiNetworks.Entry> entries = AllowedWifiNetworks.load(requireContext());
+        if (entries.isEmpty()) {
+            summary.setText("No network validated. Broker traffic is blocked.");
+            return;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (AllowedWifiNetworks.Entry entry : entries) {
+            if (builder.length() > 0) {
+                builder.append('\n');
+            }
+            builder.append("• ").append(entry.label());
+        }
+        AllowedWifiNetworks.Entry current = AllowedWifiNetworks.current(requireContext());
+        if (current != null && !AllowedWifiNetworks.isAllowed(requireContext(),
+                current.ssid, current.bssid) && !MerossUtils.isMerossAp(current.ssid)) {
+            builder.append("\nCurrent: ").append(current.ssid).append(" (not allowed)");
+        }
+        summary.setText(builder.toString());
     }
 
     @Override

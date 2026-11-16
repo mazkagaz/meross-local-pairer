@@ -17,8 +17,10 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.localpairer.AllowedWifiNetworks;
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.Constants;
+import org.localpairer.NetworkPolicy;
 import org.localpairer.PairingLog;
 import org.localpairer.PairingSession;
 import org.localpairer.R;
@@ -146,10 +148,15 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
     }
 
     private void connectToLocalWifi() {
-        state = State.CONNETING_LOCAL_WIFI;
-
         String ssid = pairActivityViewModel.getMerossConfiguredWifi().getValue().getScannedWifi().getSsid();
         String bssid = pairActivityViewModel.getMerossConfiguredWifi().getValue().getScannedWifi().getBssid();
+        if (!AllowedWifiNetworks.isAllowed(requireContext(), ssid, bssid)) {
+            NetworkPolicy.ensureAllowed(requireActivity(), ssid, bssid,
+                    this::connectToLocalWifi);
+            return;
+        }
+        state = State.CONNETING_LOCAL_WIFI;
+
         String passphrase = pairActivityViewModel.getMerossConfiguredWifi().getValue().getClearWifiPassword();
         PairingLog.log("wifi", "connecting to local wifi ssid=" + ssid + " bssid=" + bssid);
 

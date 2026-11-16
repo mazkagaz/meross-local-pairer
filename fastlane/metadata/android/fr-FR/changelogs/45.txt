@@ -1,0 +1,1 @@
+Détection BLE automatique et liste de réseaux Wi-Fi autorisés pour limiter le trafic broker.

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.localpairer.AndroidPreferencesManager;
+import org.localpairer.NetworkPolicy;
 import org.localpairer.R;
 import org.localpairer.model.HttpClientManager;
 import org.localpairer.merosslib.model.http.ApiCredentials;
@@ -91,6 +92,10 @@ public class DeviceListFragment extends Fragment {
     }
 
     private void updateData() {
+        if (!NetworkPolicy.isCurrentAllowed(requireActivity())) {
+            NetworkPolicy.ensureCurrentAllowed(requireActivity(), this::updateData);
+            return;
+        }
         ApiCredentials creds = AndroidPreferencesManager.loadHttpCredentials(requireContext());
         if (creds == null) {
             Toast.makeText(requireContext(), "Please login first.", Toast.LENGTH_SHORT).show();

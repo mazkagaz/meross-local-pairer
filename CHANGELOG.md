@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+- Détection **Bluetooth automatique** sur l'écran de scan : les appareils
+  `MRBL_…` apparaissent dans la liste, sans bouton de mode manuel. Un appui
+  lance directement la connexion et le parcours Wi-Fi.
+- Ajout d'une liste de **réseaux Wi-Fi autorisés** : le broker n'est contacté
+  que sur un réseau validé, avec une demande d'autorisation au premier usage.
+  Les AP d'appairage `Meross_*` restent autorisés pendant l'appairage.
+
+
 ## 1.1.0
 
 - Ajout de l'appairage **Bluetooth LE** pour les appareils au firmware 8

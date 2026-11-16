@@ -1,10 +1,7 @@
-# Meross Local Pairer 1.1.0
+# Meross Local Pairer 1.1.1
 
-Appairage Bluetooth des appareils au firmware 8.
-
-- Nouveau bouton **Firmware 8: pair via Bluetooth** sur l'écran de scan.
-- Scan BLE du service Meross A00A, lecture de l'identité (UUID/MAC/type) et
-  de la liste Wi-Fi de l'appareil.
-- Envoi des identifiants du broker local et du Wi-Fi sélectionné via le
-  protocole BLE Meross, puis vérification que l'appareil devient ONLINE.
-- Les appareils firmware 7 continuent d'utiliser l'appairage Wi-Fi classique.
+- Détection Bluetooth automatique : les appareils `MRBL_…` apparaissent dans
+  la liste de scan, sans sélection manuelle du mode.
+- Liste de réseaux Wi-Fi autorisés : le broker n'est joint que sur un réseau
+  validé ; les AP Meross restent autorisés pour l'appairage.
+- Reprend la signature stable de la 1.1.0.

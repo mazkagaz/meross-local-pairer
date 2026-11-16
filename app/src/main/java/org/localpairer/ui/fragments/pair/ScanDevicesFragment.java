@@ -7,6 +7,7 @@ import static android.Manifest.permission.CHANGE_WIFI_STATE;
 import static android.Manifest.permission.NEARBY_WIFI_DEVICES;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +49,7 @@ import org.localpairer.BlePairActivity;
 import org.localpairer.MerossUtils;
 import org.localpairer.PairingLog;
 import org.localpairer.R;
+import org.localpairer.ble.MerossBleClient;
 import org.localpairer.model.MerossDeviceAp;
 import org.localpairer.model.WifiLocationStatus;
 import org.localpairer.ui.PairActivityViewModel;
@@ -80,6 +83,11 @@ public class ScanDevicesFragment extends Fragment {
     private Runnable pendingScanRetry;
     private Runnable pendingAutoScan;
     private static final long AUTO_SCAN_INTERVAL_MS = 30000;
+    private TextView bleSectionTitle;
+    private LinearLayout bleDevicesContainer;
+    private MerossBleClient bleScanner;
+    private final List<String> bleAddresses = new ArrayList<>();
+    private Runnable bleScanLoop;
     private ActivityResultLauncher<String[]> multiplePermissionLauncher;
     private static String[] REQUIRED_PERMISSIONS = null;
     private static final String STATE_N_TOKENS = "_state_num_tokens";
@@ -101,7 +109,9 @@ public class ScanDevicesFragment extends Fragment {
                     ACCESS_FINE_LOCATION,
                     ACCESS_COARSE_LOCATION,
                     CHANGE_WIFI_STATE,
-                    CHANGE_NETWORK_STATE
+                    CHANGE_NETWORK_STATE,
+                    android.Manifest.permission.BLUETOOTH_SCAN,
+                    android.Manifest.permission.BLUETOOTH_CONNECT
             };
         } else{
             // For releases <= 32, we need to ask also for location permissions in order to scan
@@ -126,6 +136,7 @@ public class ScanDevicesFragment extends Fragment {
                 Toast.makeText(requireContext(), "This app won't work without required permissions", Toast.LENGTH_LONG).show();
             } else {
                 startScan();
+                startBleScanning();
             }
         });
         multiplePermissionLauncher.launch(REQUIRED_PERMISSIONS);
@@ -158,6 +169,11 @@ public class ScanDevicesFragment extends Fragment {
     public void onDestroy() {
         cancelScanRetry();
         cancelFollowUpScans();
+        stopBleScanning();
+        if (bleScanner != null) {
+            bleScanner.disconnect();
+            bleScanner = null;
+        }
         super.onDestroy();
     }
 
@@ -167,6 +183,7 @@ public class ScanDevicesFragment extends Fragment {
         // device AP (this fragment stays alive on the back stack).
         cancelScanRetry();
         cancelFollowUpScans();
+        stopBleScanning();
         super.onStop();
     }
 
@@ -193,6 +210,7 @@ public class ScanDevicesFragment extends Fragment {
         requireContext().registerReceiver(wifiScanReceiver, intentFilter);
 
         checkWifiAndLocation();
+        startBleScanning();
     }
 
     @Override
@@ -200,6 +218,93 @@ public class ScanDevicesFragment extends Fragment {
         super.onPause();
         requireContext().unregisterReceiver(wifiScanReceiver);
     }
+
+    private boolean hasBlePermissions() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            return hasPermissions(new String[]{
+                    android.Manifest.permission.BLUETOOTH_SCAN,
+                    android.Manifest.permission.BLUETOOTH_CONNECT});
+        }
+        return true;
+    }
+
+    private void startBleScanning() {
+        if (bleScanner == null || !isAdded() || !isResumed() || !hasBlePermissions()) {
+            return;
+        }
+        stopBleScanning();
+        bleScanLoop = new Runnable() {
+            @Override
+            public void run() {
+                if (!isAdded() || !isResumed()) {
+                    return;
+                }
+                bleScanner.startScan();
+                bleScanLoop = this;
+                uiHandler.postDelayed(this, 13000);
+            }
+        };
+        uiHandler.post(bleScanLoop);
+    }
+
+    private void stopBleScanning() {
+        if (bleScanLoop != null) {
+            uiHandler.removeCallbacks(bleScanLoop);
+            bleScanLoop = null;
+        }
+        if (bleScanner != null) {
+            bleScanner.stopScan();
+        }
+    }
+
+    private void addBleDevice(BluetoothDevice device, String name) {
+        if (bleDevicesContainer == null || bleAddresses.contains(device.getAddress())) {
+            return;
+        }
+        bleAddresses.add(device.getAddress());
+        String label = (name != null ? name : "Meross Bluetooth") + "\n" + device.getAddress();
+        TextView row = new TextView(requireContext());
+        row.setText(label);
+        row.setTextSize(14);
+        row.setPadding(8, 12, 8, 12);
+        row.setBackgroundResource(android.R.drawable.list_selector_background);
+        row.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), BlePairActivity.class);
+            intent.putExtra(BlePairActivity.EXTRA_ADDRESS, device.getAddress());
+            intent.putExtra(BlePairActivity.EXTRA_NAME, name);
+            startActivity(intent);
+        });
+        bleDevicesContainer.addView(row, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        bleDevicesContainer.setVisibility(View.VISIBLE);
+        bleSectionTitle.setVisibility(View.VISIBLE);
+        PairingLog.log("ble", "found " + name + " " + device.getAddress());
+    }
+
+    private final MerossBleClient.Callback bleScanCallback = new MerossBleClient.Callback() {
+        @Override
+        public void onDeviceFound(BluetoothDevice device, String name) {
+            uiHandler.post(() -> addBleDevice(device, name));
+        }
+
+        @Override
+        public void onReady() {
+        }
+
+        @Override
+        public void onPacket(org.json.JSONObject packet) {
+        }
+
+        @Override
+        public void onError(String message) {
+            PairingLog.log("ble", "scan error: " + message);
+        }
+
+        @Override
+        public void onDisconnected() {
+        }
+    };
 
     private boolean checkWifiAndLocation() {
         // Show an error message if wifi is not enabled
@@ -221,12 +326,16 @@ public class ScanDevicesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         swipeContainer = view.findViewById(R.id.swipeContainer);
         scanStatusTextView = view.findViewById(R.id.scanStatusTextView);
-        View blePairButton = view.findViewById(R.id.blePairButton);
+        bleSectionTitle = view.findViewById(R.id.bleSectionTitle);
+        bleDevicesContainer = view.findViewById(R.id.bleDevicesContainer);
         boolean bleSupported = requireContext().getPackageManager()
                 .hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
-        blePairButton.setVisibility(bleSupported ? View.VISIBLE : View.GONE);
-        blePairButton.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), BlePairActivity.class)));
+        if (bleSupported) {
+            bleScanner = new MerossBleClient(requireContext(), bleScanCallback);
+        } else {
+            bleSectionTitle.setVisibility(View.GONE);
+            bleDevicesContainer.setVisibility(View.GONE);
+        }
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

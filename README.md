@@ -4,7 +4,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 1.1.0.** Elle gère l'appairage Wi-Fi des appareils au
+**Version stable 1.1.1.** Elle gère l'appairage Wi-Fi des appareils au
 firmware 7 et l'appairage **Bluetooth LE** des appareils au firmware 8 (MRS100
 8.x), dont l'AP Wi-Fi n'est pas ouvert sans confirmation BLE. Une recette
 F-Droid est préparée (`fdroid/org.localpairer.yml`) ; l'application
@@ -54,6 +54,15 @@ clé (et plus tard au passage à F-Droid, qui utilise sa propre clé). Voir
   selon la notice du modèle. Un MRS100 en firmware 8 se met alors en
   **publicité Bluetooth** (`MRBL_…`), pas en AP Wi-Fi.
 
+## Réseaux Wi-Fi autorisés
+
+Le broker et l'API locale sont contactés en HTTP/MQTT : l'application refuse
+donc de leur parler sur un réseau non validé. Au premier usage, une boîte de
+dialogue propose d'autoriser le Wi-Fi courant. La liste se gère dans
+**Paramètres → Allowed Wi-Fi networks** (autoriser le réseau courant, retirer
+un réseau). Les AP d'appairage `Meross_*` restent implicitement autorisés
+pendant l'appairage.
+
 ## Appairage pas à pas
 
 1. Ouvrir Meross Local Pairer et accorder les permissions Wi-Fi et localisation.
@@ -79,14 +88,14 @@ clé (et plus tard au passage à F-Droid, qui utilise sa propre clé). Voir
       au broker.
 
    **Firmware 8 — Bluetooth LE**
-   1. Toucher **Firmware 8: pair via Bluetooth**.
-   2. Sélectionner l'appareil `MRBL_…`, puis **Connect**.
-   3. L'application lit l'identité (UUID/MAC/type) et la liste Wi-Fi de
-      l'appareil.
-   4. Sélectionner le Wi-Fi domestique, saisir le mot de passe, puis
+   1. La détection Bluetooth est automatique : les appareils `MRBL_…`
+      apparaissent sous **Meross Bluetooth devices**, à côté des AP Wi-Fi.
+   2. Toucher l'appareil `MRBL_…`. L'application se connecte seule et lit son
+      identité (UUID/MAC/type) ainsi que sa liste Wi-Fi.
+   3. Sélectionner le Wi-Fi domestique, saisir le mot de passe, puis
       **Configure device**. Le broker local déjà configuré dans l'application
       est utilisé (port 2001).
-   5. L'application vérifie que l'appareil devient **ONLINE** ; elle n'affiche
+   4. L'application vérifie que l'appareil devient **ONLINE** ; elle n'affiche
       pas de succès si ce n'est pas le cas.
 
 4. Vérifier dans l'add-on que l'appareil est **ONLINE**, puis ajouter
@@ -102,6 +111,7 @@ capteur de statut sont créés dans Home Assistant.
 | L'AP `Meross_*` n'apparaît pas | mode appairage activé ; en firmware 8, c'est normal : utiliser l'appairage Bluetooth |
 | Aucun appareil `MRBL_…` en Bluetooth | Bluetooth activé, permissions Bluetooth/localisation, appareil en mode appairage, à portée |
 | Connexion HTTP impossible | utiliser `homeassistant.local` ou **Manual setup** |
+| « Untrusted Wi-Fi network » | autoriser le réseau courant dans **Allowed Wi-Fi networks** |
 | Échec des identifiants | compte local de l'add-on, `UserId`/`mqttKey` corrects |
 | L'appareil ne rejoint pas le Wi-Fi | WPA2 2,4 GHz, mot de passe, portée |
 | L'appareil n'est pas ONLINE | port 2001 joignable, broker démarré, logs de l'add-on |

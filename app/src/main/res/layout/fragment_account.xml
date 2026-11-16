@@ -162,6 +162,54 @@
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/allowedWifiCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10sp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Allowed Wi-Fi networks"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="The app only contacts the local broker on networks validated here. Device APs (Meross_*) are allowed during pairing." />
+
+            <TextView
+                android:id="@+id/allowedWifiSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="No network validated." />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/allowCurrentWifiButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Allow current Wi-Fi" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/manageAllowedWifiButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Manage allowed networks" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/diagnosticsCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -1,0 +1,1 @@
+Automatic BLE discovery on the scan screen and a list of validated Wi-Fi networks restricting broker traffic.

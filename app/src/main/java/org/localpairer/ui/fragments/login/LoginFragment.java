@@ -28,6 +28,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.AndroidUtils;
 import org.localpairer.MainActivity;
+import org.localpairer.NetworkPolicy;
 import org.localpairer.R;
 import org.localpairer.model.HttpClientManager;
 import org.localpairer.ui.MainActivityViewModel;
@@ -253,6 +254,10 @@ public class LoginFragment extends Fragment {
     }
 
     private void performLogin() {
+        if (!NetworkPolicy.isCurrentAllowed(requireActivity())) {
+            NetworkPolicy.ensureCurrentAllowed(requireActivity(), this::performLogin);
+            return;
+        }
         // Validate inputs.
         // Validate HOSTNAME/URL
         final String strurl = mHttpHostnameEditText.getText().toString().trim();
