@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.1
+
+- La section **Allowed Wi-Fi networks** est affichée en premier dans Settings,
+  avant le compte, et reste ouverte à la première configuration.
+- La connexion au broker vérifie déjà le réseau autorisé avant l'appel API ;
+  ce contrôle intervient donc avant le test des identifiants du compte.
+
+
 ## 1.2.0
 
 - **Settings** remplace la page « Account & Login », avec des sections

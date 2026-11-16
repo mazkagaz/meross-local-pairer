@@ -1,8 +1,6 @@
-# Meross Local Pairer 1.2.0
+# Meross Local Pairer 1.2.1
 
-- Page **Settings** avec sections repliables (compte, Wi-Fi, diagnostics) et
-  bouton **Back to devices** général.
-- Gestion des réseaux Wi-Fi autorisés : les réseaux visibles peuvent être
-  ajoutés sans y être connecté.
-- Suppression d'un appareil depuis la liste (broker `alpha69` requis).
-- Retrait de l'ancien logo Home Assistant de la configuration.
+- **Allowed Wi-Fi networks** apparaît en premier dans Settings et est ouvert à
+  la première configuration.
+- La validation du réseau autorisé est faite avant tout appel à l'API du
+  broker (connexion au compte et liste des appareils).

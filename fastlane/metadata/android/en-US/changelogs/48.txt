@@ -1,0 +1,1 @@
+Show trusted Wi-Fi first in Settings and validate the current network before any broker API call.

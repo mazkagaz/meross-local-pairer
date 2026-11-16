@@ -64,6 +64,21 @@ public class AccountFragment extends Fragment {
         final CardView loginCardView = root.findViewById(R.id.loginCard);
         final Button manualSetupButton = root.findViewById(R.id.setManualButton);
 
+        // Trusted Wi-Fi must be validated before any broker/API login. Put the
+        // Wi-Fi section first so this is the first thing configured.
+        View wifiHeader = root.findViewById(R.id.wifiSectionHeader);
+        View wifiCard = root.findViewById(R.id.allowedWifiCard);
+        View accountHeader = root.findViewById(R.id.accountSectionHeader);
+        if (wifiHeader != null && wifiCard != null && accountHeader != null
+                && accountHeader.getParent() instanceof ViewGroup) {
+            ViewGroup parent = (ViewGroup) accountHeader.getParent();
+            int target = parent.indexOfChild(accountHeader);
+            parent.removeView(wifiHeader);
+            parent.removeView(wifiCard);
+            parent.addView(wifiHeader, target);
+            parent.addView(wifiCard, target + 1);
+        }
+
         boolean firstConfig = AndroidPreferencesManager.loadHttpCredentials(requireContext()) == null;
         accountSectionExpanded = firstConfig;
         setAccountSection(root);

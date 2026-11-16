@@ -1,0 +1,1 @@
+Affiche le Wi-Fi autorisé en premier dans Settings et valide le réseau avant tout appel API au broker.
