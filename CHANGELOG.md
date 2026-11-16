@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.1
+
+- Icône adaptée au type d'appareil dans la liste : les volets roulants
+  (`mrs100`, `mss560`, `mss570`, `mrs200`) utilisent une icône de volet ; les
+  autres appareils gardent l'icône de prise.
+
 ## 1.4.0
 
 - Configuration simplifiée : saisir uniquement l'adresse de Home Assistant

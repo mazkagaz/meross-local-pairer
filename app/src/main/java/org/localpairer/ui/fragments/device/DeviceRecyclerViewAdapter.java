@@ -8,13 +8,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.localpairer.R;
 import org.localpairer.databinding.FragmentDeviceInfoBinding;
 import org.localpairer.merosslib.model.OnlineStatus;
 import org.localpairer.merosslib.model.http.DeviceInfo;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecyclerViewAdapter.ViewHolder> {
+    private static final Set<String> ROLLER_SHUTTER_TYPES =
+            new HashSet<>(Arrays.asList("mrs100", "mss560", "mss570", "mrs200"));
 
     public interface OnDeviceActionListener {
         void onDeleteDevice(DeviceInfo device);
@@ -50,6 +57,11 @@ public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecycl
         holder.mDeviceName.setText(mValues.get(position).getDevName());
         holder.deviceClass.setText(mValues.get(position).getDeviceType());
         holder.mDeviceOnline.setText(mValues.get(position).getOnlineStatus() == null ? OnlineStatus.UNKNOWN.name() : mValues.get(position).getOnlineStatus().name());
+        boolean rollerShutter = isRollerShutter(mValues.get(position));
+        holder.mDeviceIcon.setImageResource(rollerShutter
+                ? R.drawable.ic_roller_shutter : R.drawable.ic_smart_plug);
+        holder.mDeviceIcon.setContentDescription(rollerShutter
+                ? "Roller shutter" : "Device");
         holder.mDeleteButton.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onDeleteDevice(holder.mItem);
@@ -62,12 +74,18 @@ public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecycl
         return mValues.size();
     }
 
+    private static boolean isRollerShutter(DeviceInfo device) {
+        String type = device.getDeviceType();
+        return type != null && ROLLER_SHUTTER_TYPES.contains(type.toLowerCase(Locale.ROOT));
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public final TextView mDeviceUuid;
         public final TextView mDeviceName;
         public final TextView deviceClass;
         public final TextView mDeviceOnline;
         public final ImageView mDeleteButton;
+        public final ImageView mDeviceIcon;
         public DeviceInfo mItem;
 
         public ViewHolder(FragmentDeviceInfoBinding binding) {
@@ -77,6 +95,7 @@ public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecycl
             deviceClass = binding.deviceClass;
             mDeviceOnline = binding.deviceOnlineStatus;
             mDeleteButton = binding.deviceDeleteButton;
+            mDeviceIcon = binding.imageView9;
         }
 
         @NonNull
