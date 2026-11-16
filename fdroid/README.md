@@ -14,14 +14,14 @@ explicite) a été retirée pour éviter un rejet.
 4. Ouvrir une merge request « New app: Meross Local Pairer ».
 5. Répondre aux éventuelles demandes des relecteurs.
 
-Le fichier pointe sur le tag `v1.0.0` et le `versionCode` 32. Les prochaines
+Le fichier pointe sur le tag `v1.1.0` et le `versionCode` 44. Les prochaines
 versions seront détectées par `AutoUpdateMode: Version` /
 `UpdateCheckMode: Tags`.
 
 ## Signature
 
-F-Droid signe les APK avec sa propre clé. Un APK installé depuis GitHub
-(signature debug) doit être désinstallé avant d'installer la version F-Droid,
+F-Droid signe les APK avec sa propre clé. Un APK installé depuis GitHub (clé
+stable du projet) doit être désinstallé avant d'installer la version F-Droid,
 sinon Android refuse la mise à jour pour cause de signature différente.
 
 ## Vérifications

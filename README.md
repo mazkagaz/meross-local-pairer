@@ -4,9 +4,12 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 1.0.0.** Une recette F-Droid est préparée
-(`fdroid/org.localpairer.yml`) ; l'application n'apparaîtra dans F-Droid
-qu'après acceptation de la merge request dans `fdroiddata`.
+**Version stable 1.1.0.** Elle gère l'appairage Wi-Fi des appareils au
+firmware 7 et l'appairage **Bluetooth LE** des appareils au firmware 8 (MRS100
+8.x), dont l'AP Wi-Fi n'est pas ouvert sans confirmation BLE. Une recette
+F-Droid est préparée (`fdroid/org.localpairer.yml`) ; l'application
+n'apparaîtra dans F-Droid qu'après acceptation de la merge request dans
+`fdroiddata`.
 
 ## Les trois briques du montage
 
@@ -27,25 +30,29 @@ MRS100 ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> in
 
 1. Ouvrir la page
    [Releases](https://github.com/mazkagaz/meross-local-pairer/releases/latest).
-2. Télécharger le fichier `.apk` de la dernière release (asset debug).
+2. Télécharger le fichier `.apk` de la dernière release (APK signé).
 3. Sur Android, autoriser l'installation depuis cette source si demandé.
 4. Installer l'APK.
 
-L'application n'est pas publiée sur le Play Store. La version debug est signée
-et installable ; le fichier `unsigned` est réservé à la distribution signée par
-le mainteneur. Voir `fdroid/README.md` pour la soumission F-Droid et la
-différence de signature.
+L'application n'est pas publiée sur le Play Store. Les APK de release sont
+signés par une clé stable du projet : les mises à jour s'installent par-dessus
+la version précédente. Une désinstallation unique est nécessaire au passage
+d'une ancienne build signée avec une autre clé (et plus tard au passage à
+F-Droid, qui utilise sa propre clé). Voir `fdroid/README.md` pour la soumission
+F-Droid.
 
 ## Avant l'appairage
 
 - L'add-on **Meross Local Broker** est installé et démarré.
 - Un **compte local** existe dans l'add-on (email + mot de passe, Meross Link
   désactivé).
-- Le téléphone et le MRS100 sont à portée Wi-Fi.
+- Le téléphone et le MRS100 sont à portée Wi-Fi (et Bluetooth pour le
+  firmware 8).
 - Le Wi-Fi domestique est en **2,4 GHz WPA2** (le MRS100 ne gère pas le 5 GHz
   ni WPA3).
-- L'appareil est en mode appairage/AP : maintenir le bouton jusqu'au
-  clignotement, selon la notice du modèle.
+- L'appareil est en mode appairage : maintenir le bouton jusqu'au clignotement,
+  selon la notice du modèle. Un MRS100 en firmware 8 se met alors en
+  **publicité Bluetooth** (`MRBL_…`), pas en AP Wi-Fi.
 
 ## Appairage pas à pas
 
@@ -60,15 +67,29 @@ différence de signature.
    identifiants et peut vérifier l'appairage. Si `homeassistant.local` ne
    répond pas, utiliser l'adresse IP de Home Assistant ; si l'adresse IP est
    refusée par Android, utiliser **Manual setup**.
-3. Revenir à l'écran d'appairage et scanner les réseaux.
-4. Sélectionner l'AP `Meross_RS_XXXX` (ou `Meross_RS_chWF_*`).
-5. Sélectionner le Wi-Fi domestique et saisir son mot de passe.
-6. Saisir le broker :
-   - hôte : adresse IP de Home Assistant (ou `homeassistant.local`) ;
-   - port : **2001**.
-7. Lancer l'appairage. L'appareil redémarre, rejoint le Wi-Fi et se connecte
-   au broker en TLS.
-8. Vérifier dans l'add-on que l'appareil est **ONLINE**, puis ajouter
+3. Revenir à l'écran d'appairage, puis choisir la méthode selon le firmware :
+
+   **Firmware 7 — AP Wi-Fi**
+   1. Scanner et sélectionner l'AP `Meross_RS_XXXX` (ou
+      `Meross_RS_chWF_*`).
+   2. Sélectionner le Wi-Fi domestique et saisir son mot de passe.
+   3. Saisir le broker : hôte = IP de Home Assistant (ou
+      `homeassistant.local`), port = **2001**.
+   4. Lancer l'appairage. L'appareil redémarre, rejoint le Wi-Fi et se connecte
+      au broker.
+
+   **Firmware 8 — Bluetooth LE**
+   1. Toucher **Firmware 8: pair via Bluetooth**.
+   2. Sélectionner l'appareil `MRBL_…`, puis **Connect**.
+   3. L'application lit l'identité (UUID/MAC/type) et la liste Wi-Fi de
+      l'appareil.
+   4. Sélectionner le Wi-Fi domestique, saisir le mot de passe, puis
+      **Configure device**. Le broker local déjà configuré dans l'application
+      est utilisé (port 2001).
+   5. L'application vérifie que l'appareil devient **ONLINE** ; elle n'affiche
+      pas de succès si ce n'est pas le cas.
+
+4. Vérifier dans l'add-on que l'appareil est **ONLINE**, puis ajouter
    l'[intégration Home Assistant](https://github.com/mazkagaz/meross-local-cloud#installation-avec-hacs).
 
 Après l'appairage, les entités `cover`, `number`, boutons de calibration et
@@ -78,7 +99,8 @@ capteur de statut sont créés dans Home Assistant.
 
 | Problème | Vérifier |
 |---|---|
-| L'AP `Meross_*` n'apparaît pas | mode AP activé, permissions Wi-Fi/localisation, 2,4 GHz |
+| L'AP `Meross_*` n'apparaît pas | mode appairage activé ; en firmware 8, c'est normal : utiliser l'appairage Bluetooth |
+| Aucun appareil `MRBL_…` en Bluetooth | Bluetooth activé, permissions Bluetooth/localisation, appareil en mode appairage, à portée |
 | Connexion HTTP impossible | utiliser `homeassistant.local` ou **Manual setup** |
 | Échec des identifiants | compte local de l'add-on, `UserId`/`mqttKey` corrects |
 | L'appareil ne rejoint pas le Wi-Fi | WPA2 2,4 GHz, mot de passe, portée |
@@ -95,7 +117,13 @@ capteur de statut sont créés dans Home Assistant.
 ```
 
 Le build nécessite JDK 17 et Android SDK 35. Les tests couvrent le format
-`Appliance.Config.Key` et la validation des réponses AP (SETACK/ERROR).
+`Appliance.Config.Key` et la validation des réponses AP (SETACK/ERROR) ;
+l'appairage BLE se teste sur un appareil réel.
+
+La CI signe les APK avec une clé stable fournie par les secrets GitHub
+(`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+`ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`). Ne jamais committer le keystore
+ni ses mots de passe.
 
 ## Origine et licence
 
