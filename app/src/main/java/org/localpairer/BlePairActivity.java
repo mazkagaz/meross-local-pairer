@@ -253,10 +253,10 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             return;
         }
         MerossBleProtocol.WifiEntry wifi = wifiEntries.get(position);
-        if (!AllowedWifiNetworks.isAllowed(this, wifi.ssid, wifi.bssid)) {
-            NetworkPolicy.ensureAllowed(this, wifi.ssid, wifi.bssid, this::configureDevice);
-            return;
-        }
+        // The user explicitly chose this network as the device network, so
+        // trust it even when the phone itself uses another Wi-Fi.
+        AllowedWifiNetworks.add(this, wifi.ssid, wifi.bssid);
+        AndroidPreferencesManager.clearWifiDeclined(this, wifi.ssid);
         String password = passwordInput.getText().toString();
         if (wifi.encryption != 0 && password.isEmpty()) {
             Toast.makeText(this, "Enter the Wi-Fi password.", Toast.LENGTH_SHORT).show();

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.2
+
+- Le réseau Wi-Fi choisi pour les appareils IoT est ajouté automatiquement aux
+  réseaux de confiance, même s'il est différent de celui du téléphone. Les
+  parcours firmware 7 (AP) et firmware 8 (Bluetooth) ne demandent donc plus
+  d'autorisation séparée pour ce réseau pendant l'appairage.
+- Un refus antérieur pour ce même SSID est annulé lors de l'appairage.
+
 ## 1.4.1
 
 - Icône adaptée au type d'appareil dans la liste : les volets roulants

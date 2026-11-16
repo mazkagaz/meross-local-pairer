@@ -300,6 +300,12 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
         final String key = pairActivityViewModel.getOverridedKey().getValue() != null ? pairActivityViewModel.getOverridedKey().getValue() : mCreds.getKey();
         final MqttConfiguration targetConfig = pairActivityViewModel.getTargetMqttConfig().getValue();
         final org.localpairer.model.WifiConfiguration targetWifi = pairActivityViewModel.getMerossConfiguredWifi().getValue();
+        // The device Wi-Fi is user-selected for the IoT network; trust it even
+        // when it is not the network the phone uses.
+        AllowedWifiNetworks.add(requireContext(), targetWifi.getScannedWifi().getSsid(),
+                targetWifi.getScannedWifi().getBssid());
+        AndroidPreferencesManager.clearWifiDeclined(requireContext(),
+                targetWifi.getScannedWifi().getSsid());
 
         worker.schedule(new Runnable() {
             @Override

@@ -30,6 +30,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.localpairer.AllowedWifiNetworks;
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.Constants;
 import org.localpairer.MerossUtils;
@@ -252,6 +253,7 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
         public void onClick(View view) {
             // Just store the current configuration and proceed to the next fragment
             pairActivityViewModel.setMerossWifiConfiguration(mSelectedWifi);
+            trustSelectedWifi(mSelectedWifi);
             PairingLog.log("wifi", "selected home wifi ssid="
                     + mSelectedWifi.getScannedWifi().getSsid()
                     + " bssid=" + mSelectedWifi.getScannedWifi().getBssid());
@@ -284,12 +286,37 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
                 mWifiPasswordTextView.setError(null);
             }
 
+            // The user explicitly chose this network as the device network, so
+            // trust it even when it differs from the phone's current Wi-Fi.
+            trustSelectedWifi(selectedWifi);
+
             // Start wifi connection validation
             String clearPassword = mWifiPasswordTextView.getEditText().getText().toString();
             WifiConfiguration conf = new WifiConfiguration(selectedWifi, clearPassword);
             startWifiConnectionValidation(conf);
         }
     };
+
+    private void trustSelectedWifi(GetConfigWifiListEntry selectedWifi) {
+        if (selectedWifi == null) {
+            return;
+        }
+        trustSelectedWifi(selectedWifi.getSsid(), selectedWifi.getBssid());
+    }
+
+    private void trustSelectedWifi(WifiConfiguration selectedWifi) {
+        if (selectedWifi == null || selectedWifi.getScannedWifi() == null) {
+            return;
+        }
+        trustSelectedWifi(selectedWifi.getScannedWifi().getSsid(),
+                selectedWifi.getScannedWifi().getBssid());
+    }
+
+    private void trustSelectedWifi(String ssid, String bssid) {
+        AllowedWifiNetworks.add(requireContext(), ssid, bssid);
+        AndroidPreferencesManager.clearWifiDeclined(requireContext(), ssid);
+        PairingLog.log("network", "trusted pairing network " + ssid + "/" + bssid);
+    }
 
     private void notifyResolveCompleted(@Nullable final String hostname,
                                       @Nullable final Integer port) {
