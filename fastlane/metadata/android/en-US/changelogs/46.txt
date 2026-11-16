@@ -1,0 +1,1 @@
+Allow current Wi-Fi now requests Wi-Fi/location permissions and checks location services before reading the SSID.

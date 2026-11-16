@@ -1,7 +1,6 @@
-# Meross Local Pairer 1.1.1
+# Meross Local Pairer 1.1.2
 
-- Détection Bluetooth automatique : les appareils `MRBL_…` apparaissent dans
-  la liste de scan, sans sélection manuelle du mode.
-- Liste de réseaux Wi-Fi autorisés : le broker n'est joint que sur un réseau
-  validé ; les AP Meross restent autorisés pour l'appairage.
-- Reprend la signature stable de la 1.1.0.
+- Correction de « Allow current Wi-Fi » : demande des permissions
+  Wi-Fi/Localisation, vérification des services de localisation, meilleur
+  message si le SSID reste illisible.
+- Reprend la détection BLE automatique et la politique Wi-Fi de la 1.1.1.

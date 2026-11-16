@@ -25,7 +25,8 @@ public final class NetworkPolicy {
         AllowedWifiNetworks.Entry current = AllowedWifiNetworks.current(activity);
         if (current == null) {
             Toast.makeText(activity,
-                    "Connect to a Wi-Fi network before contacting the broker.",
+                    "Unable to read the current Wi-Fi network. Check Wi-Fi, Location "
+                            + "services and Wi-Fi/Location permissions.",
                     Toast.LENGTH_LONG).show();
             return;
         }

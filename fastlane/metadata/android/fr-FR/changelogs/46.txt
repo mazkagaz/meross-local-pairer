@@ -1,0 +1,1 @@
+Allow current Wi-Fi demande les permissions Wi-Fi/localisation et vérifie les services de localisation avant de lire le SSID.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.2
+
+- « Allow current Wi-Fi » demande désormais les permissions Wi-Fi/Localisation
+  et vérifie que les services de localisation sont actifs avant de lire le
+  SSID. Message d'erreur explicite si le réseau ne peut pas être lu.
+
+
 ## 1.1.1
 
 - Détection **Bluetooth automatique** sur l'écran de scan : les appareils

@@ -1,10 +1,15 @@
 package org.localpairer.ui.fragments.account;
 
+import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +29,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.AllowedWifiNetworks;
 import org.localpairer.AndroidPreferencesManager;
+import org.localpairer.AndroidUtils;
 import org.localpairer.Constants;
 import org.localpairer.MainActivity;
 import org.localpairer.MerossUtils;
@@ -40,6 +46,9 @@ import org.eclipse.paho.client.mqttv3.util.Strings;
 import java.util.List;
 
 public class AccountFragment extends Fragment {
+    private static final int REQUEST_WIFI_PERMISSIONS = 41;
+    private TextView pendingAllowedWifiSummary;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         final MainActivityViewModel mainActivityViewModel = new ViewModelProvider(requireActivity()).get(MainActivityViewModel.class);
@@ -204,17 +213,8 @@ public class AccountFragment extends Fragment {
         final Button manageAllowedWifiButton = root.findViewById(R.id.manageAllowedWifiButton);
         refreshAllowedWifiSummary(allowedWifiSummary);
 
-        allowCurrentWifiButton.setOnClickListener(v -> {
-            AllowedWifiNetworks.Entry current = AllowedWifiNetworks.current(requireContext());
-            if (current == null) {
-                Toast.makeText(requireContext(),
-                        "Connect to a Wi-Fi network first.", Toast.LENGTH_LONG).show();
-                return;
-            }
-            AllowedWifiNetworks.add(requireContext(), current.ssid, current.bssid);
-            PairingLog.log("network", "allowed current " + current.ssid + "/" + current.bssid);
-            refreshAllowedWifiSummary(allowedWifiSummary);
-        });
+        allowCurrentWifiButton.setOnClickListener(v ->
+                allowCurrentWifi(allowedWifiSummary));
 
         manageAllowedWifiButton.setOnClickListener(v -> {
             List<AllowedWifiNetworks.Entry> entries =
@@ -246,6 +246,79 @@ public class AccountFragment extends Fragment {
         });
 
         return root;
+    }
+
+    private String[] wifiPermissions() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.NEARBY_WIFI_DEVICES};
+        }
+        return new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+    }
+
+    private boolean hasWifiPermissions() {
+        for (String permission : wifiPermissions()) {
+            if (androidx.core.app.ActivityCompat.checkSelfPermission(requireContext(), permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void allowCurrentWifi(TextView summary) {
+        if (!hasWifiPermissions()) {
+            pendingAllowedWifiSummary = summary;
+            requestPermissions(wifiPermissions(), REQUEST_WIFI_PERMISSIONS);
+            return;
+        }
+        if (!AndroidUtils.isLocationEnabled(requireContext())) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Location services required")
+                    .setMessage("Android exposes the current Wi-Fi name only when Location "
+                            + "services are enabled. Enable them, then try again.")
+                    .setPositiveButton("Open settings", (dialog, which) ->
+                            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            return;
+        }
+        AllowedWifiNetworks.Entry current = AllowedWifiNetworks.current(requireContext());
+        if (current == null) {
+            Toast.makeText(requireContext(),
+                    "Unable to read the current Wi-Fi network. Check that Wi-Fi is connected "
+                            + "and that Wi-Fi/Location permissions are granted.",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        AllowedWifiNetworks.add(requireContext(), current.ssid, current.bssid);
+        PairingLog.log("network", "allowed current " + current.ssid + "/" + current.bssid);
+        refreshAllowedWifiSummary(summary);
+        Toast.makeText(requireContext(), "Allowed " + current.ssid, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != REQUEST_WIFI_PERMISSIONS) {
+            return;
+        }
+        boolean granted = grantResults.length > 0;
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                granted = false;
+            }
+        }
+        if (granted && pendingAllowedWifiSummary != null) {
+            TextView summary = pendingAllowedWifiSummary;
+            pendingAllowedWifiSummary = null;
+            allowCurrentWifi(summary);
+        } else {
+            Toast.makeText(requireContext(),
+                    "Wi-Fi and Location permissions are required to validate the network.",
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private void refreshAllowedWifiSummary(TextView summary) {
