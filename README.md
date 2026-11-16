@@ -4,7 +4,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 1.2.1.** Elle gère l'appairage Wi-Fi des appareils au
+**Version stable 1.2.2.** Elle gère l'appairage Wi-Fi des appareils au
 firmware 7 et l'appairage **Bluetooth LE** des appareils au firmware 8 (MRS100
 8.x), dont l'AP Wi-Fi n'est pas ouvert sans confirmation BLE. Une recette
 F-Droid est préparée (`fdroid/org.localpairer.yml`) ; l'application
@@ -112,8 +112,14 @@ capteur de statut sont créés dans Home Assistant.
 Dans la liste des appareils, l'icône corbeille permet de **supprimer un
 appareil** du broker après confirmation. L'opération utilise l'API authentifiée
 du broker (`POST /v1/Device/delete`, add-on `alpha69` ou plus récent) ; elle
-échoue avec un message si l'API n'est pas joignable. L'appareil devra être
-réappairé pour revenir.
+échoue avec un message si l'API n'est pas joignable.
+
+Avec le broker `alpha70` ou plus récent, la suppression **révoque** aussi le
+MAC : l'appareil ne peut plus se reconnecter seul avec les identifiants qu'il
+conserve. Un nouvel appairage réussit appelle automatiquement
+`POST /v1/Device/claim` pour lever la révocation. L'appareil garde le même
+UUID, donc les entités et automatisations Home Assistant existantes restent
+valides après oubli puis réappairage.
 
 ## Dépannage
 

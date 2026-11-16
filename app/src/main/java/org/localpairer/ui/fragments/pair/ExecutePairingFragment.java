@@ -185,10 +185,12 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
         }
 
         final String requestedUuid = deviceInfo.getPayload().getAll().getSystem().getHardware().getUuid();
+        final String requestedMac = deviceInfo.getPayload().getAll().getSystem().getHardware().getMacAddress();
         final String requestedBssid = pairingAp.getBssid();
         final ApiCredentials requestedCreds = mCreds;
         targetUuid = requestedUuid;
-        PairingLog.log("pairing", "verifying uuid=" + requestedUuid + " bssid=" + requestedBssid);
+        PairingLog.log("pairing", "verifying uuid=" + requestedUuid + " mac=" + requestedMac
+                + " bssid=" + requestedBssid);
 
         final long timeout = GregorianCalendar.getInstance().getTimeInMillis() + Constants.PAIRING_VERIFY_TIMEOUT_MILLISECONDS;
         worker.schedule(new Runnable() {
@@ -205,6 +207,17 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
             @Override
             public void run() {
                 MerossHttpClient client = new MerossHttpClient(requestedCreds);
+                // Re-pairing a forgotten device must lift its broker
+                // revocation before the device can log in again.
+                if (requestedMac != null) {
+                    try {
+                        client.claimDevice(requestedMac);
+                        PairingLog.log("pairing", "claimed mac " + requestedMac);
+                    } catch (Exception e) {
+                        PairingLog.log("pairing", "claim failed for mac "
+                                + requestedMac + ": " + e.getMessage());
+                    }
+                }
                 boolean succeed = false;
                 boolean timedOut = GregorianCalendar.getInstance().getTimeInMillis() >= timeout;
                 boolean exitNow = false;

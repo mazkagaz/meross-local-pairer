@@ -311,11 +311,22 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
     private void verifyOnline(ApiCredentials credentials, String uuid) {
         setStatus("Checking that the device is online in the broker...");
         final Handler main = new Handler(Looper.getMainLooper());
+        final String mac = deviceMac;
         new Thread(() -> {
+            MerossHttpClient client = new MerossHttpClient(credentials);
+            // Re-pairing a forgotten device must lift its broker revocation
+            // before the device can log in again.
+            if (mac != null) {
+                try {
+                    client.claimDevice(mac);
+                    PairingLog.log("ble", "claimed mac " + mac);
+                } catch (Exception e) {
+                    PairingLog.log("ble", "claim failed for mac " + mac + ": " + e.getMessage());
+                }
+            }
             long deadline = System.currentTimeMillis() + 60000;
             while (System.currentTimeMillis() < deadline) {
                 try {
-                    MerossHttpClient client = new MerossHttpClient(credentials);
                     List<DeviceInfo> list = client.listDevices();
                     for (DeviceInfo info : list) {
                         if (uuid != null && uuid.equals(info.getUuid())

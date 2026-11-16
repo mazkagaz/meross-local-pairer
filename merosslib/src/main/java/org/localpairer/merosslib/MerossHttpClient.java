@@ -114,6 +114,17 @@ public class MerossHttpClient implements Serializable {
                 this.mCredentials.getToken(), Object.class);
     }
 
+    /**
+     * Lifts the broker revocation left by a previous forget, so a re-paired
+     * device may log in again with its unchanged credentials.
+     */
+    public void claimDevice(String mac) throws IOException, HttpApiException, HttpApiInvalidCredentialsException {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("mac", mac);
+        authenticatedPost(mCredentials.getApiServer() + "/v1/Device/claim", data,
+                this.mCredentials.getToken(), Object.class);
+    }
+
     public void logout() throws HttpApiInvalidCredentialsException, HttpApiException, IOException {
         if (mCredentials == null) {
             throw new IllegalStateException("Invalid logout operation: this client is not logged in.");

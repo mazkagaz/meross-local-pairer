@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.2
+
+- Après un nouvel appairage (Wi-Fi firmware 7 ou Bluetooth firmware 8),
+  l'application appelle `POST /v1/Device/claim` pour lever la révocation
+  laissée par un oubli précédent. Le broker `alpha70` refuse désormais la
+  connexion d'un appareil oublié, même s'il a conservé ses identifiants MQTT.
+- L'UUID de l'appareil est conservé : les entités Home Assistant et les
+  automatisations existantes restent valides après oubli puis réappairage.
+- Si le broker est antérieur à `alpha70`, l'appel de claim est ignoré sans
+  faire échouer l'appairage.
+
 ## 1.2.1
 
 - La section **Allowed Wi-Fi networks** est affichée en premier dans Settings,
