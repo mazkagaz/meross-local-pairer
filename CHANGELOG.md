@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.9
+
+- Suppression de l'avertissement technique « Meross plugs are only capable… »
+  affiché à tous les utilisateurs. Un broker personnalisé est désormais
+  vérifié en TLS avant l'appairage : si le port n'accepte pas MQTT over TLS,
+  un message clair invite à utiliser le port TLS (2001 pour l'add-on) et
+  l'appairage ne démarre pas.
+- L'écran d'informations de l'appareil pendant l'appairage utilise une icône
+  cohérente et adaptée au type (volet ou prise), sur un fond circulaire discret.
+
 ## 1.4.8
 
 - La découverte mDNS est **automatique** à l'ouverture de l'écran de connexion ;

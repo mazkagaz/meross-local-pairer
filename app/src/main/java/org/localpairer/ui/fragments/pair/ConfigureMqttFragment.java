@@ -1,5 +1,6 @@
 package org.localpairer.ui.fragments.pair;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.PairingLog;
 import org.localpairer.R;
+import org.localpairer.TlsProbe;
 import org.localpairer.model.MqttConfiguration;
 import org.localpairer.ui.PairActivityViewModel;
 import org.localpairer.merosslib.model.http.ApiCredentials;
@@ -111,6 +113,10 @@ public class ConfigureMqttFragment extends Fragment {
         mqttConfigurationNameEditText.setEnabled(editable);
         mqttHostEditText.setEnabled(editable);
         mqttPortEditText.setEnabled(editable);
+        mqttPortEditText.setHelperTextEnabled(editable);
+        mqttPortEditText.setHelperText(editable
+                ? "MQTT over TLS is required. Meross Local Broker uses 2001."
+                : null);
     }
 
     @Override
@@ -232,6 +238,7 @@ public class ConfigureMqttFragment extends Fragment {
                 MqttConfiguration selected = (MqttConfiguration) mqttConfigurationSpinner.getSelectedItem();
                 boolean editingNew = selected == newMqttConfig;
                 boolean editingDefault = selected == defaultConfiguration && modifyDefaultCheckbox.isChecked();
+                final boolean validateTls = editingNew || editingDefault;
                 if (editingNew || editingDefault) {
                     MqttConfiguration tmpConf = new MqttConfiguration();
                     boolean save = editingNew && saveCheckbox.isChecked();
@@ -337,9 +344,54 @@ public class ConfigureMqttFragment extends Fragment {
                 pairActivityViewModel.setTargetDeviceName(
                         deviceName.isEmpty() ? null : deviceName);
 
-                NavController ctrl = NavHostFragment.findNavController(ConfigureMqttFragment.this);
-                ctrl.navigate(R.id.action_configureMqtt_to_executePair, null, new NavOptions.Builder().setEnterAnim(android.R.animator.fade_in).setExitAnim(android.R.animator.fade_out).build());
+                finishConfiguration(validateTls);
             }
         });
+    }
+
+    private void finishConfiguration(boolean validateTls) {
+        MqttConfiguration target = pairActivityViewModel.getTargetMqttConfig().getValue();
+        if (!validateTls || target == null) {
+            navigateToPairing();
+            return;
+        }
+        final String host = target.getHostname();
+        final int port = target.getPort();
+        final android.app.Activity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        final ProgressDialog dialog = new ProgressDialog(activity);
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setTitle("Checking broker security");
+        dialog.setCancelable(false);
+        dialog.setMessage("Checking that the broker accepts MQTT over TLS...");
+        dialog.show();
+
+        new Thread(() -> {
+            final TlsProbe.Result result = TlsProbe.probe(host, port);
+            activity.runOnUiThread(() -> {
+                if (!isAdded()) {
+                    return;
+                }
+                dialog.dismiss();
+                if (result == TlsProbe.Result.OK) {
+                    navigateToPairing();
+                } else if (result == TlsProbe.Result.NOT_TLS) {
+                    mqttPortEditText.setError("This broker does not accept MQTT over TLS. "
+                            + "Meross devices require TLS; use the TLS port "
+                            + "(Meross Local Broker: 2001).");
+                } else {
+                    mqttHostEditText.setError("Broker unreachable at " + host + ":" + port);
+                }
+            });
+        }).start();
+    }
+
+    private void navigateToPairing() {
+        NavController ctrl = NavHostFragment.findNavController(ConfigureMqttFragment.this);
+        ctrl.navigate(R.id.action_configureMqtt_to_executePair, null,
+                new NavOptions.Builder().setEnterAnim(android.R.animator.fade_in)
+                        .setExitAnim(android.R.animator.fade_out).build());
     }
 }

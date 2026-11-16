@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.localpairer.DeviceTypeIcons;
 import org.localpairer.R;
 import org.localpairer.model.MerossDeviceAp;
 import org.localpairer.ui.PairActivityViewModel;
@@ -35,6 +37,7 @@ public class ShowDeviceInfoFragment extends Fragment {
     private TextView discoveredMQTTServerPort;
     private TextView discoveredInnerIP;
     private TextView discoveredWifiMac;
+    private ImageView deviceIcon;
 
     private PairActivityViewModel pairActivityViewModel;
 
@@ -66,6 +69,7 @@ public class ShowDeviceInfoFragment extends Fragment {
         discoveredMQTTServerPort = view.findViewById(R.id.discoveredMQTTServerPort);
         discoveredInnerIP = view.findViewById(R.id.discoveredInnerIP);
         discoveredWifiMac = view.findViewById(R.id.discoveredWifiMac);
+        deviceIcon = view.findViewById(R.id.imageView);
         Button configureButton = view.findViewById(R.id.configureButton);
 
         TextView identityNotice = view.findViewById(R.id.textView9);
@@ -98,6 +102,7 @@ public class ShowDeviceInfoFragment extends Fragment {
             GetSystemAllPayloadAllFirmware fwinfo = deviceInfo.getPayload().getAll().getSystem().getFirmware();
 
             discoveredType.setText(hwinfo.getType());
+            deviceIcon.setImageResource(DeviceTypeIcons.iconFor(hwinfo.getType()));
             discoveredVersion.setText(hwinfo.getVersion());
             discoveredChip.setText(hwinfo.getChipType());
             discoveredMAC.setText(hwinfo.getMacAddress());

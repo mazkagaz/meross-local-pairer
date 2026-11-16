@@ -65,7 +65,6 @@
     <string name="login_intro_text">Log-in to the HTTP API broker.</string>
     <string name="login_intro_ha_broker">Make sure the Meross Local Broker (on HomeAssistant) Addon is started and log-in using the credentials configured in the configuration section of that Addon.</string>
 
-    <string name="mqtt_config_fragment_text">Meross plugs are only capable to connect to MQTT over TLS connections (default port 8883). Using a clear-mqtt connection won\'t work.</string>
     <string name="mqtt_fragment_title">MQTT Server</string>
     <string name="mqtt_conf_name">Configuration Name...</string>
     <string name="mqtt_host_name">Server hostname or IP...</string>
