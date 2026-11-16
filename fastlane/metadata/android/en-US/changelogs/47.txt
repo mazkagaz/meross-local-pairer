@@ -1,0 +1,1 @@
+Settings with collapsible sections, visible Wi-Fi management, and device deletion from the list.

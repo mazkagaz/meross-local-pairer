@@ -4,7 +4,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 1.1.2.** Elle gère l'appairage Wi-Fi des appareils au
+**Version stable 1.2.0.** Elle gère l'appairage Wi-Fi des appareils au
 firmware 7 et l'appairage **Bluetooth LE** des appareils au firmware 8 (MRS100
 8.x), dont l'AP Wi-Fi n'est pas ouvert sans confirmation BLE. Une recette
 F-Droid est préparée (`fdroid/org.localpairer.yml`) ; l'application
@@ -59,11 +59,12 @@ clé (et plus tard au passage à F-Droid, qui utilise sa propre clé). Voir
 Le broker et l'API locale sont contactés en HTTP/MQTT : l'application refuse
 donc de leur parler sur un réseau non validé. Au premier usage, une boîte de
 dialogue propose d'autoriser le Wi-Fi courant. La liste se gère dans
-**Paramètres → Allowed Wi-Fi networks** (autoriser le réseau courant, retirer
-un réseau). Les AP d'appairage `Meross_*` restent implicitement autorisés
-pendant l'appairage. Android exige les permissions Wi-Fi/Localisation et les
-services de localisation pour lire le nom du réseau ; l'application les
-demande au moment de l'autorisation.
+**Paramètres → Allowed Wi-Fi networks** (autoriser le réseau courant, gérer la
+liste). La gestion liste aussi les réseaux Wi-Fi **visibles** : ils peuvent
+être autorisés sans devoir s'y connecter. Les AP d'appairage `Meross_*`
+restent implicitement autorisés pendant l'appairage. Android exige les
+permissions Wi-Fi/Localisation et les services de localisation pour lire les
+noms de réseaux ; l'application les demande au moment de l'autorisation.
 
 ## Appairage pas à pas
 
@@ -106,6 +107,14 @@ demande au moment de l'autorisation.
 Après l'appairage, les entités `cover`, `number`, boutons de calibration et
 capteur de statut sont créés dans Home Assistant.
 
+## Gérer les appareils
+
+Dans la liste des appareils, l'icône corbeille permet de **supprimer un
+appareil** du broker après confirmation. L'opération utilise l'API authentifiée
+du broker (`POST /v1/Device/delete`, add-on `alpha69` ou plus récent) ; elle
+échoue avec un message si l'API n'est pas joignable. L'appareil devra être
+réappairé pour revenir.
+
 ## Dépannage
 
 | Problème | Vérifier |
@@ -114,6 +123,7 @@ capteur de statut sont créés dans Home Assistant.
 | Aucun appareil `MRBL_…` en Bluetooth | Bluetooth activé, permissions Bluetooth/localisation, appareil en mode appairage, à portée |
 | Connexion HTTP impossible | utiliser `homeassistant.local` ou **Manual setup** |
 | « Untrusted Wi-Fi network » | autoriser le réseau courant dans **Allowed Wi-Fi networks** |
+| Suppression d'appareil refusée | broker `alpha69` ou plus récent, API accessible, appareil du compte courant |
 | Échec des identifiants | compte local de l'add-on, `UserId`/`mqttKey` corrects |
 | L'appareil ne rejoint pas le Wi-Fi | WPA2 2,4 GHz, mot de passe, portée |
 | L'appareil n'est pas ONLINE | port 2001 joignable, broker démarré, logs de l'add-on |

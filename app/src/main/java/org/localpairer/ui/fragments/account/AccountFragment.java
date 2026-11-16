@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +46,8 @@ import java.util.List;
 
 public class AccountFragment extends Fragment {
     private static final int REQUEST_WIFI_PERMISSIONS = 41;
-    private TextView pendingAllowedWifiSummary;
+    private Runnable pendingWifiAction;
+    private boolean accountSectionExpanded;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -63,17 +63,22 @@ public class AccountFragment extends Fragment {
         final Button haBrokerLoginButton = root.findViewById(R.id.haBrokerLoginButton);
         final CardView loginCardView = root.findViewById(R.id.loginCard);
         final Button manualSetupButton = root.findViewById(R.id.setManualButton);
-        final ImageView loggedInAccountLogoImageView = root.findViewById(R.id.loggedInAccountLogo);
+
+        boolean firstConfig = AndroidPreferencesManager.loadHttpCredentials(requireContext()) == null;
+        accountSectionExpanded = firstConfig;
+        setAccountSection(root);
+        root.findViewById(R.id.accountSectionHeader).setOnClickListener(v -> {
+            accountSectionExpanded = !accountSectionExpanded;
+            setAccountSection(root);
+        });
+        setupCardSection(root, R.id.wifiSectionHeader, R.id.wifiSectionArrow,
+                R.id.allowedWifiCard, firstConfig);
+        setupCardSection(root, R.id.diagnosticsSectionHeader, R.id.diagnosticsSectionArrow,
+                R.id.diagnosticsCard, false);
 
         mainActivityViewModel.getCredentials().observe(getViewLifecycleOwner(), new Observer<ApiCredentials>() {
             @Override
             public void onChanged(ApiCredentials apiCredentials) {
-                if (apiCredentials == null || Strings.isEmpty(apiCredentials.getApiServer())) {
-                    loggedInAccountLogoImageView.setImageResource(R.drawable.question_mark);
-                } else {
-                    loggedInAccountLogoImageView.setImageResource(R.drawable.ha_logo);
-                }
-
                 if (apiCredentials == null || Strings.isEmpty(apiCredentials.getApiServer())) {
                     httpUrlEditText.setText("Not set");
                 } else {
@@ -105,8 +110,10 @@ public class AccountFragment extends Fragment {
                 }
 
                 httpLogoutButton.setEnabled(apiCredentials != null);
-                httpInfoCard.setVisibility(apiCredentials == null ? View.GONE : View.VISIBLE);
-                loginCardView.setVisibility(apiCredentials == null ? View.VISIBLE : View.GONE);
+                httpInfoCard.setVisibility(accountSectionExpanded && apiCredentials != null
+                        ? View.VISIBLE : View.GONE);
+                loginCardView.setVisibility(accountSectionExpanded && apiCredentials == null
+                        ? View.VISIBLE : View.GONE);
                 haBrokerLoginButton.setEnabled(apiCredentials == null);
                 manualSetupButton.setVisibility(apiCredentials == null ? View.VISIBLE : View.GONE);
             }
@@ -216,34 +223,8 @@ public class AccountFragment extends Fragment {
         allowCurrentWifiButton.setOnClickListener(v ->
                 allowCurrentWifi(allowedWifiSummary));
 
-        manageAllowedWifiButton.setOnClickListener(v -> {
-            List<AllowedWifiNetworks.Entry> entries =
-                    AllowedWifiNetworks.load(requireContext());
-            if (entries.isEmpty()) {
-                Toast.makeText(requireContext(),
-                        "No allowed network yet.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            String[] labels = new String[entries.size()];
-            boolean[] selected = new boolean[entries.size()];
-            for (int i = 0; i < entries.size(); i++) {
-                labels[i] = entries.get(i).label();
-            }
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("Select networks to remove")
-                    .setMultiChoiceItems(labels, selected,
-                            (dialog, which, isChecked) -> selected[which] = isChecked)
-                    .setPositiveButton("Remove", (dialog, which) -> {
-                        for (int i = entries.size() - 1; i >= 0; i--) {
-                            if (selected[i]) {
-                                AllowedWifiNetworks.remove(requireContext(), entries.get(i));
-                            }
-                        }
-                        refreshAllowedWifiSummary(allowedWifiSummary);
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+        manageAllowedWifiButton.setOnClickListener(v ->
+                showManageWifiDialog(allowedWifiSummary));
 
         return root;
     }
@@ -266,21 +247,28 @@ public class AccountFragment extends Fragment {
         return true;
     }
 
-    private void allowCurrentWifi(TextView summary) {
+    private boolean ensureWifiReady(Runnable action) {
         if (!hasWifiPermissions()) {
-            pendingAllowedWifiSummary = summary;
+            pendingWifiAction = action;
             requestPermissions(wifiPermissions(), REQUEST_WIFI_PERMISSIONS);
-            return;
+            return false;
         }
         if (!AndroidUtils.isLocationEnabled(requireContext())) {
             new AlertDialog.Builder(requireContext())
                     .setTitle("Location services required")
-                    .setMessage("Android exposes the current Wi-Fi name only when Location "
+                    .setMessage("Android exposes Wi-Fi network names only when Location "
                             + "services are enabled. Enable them, then try again.")
                     .setPositiveButton("Open settings", (dialog, which) ->
                             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
                     .setNegativeButton("Cancel", null)
                     .show();
+            return false;
+        }
+        return true;
+    }
+
+    private void allowCurrentWifi(TextView summary) {
+        if (!ensureWifiReady(() -> allowCurrentWifi(summary))) {
             return;
         }
         AllowedWifiNetworks.Entry current = AllowedWifiNetworks.current(requireContext());
@@ -297,6 +285,98 @@ public class AccountFragment extends Fragment {
         Toast.makeText(requireContext(), "Allowed " + current.ssid, Toast.LENGTH_SHORT).show();
     }
 
+    private void showManageWifiDialog(TextView summary) {
+        if (!ensureWifiReady(() -> showManageWifiDialog(summary))) {
+            return;
+        }
+        android.net.wifi.WifiManager manager = (android.net.wifi.WifiManager)
+                requireContext().getApplicationContext()
+                        .getSystemService(Context.WIFI_SERVICE);
+        if (manager == null) {
+            buildManageWifiDialog(summary, new java.util.ArrayList<>());
+            return;
+        }
+        try {
+            manager.startScan();
+        } catch (Exception e) {
+            PairingLog.log("network", "scan unavailable: " + e.getMessage());
+        }
+        // Give Android time to refresh the scan results before listing them.
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            List<android.net.wifi.ScanResult> results;
+            try {
+                results = manager.getScanResults();
+            } catch (Exception e) {
+                results = new java.util.ArrayList<>();
+            }
+            buildManageWifiDialog(summary, results);
+        }, 2000);
+    }
+
+    private void buildManageWifiDialog(TextView summary,
+                                       List<android.net.wifi.ScanResult> scanResults) {
+        java.util.LinkedHashMap<String, AllowedWifiNetworks.Entry> bySsid =
+                new java.util.LinkedHashMap<>();
+        for (AllowedWifiNetworks.Entry entry : AllowedWifiNetworks.load(requireContext())) {
+            bySsid.put(entry.ssid, entry);
+        }
+        for (android.net.wifi.ScanResult result : scanResults) {
+            String ssid = result.SSID;
+            if (ssid == null || ssid.trim().isEmpty() || bySsid.containsKey(ssid)) {
+                continue;
+            }
+            bySsid.put(ssid, new AllowedWifiNetworks.Entry(ssid, result.BSSID));
+        }
+        if (bySsid.isEmpty()) {
+            Toast.makeText(requireContext(),
+                    "No visible Wi-Fi network. Enable Wi-Fi/Location and try again.",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        List<AllowedWifiNetworks.Entry> entries = new java.util.ArrayList<>(bySsid.values());
+        String[] labels = new String[entries.size()];
+        boolean[] checked = new boolean[entries.size()];
+        for (int i = 0; i < entries.size(); i++) {
+            AllowedWifiNetworks.Entry entry = entries.get(i);
+            labels[i] = entry.label();
+            checked[i] = AllowedWifiNetworks.isAllowed(requireContext(), entry.ssid, entry.bssid);
+        }
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Allowed Wi-Fi networks")
+                .setMultiChoiceItems(labels, checked,
+                        (dialog, which, isChecked) -> checked[which] = isChecked)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    List<AllowedWifiNetworks.Entry> desired = new java.util.ArrayList<>();
+                    for (int i = 0; i < entries.size(); i++) {
+                        if (checked[i]) {
+                            desired.add(entries.get(i));
+                        }
+                    }
+                    for (AllowedWifiNetworks.Entry existing :
+                            AllowedWifiNetworks.load(requireContext())) {
+                        boolean keep = false;
+                        for (AllowedWifiNetworks.Entry wanted : desired) {
+                            if (wanted.ssid.equals(existing.ssid)) {
+                                keep = true;
+                                break;
+                            }
+                        }
+                        if (!keep) {
+                            AllowedWifiNetworks.remove(requireContext(), existing);
+                        }
+                    }
+                    for (AllowedWifiNetworks.Entry entry : desired) {
+                        AllowedWifiNetworks.add(requireContext(), entry.ssid, entry.bssid);
+                    }
+                    refreshAllowedWifiSummary(summary);
+                    Toast.makeText(requireContext(), "Allowed networks updated.",
+                            Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -310,15 +390,46 @@ public class AccountFragment extends Fragment {
                 granted = false;
             }
         }
-        if (granted && pendingAllowedWifiSummary != null) {
-            TextView summary = pendingAllowedWifiSummary;
-            pendingAllowedWifiSummary = null;
-            allowCurrentWifi(summary);
+        if (granted && pendingWifiAction != null) {
+            Runnable action = pendingWifiAction;
+            pendingWifiAction = null;
+            action.run();
         } else {
             Toast.makeText(requireContext(),
-                    "Wi-Fi and Location permissions are required to validate the network.",
+                    "Wi-Fi and Location permissions are required to validate networks.",
                     Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void setAccountSection(View root) {
+        TextView arrow = root.findViewById(R.id.accountSectionArrow);
+        arrow.setText(accountSectionExpanded ? "▾" : "▸");
+        View httpCard = root.findViewById(R.id.httpInfoCard);
+        View loginCard = root.findViewById(R.id.loginCard);
+        if (!accountSectionExpanded) {
+            httpCard.setVisibility(View.GONE);
+            loginCard.setVisibility(View.GONE);
+            return;
+        }
+        boolean hasCredentials =
+                AndroidPreferencesManager.loadHttpCredentials(requireContext()) != null;
+        httpCard.setVisibility(hasCredentials ? View.VISIBLE : View.GONE);
+        loginCard.setVisibility(hasCredentials ? View.GONE : View.VISIBLE);
+    }
+
+    private void setupCardSection(View root, int headerId, int arrowId, int contentId,
+                                  boolean initiallyExpanded) {
+        View header = root.findViewById(headerId);
+        View content = root.findViewById(contentId);
+        TextView arrow = root.findViewById(arrowId);
+        final boolean[] expanded = {initiallyExpanded};
+        content.setVisibility(initiallyExpanded ? View.VISIBLE : View.GONE);
+        arrow.setText(initiallyExpanded ? "▾" : "▸");
+        header.setOnClickListener(v -> {
+            expanded[0] = !expanded[0];
+            content.setVisibility(expanded[0] ? View.VISIBLE : View.GONE);
+            arrow.setText(expanded[0] ? "▾" : "▸");
+        });
     }
 
     private void refreshAllowedWifiSummary(TextView summary) {

@@ -5,7 +5,7 @@
 - Upstream version: 0.0.11
 - Upstream license: GPL-2.0
 - Fork license: GPL-2.0 (see `LICENSE`)
-- Fork version: 1.1.2 (`versionCode` 46)
+- Fork version: 1.2.0 (`versionCode` 47)
 - Application id: `org.localpairer` (distinct from upstream)
 - Display name: **Meross Local Pairer** (unofficial)
 
@@ -38,9 +38,11 @@
 |---|---|
 | `AndroidPreferencesManager.java` | Store Meross API credentials with SecurePreferences; migrate legacy plaintext entries. |
 | `res/xml/network_security_config.xml` | Cleartext HTTP limited to the AP endpoint `10.10.10.1` and local `.local`/`.lan` API hostnames. |
-| `app/build.gradle` | APKs signed with a stable project key when the CI signing variables are present; version 1.1.2. |
+| `app/build.gradle` | APKs signed with a stable project key when the CI signing variables are present; version 1.2.0. |
 | `app/.../ble/MerossBleClient.java`, `MerossBleProtocol.java`, `BlePairActivity.java` | **New**: Bluetooth LE provisioning for firmware 8 devices (service A00A, B002 write, B003 notify, JSON framing, AES Wi-Fi password); automatic BLE discovery in the scan screen. |
-| `AllowedWifiNetworks.java`, `NetworkPolicy.java` | **New**: broker traffic restricted to user-validated Wi-Fi networks; device APs allowed during pairing. |
+| `AllowedWifiNetworks.java`, `NetworkPolicy.java` | **New**: broker traffic restricted to user-validated Wi-Fi networks; visible networks can be added from Settings; device APs allowed during pairing. |
+| `AccountFragment`, `fragment_account.xml` | Settings page with collapsible sections, general back button, visible-network management; legacy HA logo removed. |
+| `DeviceListFragment`, adapter, `MerossHttpClient` | **New**: forget a device through authenticated `POST /v1/Device/delete`. |
 | `build.gradle` | Removed dead `jcenter()` and the Paho snapshot repository (both returned errors on CI); use Maven Central + JitPack. |
 | `.github/workflows/build.yaml` | Install Android SDK 35 explicitly before the Gradle build. |
 | Android package/namespace | Renamed to `org.localpairer`; app label changed to Meross Local Pairer. |

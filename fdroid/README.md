@@ -14,7 +14,7 @@ explicite) a été retirée pour éviter un rejet.
 4. Ouvrir une merge request « New app: Meross Local Pairer ».
 5. Répondre aux éventuelles demandes des relecteurs.
 
-Le fichier pointe sur le tag `v1.1.2` et le `versionCode` 46. Les prochaines
+Le fichier pointe sur le tag `v1.2.0` et le `versionCode` 47. Les prochaines
 versions seront détectées par `AutoUpdateMode: Version` /
 `UpdateCheckMode: Tags`.
 

@@ -23,6 +23,7 @@ import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.NetworkPolicy;
 import org.localpairer.R;
 import org.localpairer.model.HttpClientManager;
+import org.localpairer.merosslib.MerossHttpClient;
 import org.localpairer.merosslib.model.http.ApiCredentials;
 import org.localpairer.merosslib.model.http.DeviceInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -50,7 +51,8 @@ public class DeviceListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAdapter = new DeviceRecyclerViewAdapter(new ArrayList<DeviceInfo>());
+        mAdapter = new DeviceRecyclerViewAdapter(new ArrayList<DeviceInfo>(),
+                this::confirmDeleteDevice);
         setHasOptionsMenu(true);
     }
 
@@ -154,4 +156,40 @@ public class DeviceListFragment extends Fragment {
                     .navigate(R.id.action_devices_to_account);
         }
     };
+
+    private void confirmDeleteDevice(DeviceInfo device) {
+        NetworkPolicy.ensureCurrentAllowed(requireActivity(), () -> {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Forget device")
+                    .setMessage("Remove \"" + device.getDevName()
+                            + "\" from the broker? The device must be paired again to come back.")
+                    .setPositiveButton("Forget", (dialog, which) -> deleteDevice(device))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+    }
+
+    private void deleteDevice(DeviceInfo device) {
+        ApiCredentials credentials =
+                AndroidPreferencesManager.loadHttpCredentials(requireContext());
+        if (credentials == null) {
+            Toast.makeText(requireContext(), "No broker credentials.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        new Thread(() -> {
+            try {
+                new MerossHttpClient(credentials).deleteDevice(device.getUuid());
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(requireContext(),
+                            "Device forgotten: " + device.getDevName(), Toast.LENGTH_LONG).show();
+                    updateData();
+                });
+            } catch (Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(),
+                                "Could not forget the device: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show());
+            }
+        }).start();
+    }
 }

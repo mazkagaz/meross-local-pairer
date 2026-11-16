@@ -2,6 +2,7 @@ package org.localpairer.ui.fragments.device;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,10 +16,17 @@ import java.util.List;
 
 public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DeviceInfo> mValues;
+    public interface OnDeviceActionListener {
+        void onDeleteDevice(DeviceInfo device);
+    }
 
-    public DeviceRecyclerViewAdapter(List<DeviceInfo> items) {
+    private final List<DeviceInfo> mValues;
+    private final OnDeviceActionListener listener;
+
+    public DeviceRecyclerViewAdapter(List<DeviceInfo> items,
+                                     OnDeviceActionListener listener) {
         mValues = items;
+        this.listener = listener;
     }
 
     public void setItems(List<DeviceInfo> items) {
@@ -42,6 +50,11 @@ public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecycl
         holder.mDeviceName.setText(mValues.get(position).getDevName());
         holder.deviceClass.setText(mValues.get(position).getDeviceType());
         holder.mDeviceOnline.setText(mValues.get(position).getOnlineStatus() == null ? OnlineStatus.UNKNOWN.name() : mValues.get(position).getOnlineStatus().name());
+        holder.mDeleteButton.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDeleteDevice(holder.mItem);
+            }
+        });
     }
 
     @Override
@@ -54,6 +67,7 @@ public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecycl
         public final TextView mDeviceName;
         public final TextView deviceClass;
         public final TextView mDeviceOnline;
+        public final ImageView mDeleteButton;
         public DeviceInfo mItem;
 
         public ViewHolder(FragmentDeviceInfoBinding binding) {
@@ -62,6 +76,7 @@ public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecycl
             mDeviceName = binding.deviceName;
             deviceClass = binding.deviceClass;
             mDeviceOnline = binding.deviceOnlineStatus;
+            mDeleteButton = binding.deviceDeleteButton;
         }
 
         @NonNull

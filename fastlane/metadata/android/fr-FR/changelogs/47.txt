@@ -1,0 +1,1 @@
+Paramètres avec sections repliables, gestion des Wi-Fi visibles et suppression d'un appareil depuis la liste.

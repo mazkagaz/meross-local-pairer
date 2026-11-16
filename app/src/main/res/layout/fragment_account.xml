@@ -14,6 +14,40 @@
         android:paddingBottom="16dp"
         tools:context=".ui.fragments.account.AccountFragment">
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/accountBackToDevicesButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="@string/back_to_devices" />
+
+    <LinearLayout
+        android:id="@+id/accountSectionHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:orientation="horizontal"
+        android:padding="14dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Account &amp; Login"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/accountSectionArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="▸"
+            android:textSize="18sp" />
+    </LinearLayout>
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/httpInfoCard"
         android:layout_width="match_parent"
@@ -40,13 +74,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:text="@string/account_activity_logged_info" />
-
-            <ImageView
-                android:id="@+id/loggedInAccountLogo"
-                android:layout_width="match_parent"
-                android:layout_height="121dp"
-                android:layout_margin="5dp"
-                android:src="@drawable/question_mark" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textField"
@@ -121,13 +148,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Logout" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/accountBackToDevicesButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/back_to_devices" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -161,6 +181,30 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <LinearLayout
+        android:id="@+id/wifiSectionHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:orientation="horizontal"
+        android:padding="14dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Allowed Wi-Fi networks"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/wifiSectionArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="▸"
+            android:textSize="18sp" />
+    </LinearLayout>
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/allowedWifiCard"
         android:layout_width="match_parent"
@@ -172,13 +216,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="10sp"
             android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Allowed Wi-Fi networks"
-                android:textSize="18sp"
-                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -209,6 +246,30 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <LinearLayout
+        android:id="@+id/diagnosticsSectionHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:orientation="horizontal"
+        android:padding="14dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Pairing diagnostics"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/diagnosticsSectionArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="▸"
+            android:textSize="18sp" />
+    </LinearLayout>
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/diagnosticsCard"
         android:layout_width="match_parent"
@@ -220,13 +281,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="10sp"
             android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pairing diagnostics"
-                android:textSize="18sp"
-                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"

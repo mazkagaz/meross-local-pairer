@@ -17,7 +17,7 @@ public final class AllowedWifiNetworks {
         public final String ssid;
         public final String bssid;
 
-        Entry(String ssid, String bssid) {
+        public Entry(String ssid, String bssid) {
             this.ssid = ssid;
             this.bssid = bssid;
         }

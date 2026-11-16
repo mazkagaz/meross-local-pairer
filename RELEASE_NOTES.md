@@ -1,6 +1,8 @@
-# Meross Local Pairer 1.1.2
+# Meross Local Pairer 1.2.0
 
-- Correction de « Allow current Wi-Fi » : demande des permissions
-  Wi-Fi/Localisation, vérification des services de localisation, meilleur
-  message si le SSID reste illisible.
-- Reprend la détection BLE automatique et la politique Wi-Fi de la 1.1.1.
+- Page **Settings** avec sections repliables (compte, Wi-Fi, diagnostics) et
+  bouton **Back to devices** général.
+- Gestion des réseaux Wi-Fi autorisés : les réseaux visibles peuvent être
+  ajoutés sans y être connecté.
+- Suppression d'un appareil depuis la liste (broker `alpha69` requis).
+- Retrait de l'ancien logo Home Assistant de la configuration.

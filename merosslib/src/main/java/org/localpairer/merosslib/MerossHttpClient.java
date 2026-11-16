@@ -107,6 +107,13 @@ public class MerossHttpClient implements Serializable {
         return devices;
     }
 
+    public void deleteDevice(String uuid) throws IOException, HttpApiException, HttpApiInvalidCredentialsException {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("uuid", uuid);
+        authenticatedPost(mCredentials.getApiServer() + "/v1/Device/delete", data,
+                this.mCredentials.getToken(), Object.class);
+    }
+
     public void logout() throws HttpApiInvalidCredentialsException, HttpApiException, IOException {
         if (mCredentials == null) {
             throw new IllegalStateException("Invalid logout operation: this client is not logged in.");

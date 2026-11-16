@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.0
+
+- **Settings** remplace la page « Account & Login », avec des sections
+  repliables : compte, Wi-Fi autorisé, diagnostics. La première configuration
+  ouvre le compte et le Wi-Fi ; le reste est replié.
+- « Manage allowed Wi-Fi networks » liste les réseaux visibles et permet de
+  les autoriser sans y être connecté.
+- Bouton **Back to devices** général, hors de la section compte.
+- Suppression de l'ancien logo Home Assistant de la page de configuration.
+- Suppression d'un appareil depuis la liste, via l'API authentifiée du broker
+  (`POST /v1/Device/delete`, broker `alpha69`).
+
+
 ## 1.1.2
 
 - « Allow current Wi-Fi » demande désormais les permissions Wi-Fi/Localisation
