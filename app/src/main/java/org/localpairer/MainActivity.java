@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.WindowCompat;
@@ -56,6 +57,14 @@ public class MainActivity extends AppCompatActivity {
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.devices_fragment).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                boolean topLevel = destination.getId() == R.id.devices_fragment;
+                actionBar.setDisplayHomeAsUpEnabled(
+                        !topLevel && controller.getPreviousBackStackEntry() != null);
+            }
+        });
 
         // Share the stored credentials with the fragments (Account in particular).
         MainActivityViewModel mainActivityViewModel =
@@ -167,6 +176,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private long mBackPressed;
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        return navController.navigateUp() || super.onSupportNavigateUp();
+    }
+
     @Override
     public void onBackPressed() {
         FragmentManager fragmentManager = getSupportFragmentManager();

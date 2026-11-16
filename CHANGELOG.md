@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.6
+
+- Corrige la flèche retour de la barre d'outils : elle est maintenant affichée
+  et fonctionnelle sur About et Settings, comme sur les écrans d'appairage
+  (`onSupportNavigateUp` manquant dans `MainActivity`).
+
 ## 1.4.5
 
 - Page **About** réécrite pour téléphone : sections courtes, crédits du fork,
