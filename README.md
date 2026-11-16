@@ -4,7 +4,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 1.4.7.** Elle gère l'appairage Wi-Fi des appareils au
+**Version stable 1.4.8.** Elle gère l'appairage Wi-Fi des appareils au
 firmware 7 et l'appairage **Bluetooth LE** des appareils au firmware 8 (MRS100
 8.x), dont l'AP Wi-Fi n'est pas ouvert sans confirmation BLE. Une recette
 F-Droid est préparée (`fdroid/org.localpairer.yml`) ; l'application
@@ -82,11 +82,13 @@ les champs *HTTP API port* / *HTTPS API port*.
 L'URL complète n'est jamais demandée : une URL collée par erreur est nettoyée
 (schéma, chemin et port retirés).
 
-Le bouton **Discovery** interroge le service mDNS `_meross-api._tcp` publié par
-l'add-on. Depuis le broker `alpha75`, ce service contient les adresses LAN de
-Home Assistant et les ports HTTP/HTTPS ; l'application teste leur joignabilité,
-préfère HTTPS quand il est annoncé et préremplit l'hôte et les ports. Aucune
-adresse n'est préremplie si aucune ne répond.
+La découverte mDNS est **automatique** à l'ouverture de l'écran de connexion :
+l'application interroge le service `_meross-api._tcp` publié par l'add-on.
+Depuis le broker `alpha75`, ce service contient les adresses LAN de Home
+Assistant et les ports HTTP/HTTPS ; l'application teste leur joignabilité,
+préfère HTTPS quand il est annoncé et préremplit l'hôte et les ports lorsque le
+champ est vide. Aucune adresse n'est préremplie si aucune ne répond, et la
+saisie manuelle reste disponible pendant la recherche.
 
 Le certificat du broker est auto-signé. L'application l'**épingle** au premier
 contact : l'empreinte SHA-256 de la feuille est mémorisée pour ce

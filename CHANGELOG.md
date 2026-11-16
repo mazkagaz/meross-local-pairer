@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.8
+
+- La découverte mDNS est **automatique** à l'ouverture de l'écran de connexion ;
+  le bouton **Discovery** est supprimé. Le champ n'est prérempli que s'il est
+  vide, et la saisie manuelle reste utilisable pendant la recherche. Un texte
+  d'état indique la recherche, le résultat ou l'absence de broker.
+- Nouvelle iconographie sur l'écran d'appairage : icônes Material cohérentes
+  teintées (Wi-Fi, appairage, appui) et bouton de rescan blanc, à la place des
+  anciennes illustrations.
+
 ## 1.4.7
 
 - La découverte mDNS utilise désormais les enregistrements TXT publiés par le

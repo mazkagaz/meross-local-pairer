@@ -5,7 +5,7 @@
 - Upstream version: 0.0.11
 - Upstream license: GPL-2.0
 - Fork license: GPL-2.0 (see `LICENSE`)
-- Fork version: 1.4.7 (`versionCode` 58)
+- Fork version: 1.4.8 (`versionCode` 59)
 - Application id: `org.localpairer` (distinct from upstream)
 - Display name: **Meross Local Pairer** (unofficial)
 
@@ -38,7 +38,7 @@
 |---|---|
 | `AndroidPreferencesManager.java` | Store Meross API credentials with SecurePreferences; migrate legacy plaintext entries. |
 | `res/xml/network_security_config.xml` | Cleartext HTTP limited to the AP endpoint `10.10.10.1` and local `.local`/`.lan` API hostnames. |
-| `app/build.gradle` | APKs signed with a stable project key when the CI signing variables are present; version 1.4.7. |
+| `app/build.gradle` | APKs signed with a stable project key when the CI signing variables are present; version 1.4.8. |
 | `ConfigureMqttFragment`, `BlePairActivity`, `ExecutePairingFragment` | **New**: required device name during pairing, stored through the authenticated broker `/v1/Device/name` endpoint. |
 | `DeviceListFragment`, `DeviceRecyclerViewAdapter` | **New**: touch a device row to rename it, with broker-side uniqueness errors surfaced. |
 | `ConfigureWifiFragment`, `ExecutePairingFragment`, `BlePairActivity` | Auto-trust the user-selected IoT Wi-Fi network during pairing, including when it differs from the phone network. |

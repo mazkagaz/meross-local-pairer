@@ -86,7 +86,7 @@ public class LoginFragment extends Fragment {
     private EditText mHttpsPortEditText;
     private TextView mEndpointSummary;
     private MaterialButton mLoginButton;
-    private MaterialButton mDiscoveryButton;
+    private TextView mDiscoveryHint;
     private TextView httpLoginIntroText;
 
     private Timer mTimer;
@@ -133,7 +133,7 @@ public class LoginFragment extends Fragment {
         mHttpsPortEditText = mHttpsPortInputLayout.getEditText();
         mEndpointSummary = view.findViewById(R.id.endpointSummary);
         mLoginButton = view.findViewById(R.id.loginButton);
-        mDiscoveryButton = view.findViewById(R.id.discoveryButton);
+        mDiscoveryHint = view.findViewById(R.id.hintForDiscovery);
         httpLoginIntroText = view.findViewById(R.id.httpLoginIntroText);
 
         // Configure HostEditText for progress showing
@@ -162,18 +162,6 @@ public class LoginFragment extends Fragment {
                     Snackbar.make(requireView(), "Please enable WiFi first.", Snackbar.LENGTH_SHORT).show();
                 } else {
                     performLogin();
-                }
-            }
-        });
-
-        // Discovery button logic
-        mDiscoveryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mRequiresWifiLocation && !AndroidUtils.isWifiConnected(requireContext())) {
-                    Snackbar.make(requireView(), "Please enable WiFi first.", Snackbar.LENGTH_SHORT).show();
-                } else {
-                    startApiDiscovery();
                 }
             }
         });
@@ -228,9 +216,18 @@ public class LoginFragment extends Fragment {
 
         mHttpUsernameEditText.setText(args.getString(Args.HTTP_BROKER_EMAIL, ""));
         mHttpPasswordEditText.setText(args.getString(Args.HTTP_BROKER_PASSWORD, ""));
-        mDiscoveryButton.setEnabled(mDiscoveryEnabled);
-        mDiscoveryButton.setVisibility(mDiscoveryEnabled ? View.VISIBLE : View.INVISIBLE);
         httpLoginIntroText.setText(args.getInt(Args.INTRO_TEXT_RESOURCE_ID, R.string.login_intro_text));
+
+        if (mDiscoveryEnabled) {
+            setDiscoveryHint("Looking for the local broker on this network…");
+            if (!mRequiresWifiLocation || AndroidUtils.isWifiConnected(requireContext())) {
+                mUiHandler.post(this::startApiDiscovery);
+            } else {
+                setDiscoveryHint("Connect to Wi-Fi to search for the local broker.");
+            }
+        } else {
+            mDiscoveryHint.setVisibility(View.GONE);
+        }
 
         return view;
     }
@@ -264,9 +261,10 @@ public class LoginFragment extends Fragment {
     }
 
     private void startApiDiscovery() {
-        // Setup UI
+        // Do not disable manual entry while the automatic search runs.
         mResolutionInProgress = false;
-        configureUi(false,  true, null, null);
+        configureUi(true, true, null, null);
+        setDiscoveryHint("Looking for the local broker on this network…");
 
         // Start mDNS discovery
         if (!mDiscoveryInProgress) {
@@ -298,7 +296,6 @@ public class LoginFragment extends Fragment {
             @Override
             public void run() {
                 mLoginButton.setEnabled(uiEnabled);
-                mDiscoveryButton.setEnabled(uiEnabled);
                 mHttpUsernameEditText.setEnabled(uiEnabled);
                 mHttpPasswordEditText.setEnabled(uiEnabled);
 
@@ -534,15 +531,23 @@ public class LoginFragment extends Fragment {
                     if (resultHost == null) {
                         configureUi(true, false, null,
                                 "Local service found, but no advertised address is reachable.");
+                        setDiscoveryHint("No reachable local broker found — enter the address manually.");
                         return;
                     }
-                    if (updateEndpoint) {
-                        mHttpsSwitch.setChecked(resultHttps);
-                        mHttpPortEditText.setText(String.valueOf(httpPort));
-                        mHttpsPortEditText.setText(String.valueOf(httpsPortForUi));
+                    boolean fieldEmpty =
+                            mHttpHostnameEditText.getText().toString().trim().isEmpty();
+                    if (fieldEmpty) {
+                        if (updateEndpoint) {
+                            mHttpsSwitch.setChecked(resultHttps);
+                            mHttpPortEditText.setText(String.valueOf(httpPort));
+                            mHttpsPortEditText.setText(String.valueOf(httpsPortForUi));
+                        }
+                        configureUi(true, false, resultHost, "Found local API service!");
+                        updateEndpointSummary();
+                    } else {
+                        configureUi(true, false, null, "Found local API service.");
                     }
-                    configureUi(true, false, resultHost, "Found local API service!");
-                    updateEndpointSummary();
+                    setDiscoveryHint("Local broker found.");
                 });
             }).start();
         }
@@ -567,10 +572,19 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    private void setDiscoveryHint(String text) {
+        mUiHandler.post(() -> {
+            if (mDiscoveryHint != null) {
+                mDiscoveryHint.setText(text);
+            }
+        });
+    }
+
     private class TimeoutTask extends TimerTask {
         @Override
         public void run() {
-            configureUi(true,  false, null, "No Local HTTP service found.");
+            configureUi(true, false, null, "No Local HTTP service found.");
+            setDiscoveryHint("No local broker found — enter the address manually.");
             mTimer = null;
             if (mDiscoveryInProgress)
                 mNsdManager.stopServiceDiscovery(mDiscoveryListener);

@@ -6,22 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".LoginActivity">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/discoveryButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="@color/design_default_color_secondary_variant"
-        android:text="Discovery"
-        android:drawableTint="@color/design_default_color_on_primary"
-        android:drawableEnd="@drawable/ic_baseline_search_24"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
-        android:drawableRight="@drawable/ic_baseline_search_24" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
@@ -68,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="If unsure, press the discovery button!"
+            android:text="Entering the Home Assistant address…"
             android:gravity="center_horizontal"
             android:textColor="@color/design_default_color_secondary_variant"
             app:layout_constraintEnd_toEndOf="@+id/httpHostnameInputLayout"
@@ -219,7 +203,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/discoveryButton"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
         app:layout_constraintVertical_bias="0.0"
         android:drawableRight="@drawable/ic_baseline_login_24" />
 
