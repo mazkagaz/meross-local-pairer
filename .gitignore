@@ -8,3 +8,9 @@
 /captures
 .externalNativeBuild
 .cxx
+
+# Signing material must never be committed
+*.jks
+*.keystore
+signing.properties
+pairer-signing/

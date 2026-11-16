@@ -15,6 +15,20 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        debug {
+            // CI injects a stable signing key so successive APKs can update
+            // each other. Without these variables, the local debug key is used.
+            def keystorePath = System.getenv("ANDROID_KEYSTORE_FILE")
+            if (keystorePath != null && !keystorePath.trim().isEmpty()) {
+                storeFile file(keystorePath)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             // Enables code shrinking, obfuscation, and optimization for only
