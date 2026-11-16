@@ -173,8 +173,12 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
         }, WIFI_CONNECT_DELAY);
 
         // Store the password, if required
-        if (mSaveWifiPasswordCheckBox.isChecked())
-            AndroidPreferencesManager.storeWifiStoredPassword(requireContext(), mSelectedWifi.getScannedWifi().getBssid(), mWifiPasswordTextView.getEditText().getText().toString());
+        if (mSaveWifiPasswordCheckBox.isChecked()) {
+            AndroidPreferencesManager.storeWifiStoredPassword(requireContext(),
+                    mSelectedWifi.getScannedWifi().getSsid(),
+                    mSelectedWifi.getScannedWifi().getBssid(),
+                    mWifiPasswordTextView.getEditText().getText().toString());
+        }
 
         // As soo as the Wifi is connected, we start the Mqtt Discovery
         if (mDiscoveryInProgress) {
@@ -259,8 +263,12 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
                     + " bssid=" + mSelectedWifi.getScannedWifi().getBssid());
 
             // Store the password, if required
-            if (mSaveWifiPasswordCheckBox.isChecked())
-                AndroidPreferencesManager.storeWifiStoredPassword(requireContext(), mSelectedWifi.getScannedWifi().getBssid(), mWifiPasswordTextView.getEditText().toString());
+            if (mSaveWifiPasswordCheckBox.isChecked()) {
+                AndroidPreferencesManager.storeWifiStoredPassword(requireContext(),
+                        mSelectedWifi.getScannedWifi().getSsid(),
+                        mSelectedWifi.getScannedWifi().getBssid(),
+                        mWifiPasswordTextView.getEditText().getText().toString());
+            }
 
             // Launch the next fragment
             NavController ctrl = NavHostFragment.findNavController(ConfigureWifiFragment.this);

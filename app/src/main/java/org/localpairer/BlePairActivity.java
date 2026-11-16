@@ -305,7 +305,8 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         }
         if (wifi.encryption != 0 && !password.isEmpty()
                 && rememberPasswordCheckBox.isChecked()) {
-            AndroidPreferencesManager.storeWifiStoredPassword(this, wifi.bssid, password);
+            AndroidPreferencesManager.storeWifiStoredPassword(
+                    this, wifi.ssid, wifi.bssid, password);
         }
         String deviceName = deviceNameInput.getText().toString().trim();
         if (deviceName.isEmpty()) {
@@ -605,9 +606,23 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
                 }
             }
         }
+        // Networks the user already validated in the app count as remembered
+        // even when their password was saved for another access point.
+        List<AllowedWifiNetworks.Entry> allowed = AllowedWifiNetworks.load(this);
+        for (AllowedWifiNetworks.Entry saved : allowed) {
+            if (saved.ssid == null) {
+                continue;
+            }
+            for (int i = 0; i < wifiEntries.size(); i++) {
+                if (wifiEntries.get(i).ssid.equalsIgnoreCase(saved.ssid)) {
+                    return i;
+                }
+            }
+        }
         for (int i = 0; i < wifiEntries.size(); i++) {
-            if (AndroidPreferencesManager.getWifiStoredPassword(
-                    this, wifiEntries.get(i).bssid) != null) {
+            MerossBleProtocol.WifiEntry entry = wifiEntries.get(i);
+            if (AndroidPreferencesManager.getWifiStoredPasswordForNetwork(
+                    this, entry.ssid, entry.bssid) != null) {
                 return i;
             }
         }
@@ -619,8 +634,9 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         if (position < 0 || position >= wifiEntries.size()) {
             return;
         }
-        String stored = AndroidPreferencesManager.getWifiStoredPassword(
-                this, wifiEntries.get(position).bssid);
+        MerossBleProtocol.WifiEntry entry = wifiEntries.get(position);
+        String stored = AndroidPreferencesManager.getWifiStoredPasswordForNetwork(
+                this, entry.ssid, entry.bssid);
         passwordInput.setText(stored != null ? stored : "");
     }
 

@@ -228,6 +228,57 @@ public class AndroidPreferencesManager {
         }
     }
 
+    /**
+     * Finds a stored password for an SSID even when the BSSID changed (mesh
+     * roaming) or the password was saved for another access point of the same
+     * network.
+     */
+    @Nullable
+    public static String getWifiStoredPasswordForNetwork(@Nullable Context c, @Nullable String ssid,
+                                                         @Nullable String bssid) {
+        if (c == null) {
+            return null;
+        }
+        String value = null;
+        if (bssid != null && !bssid.trim().isEmpty()) {
+            value = getWifiStoredPassword(c, bssid);
+        }
+        if (value != null) {
+            return value;
+        }
+        if (ssid == null || ssid.trim().isEmpty()) {
+            return null;
+        }
+        value = getWifiStoredPassword(c, wifiPasswordKey(ssid));
+        if (value != null) {
+            return value;
+        }
+        for (AllowedWifiNetworks.Entry entry : AllowedWifiNetworks.load(c)) {
+            if (entry.ssid != null && entry.ssid.equalsIgnoreCase(ssid)
+                    && entry.bssid != null && !entry.bssid.trim().isEmpty()) {
+                value = getWifiStoredPassword(c, entry.bssid);
+                if (value != null) {
+                    return value;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void storeWifiStoredPassword(@NonNull Context c, @Nullable String ssid,
+                                               @Nullable String bssid, @NonNull String password) {
+        if (bssid != null && !bssid.trim().isEmpty()) {
+            storeWifiStoredPassword(c, bssid, password);
+        }
+        if (ssid != null && !ssid.trim().isEmpty()) {
+            storeWifiStoredPassword(c, wifiPasswordKey(ssid), password);
+        }
+    }
+
+    private static String wifiPasswordKey(String ssid) {
+        return "ssid:" + ssid.trim().toLowerCase();
+    }
+
     @Nullable
     public static ApiCredentials loadHttpCredentials(Context c) {
         String json = null;

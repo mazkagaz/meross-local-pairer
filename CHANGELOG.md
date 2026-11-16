@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.11
+
+- La réutilisation du Wi-Fi en Bluetooth ne dépend plus du BSSID exact : le
+  réseau est retrouvé par SSID parmi les réseaux de confiance, et le mot de
+  passe enregistré pour un autre point d'accès du même SSID est réutilisé.
+- Correction de l'appairage AP : le mode **Skip** enregistrait le texte du
+  champ au lieu du mot de passe. Les mots de passe sont désormais stockés par
+  SSID et par BSSID. La case d'enregistrement est cochée par défaut.
+
 ## 1.4.10
 
 - L'appairage Bluetooth réutilise les identifiants Wi-Fi comme l'appairage AP :
