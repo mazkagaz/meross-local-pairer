@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.10
+
+- L'appairage Bluetooth réutilise les identifiants Wi-Fi comme l'appairage AP :
+  le réseau courant (ou un réseau mémorisé) est présélectionné et le mot de
+  passe est rempli automatiquement s'il a déjà été enregistré.
+- Ajout des cases **Show password** et **Remember this Wi-Fi password** sur
+  l'écran Bluetooth ; le mot de passe est mémorisé après configuration.
+
 ## 1.4.9
 
 - Suppression de l'avertissement technique « Meross plugs are only capable… »

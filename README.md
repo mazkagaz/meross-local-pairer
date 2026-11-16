@@ -4,7 +4,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 1.4.9.** Elle gère l'appairage Wi-Fi des appareils au
+**Version stable 1.4.10.** Elle gère l'appairage Wi-Fi des appareils au
 firmware 7 et l'appairage **Bluetooth LE** des appareils au firmware 8 (MRS100
 8.x), dont l'AP Wi-Fi n'est pas ouvert sans confirmation BLE. Une recette
 F-Droid est préparée (`fdroid/org.localpairer.yml`) ; l'application
@@ -155,7 +155,9 @@ Le mode est mémorisé. Le désactiver ne supprime aucun réglage.
       apparaissent sous **Meross Bluetooth devices**, à côté des AP Wi-Fi.
    2. Toucher l'appareil `MRBL_…`. L'application se connecte seule et lit son
       identité (UUID/MAC/type) ainsi que sa liste Wi-Fi.
-   3. Sélectionner le Wi-Fi domestique, saisir le mot de passe et le
+   3. Le Wi-Fi courant ou déjà mémorisé est présélectionné ; le mot de passe
+      est rempli automatiquement s'il a été enregistré lors d'un appairage
+      précédent (case **Remember this Wi-Fi password**). Saisir le
       **Device name** (nom unique et obligatoire), puis **Configure device**.
       Le broker local déjà configuré dans l'application est utilisé
       (port 2001).

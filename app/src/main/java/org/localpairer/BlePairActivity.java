@@ -10,11 +10,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -58,6 +63,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
     private Spinner deviceSpinner;
     private Spinner wifiSpinner;
     private EditText passwordInput;
+    private CheckBox rememberPasswordCheckBox;
     private EditText deviceNameInput;
     private Button pairButton;
     private ArrayAdapter<String> deviceAdapter;
@@ -144,6 +150,35 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         passwordInput.setInputType(InputType.TYPE_CLASS_TEXT
                 | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         root.addView(passwordInput);
+
+        CheckBox showPasswordCheckBox = new CheckBox(this);
+        showPasswordCheckBox.setText("Show password");
+        showPasswordCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                passwordInput.setTransformationMethod(
+                        HideReturnsTransformationMethod.getInstance());
+            } else {
+                passwordInput.setTransformationMethod(
+                        PasswordTransformationMethod.getInstance());
+            }
+        });
+        root.addView(showPasswordCheckBox);
+
+        rememberPasswordCheckBox = new CheckBox(this);
+        rememberPasswordCheckBox.setText("Remember this Wi-Fi password");
+        rememberPasswordCheckBox.setChecked(true);
+        root.addView(rememberPasswordCheckBox);
+
+        wifiSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                applyStoredPassword();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         deviceNameInput = new EditText(this);
         deviceNameInput.setHint("Device name (required)");
@@ -267,6 +302,10 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         if (wifi.encryption != 0 && password.isEmpty()) {
             Toast.makeText(this, "Enter the Wi-Fi password.", Toast.LENGTH_SHORT).show();
             return;
+        }
+        if (wifi.encryption != 0 && !password.isEmpty()
+                && rememberPasswordCheckBox.isChecked()) {
+            AndroidPreferencesManager.storeWifiStoredPassword(this, wifi.bssid, password);
         }
         String deviceName = deviceNameInput.getText().toString().trim();
         if (deviceName.isEmpty()) {
@@ -541,12 +580,48 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             wifiAdapter.addAll(labels);
             wifiAdapter.notifyDataSetChanged();
             pairButton.setEnabled(!wifiEntries.isEmpty());
+            if (!wifiEntries.isEmpty()) {
+                wifiSpinner.setSelection(preferredWifiIndex());
+                applyStoredPassword();
+            }
             setStatus(wifiEntries.isEmpty()
                     ? "The device did not report any Wi-Fi network."
-                    : "Select the home Wi-Fi and enter its password.");
+                    : "Select the home Wi-Fi; a remembered password is filled automatically.");
         } catch (Exception e) {
             setStatus("Could not parse Wi-Fi list: " + e.getMessage());
         }
+    }
+
+    /** Prefers the phone's current network, then one with a saved password. */
+    private int preferredWifiIndex() {
+        AllowedWifiNetworks.Entry current = AllowedWifiNetworks.current(this);
+        if (current != null) {
+            for (int i = 0; i < wifiEntries.size(); i++) {
+                MerossBleProtocol.WifiEntry entry = wifiEntries.get(i);
+                if (entry.ssid.equals(current.ssid)
+                        && (current.bssid == null
+                        || entry.bssid.equalsIgnoreCase(current.bssid))) {
+                    return i;
+                }
+            }
+        }
+        for (int i = 0; i < wifiEntries.size(); i++) {
+            if (AndroidPreferencesManager.getWifiStoredPassword(
+                    this, wifiEntries.get(i).bssid) != null) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private void applyStoredPassword() {
+        int position = wifiSpinner.getSelectedItemPosition();
+        if (position < 0 || position >= wifiEntries.size()) {
+            return;
+        }
+        String stored = AndroidPreferencesManager.getWifiStoredPassword(
+                this, wifiEntries.get(position).bssid);
+        passwordInput.setText(stored != null ? stored : "");
     }
 
     @Override
