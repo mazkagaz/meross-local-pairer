@@ -31,6 +31,7 @@
 | `MainActivity`, `DeviceListFragment`, `AboutFragment` | Device-first navigation; drawer replaced by contextual pair/refresh/settings/info actions. The separate support page is removed; About now carries the fork/credits, principles, privacy, legal notices, source link and a neutral coffee banner. Back buttons are replaced by the toolbar arrow. |
 | `fragment_account.xml`, `AccountFragment` | Official Meross cloud login removed; the app is local-only. |
 | `SplashActivity`, `ConfigureMqttFragment` | Optional "never ask again" disclaimer; a read-only "default" broker derived from the API host, editable via a Modify checkbox. |
+| `LoginFragment`, `fragment_login.xml` | Removed the non-functional Multifactor Authentication Code field: the local broker does not use MFA, so login is limited to the Home Assistant address, HTTPS toggle, local account and password. |
 
 ## Security and packaging
 

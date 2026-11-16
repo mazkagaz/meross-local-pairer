@@ -1,0 +1,1 @@
+Version 2.0.0: simplified HTTPS setup, automatic broker discovery, Bluetooth LE pairing for firmware 8, unique device names and rename, advanced settings, and the non-functional MFA field removed.

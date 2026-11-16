@@ -1,13 +1,14 @@
 Meross Local Pairer is an unofficial, local-only Android app that configures Meross devices to connect to a self-hosted MQTT broker instead of the Meross cloud. It is the pairing companion of the Meross Local Broker Home Assistant add-on.
 
-Use it once to join a device to your LAN: enter the local broker login, select the Wi-Fi network, set the broker address, and pair. After that, Home Assistant controls the device locally.
+Use it once to join a device to your LAN: enter the Home Assistant address, keep HTTPS enabled, log in with the local broker account, and pair. After that, Home Assistant controls the device locally.
 
 Features:
-- local broker login or manual UserId/key setup;
-- a read-only "default" broker prefilled from the API host, editable with the Modify checkbox;
-- Wi-Fi scanning for the pairing access point;
-- MQTT over TLS;
-- no Meross cloud account, no tracking, no ads and no analytics;
-- optional "Never ask again" disclaimer.
+- simplified setup: Home Assistant host or IP plus an HTTPS toggle, with automatic port selection (HTTPS 2004, HTTP 2003);
+- automatic mDNS discovery of the broker, with trusted Wi-Fi handling;
+- Wi-Fi AP pairing for firmware 7 and Bluetooth LE provisioning for firmware 8;
+- required unique device names, rename and forget actions, with the same Home Assistant entities after re-pairing;
+- MQTT over TLS and a pinned broker HTTPS certificate;
+- advanced settings for custom ports, secrets, manual User ID/key setup and diagnostics;
+- no Meross cloud account, no tracking, no ads and no analytics.
 
 The app requires a local broker; it does not control devices by itself. This project is not affiliated with, endorsed by, or sponsored by Meross. Source code is available under GPL-2.0.

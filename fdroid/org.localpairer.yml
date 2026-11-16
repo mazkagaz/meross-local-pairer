@@ -15,9 +15,11 @@ Description: |-
   cloud. It is the pairing companion of the Meross Local Broker Home Assistant
   add-on.
 
-  The app is used once to join a device to the LAN. It requires a local broker
-  and does not control devices by itself. It contains no ads, tracking or
-  analytics and never contacts the Meross cloud.
+  The app is used once to join a device to the LAN. It supports Wi-Fi AP
+  pairing for firmware 7 and Bluetooth LE provisioning for firmware 8, with an
+  HTTPS broker endpoint, certificate pinning and automatic mDNS discovery. It
+  requires a local broker and does not control devices by itself. It contains
+  no ads, tracking or analytics and never contacts the Meross cloud.
 
 RepoType: git
 Repo: https://github.com/mazkagaz/meross-local-pairer.git
@@ -176,5 +178,5 @@ Builds:
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 1.2.1
-CurrentVersionCode: 48
+CurrentVersion: 2.0.0
+CurrentVersionCode: 63

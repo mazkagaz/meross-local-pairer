@@ -1,13 +1,14 @@
 Meross Local Pairer est une application Android non officielle, strictement locale, qui configure des appareils Meross pour qu'ils rejoignent un broker MQTT auto-hébergé au lieu du cloud Meross. C'est le compagnon d'appairage de l'add-on Home Assistant Meross Local Broker.
 
-Elle s'utilise une seule fois pour rejoindre un appareil au réseau local : saisir le login du broker local, choisir le Wi-Fi, indiquer l'adresse du broker, puis appairer. Ensuite, Home Assistant pilote l'appareil localement.
+Elle s'utilise une seule fois pour rejoindre un appareil au réseau local : saisir l'adresse de Home Assistant, laisser HTTPS activé, se connecter avec le compte local du broker, puis appairer. Ensuite, Home Assistant pilote l'appareil localement.
 
 Fonctions :
-- connexion au broker local ou configuration manuelle UserId/clé ;
-- broker « default » prérempli et en lecture seule depuis l'hôte de l'API, modifiable via la case Modify ;
-- scan Wi-Fi du point d'accès d'appairage ;
-- MQTT sur TLS ;
-- aucun compte cloud Meross, aucun traqueur, aucune publicité, aucune analyse d'usage ;
-- option « Never ask again » sur l'avertissement.
+- configuration simplifiée : adresse de Home Assistant + interrupteur HTTPS, ports dérivés automatiquement (HTTPS 2004, HTTP 2003) ;
+- découverte mDNS automatique du broker et gestion des réseaux Wi-Fi de confiance ;
+- appairage par AP Wi-Fi pour le firmware 7 et provisionnement Bluetooth LE pour le firmware 8 ;
+- nom d'appareil obligatoire et unique, renommage et oubli, avec conservation des entités Home Assistant après réappairage ;
+- MQTT sur TLS et certificat HTTPS du broker épinglé ;
+- réglages avancés : ports personnalisés, secrets, configuration manuelle User ID/clé et diagnostics ;
+- aucun compte cloud Meross, aucun traqueur, aucune publicité, aucune analyse d'usage.
 
 L'application nécessite un broker local ; elle ne pilote pas les appareils seule. Projet non affilié à Meross. Code source sous GPL-2.0.
