@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0
+
+- Prise en charge du broker HTTPS (port **2004** du broker `alpha71`). Une URL
+  `https://…` est acceptée à la connexion HTTP, y compris par adresse IP.
+- Épinglage du certificat du broker (TOFU) : l'empreinte SHA-256 de la feuille
+  est mémorisée au premier contact, puis vérifiée à chaque connexion. Si le
+  certificat change, l'application affiche une erreur explicite.
+- Settings → diagnostics affiche l'empreinte épinglée et permet de la
+  réinitialiser après avoir régénéré les certificats de l'add-on.
+- Le port 2003 reste utilisable en HTTP pour les installations existantes.
+
 ## 1.2.2
 
 - Après un nouvel appairage (Wi-Fi firmware 7 ou Bluetooth firmware 8),

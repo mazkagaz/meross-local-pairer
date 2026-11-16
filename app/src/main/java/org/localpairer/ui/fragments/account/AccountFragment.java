@@ -28,6 +28,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.AllowedWifiNetworks;
 import org.localpairer.AndroidPreferencesManager;
+import org.localpairer.AndroidTlsPolicy;
 import org.localpairer.AndroidUtils;
 import org.localpairer.Constants;
 import org.localpairer.MainActivity;
@@ -48,6 +49,7 @@ public class AccountFragment extends Fragment {
     private static final int REQUEST_WIFI_PERMISSIONS = 41;
     private Runnable pendingWifiAction;
     private boolean accountSectionExpanded;
+    private TextView tlsPinSummaryView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -206,6 +208,23 @@ public class AccountFragment extends Fragment {
         final SwitchMaterial pairingDebugSwitch = root.findViewById(R.id.pairingDebugSwitch);
         final Button copyPairingLogsButton = root.findViewById(R.id.copyPairingLogsButton);
         final Button clearPairingLogsButton = root.findViewById(R.id.clearPairingLogsButton);
+        tlsPinSummaryView = root.findViewById(R.id.tlsPinSummary);
+        final Button resetTlsPinButton = root.findViewById(R.id.resetTlsPinButton);
+        refreshTlsPinSummary();
+        resetTlsPinButton.setOnClickListener(v -> {
+            ApiCredentials stored =
+                    AndroidPreferencesManager.loadHttpCredentials(requireContext());
+            if (stored == null || stored.getApiServer() == null) {
+                Toast.makeText(requireContext(), "No broker configured.",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+            AndroidTlsPolicy.clearPin(requireContext(), stored.getApiServer());
+            PairingLog.log("tls", "cleared pinned certificate for " + stored.getApiServer());
+            refreshTlsPinSummary();
+            Toast.makeText(requireContext(), "Pinned certificate cleared.",
+                    Toast.LENGTH_SHORT).show();
+        });
 
         pairingDebugSwitch.setChecked(AndroidPreferencesManager.isPairingDebugEnabled(requireContext()));
         PairingLog.setEnabled(pairingDebugSwitch.isChecked());
@@ -468,10 +487,30 @@ public class AccountFragment extends Fragment {
         summary.setText(builder.toString());
     }
 
+    private void refreshTlsPinSummary() {
+        if (tlsPinSummaryView == null) {
+            return;
+        }
+        ApiCredentials stored = AndroidPreferencesManager.loadHttpCredentials(requireContext());
+        if (stored == null || stored.getApiServer() == null) {
+            tlsPinSummaryView.setText("TLS pin: no broker configured");
+            return;
+        }
+        if (!stored.getApiServer().toLowerCase().startsWith("https://")) {
+            tlsPinSummaryView.setText("TLS pin: broker uses plain HTTP");
+            return;
+        }
+        String pin = AndroidTlsPolicy.pinnedFingerprint(requireContext(), stored.getApiServer());
+        tlsPinSummaryView.setText(pin == null
+                ? "TLS pin: not pinned yet (accepted on first HTTPS contact)"
+                : "TLS pin (SHA-256): " + pin);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         ((MainActivity)requireActivity()).setWifiLocationWarnRequired(false);
+        refreshTlsPinSummary();
     }
 
 }

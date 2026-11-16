@@ -288,6 +288,20 @@
                 android:layout_marginTop="4dp"
                 android:text="Enable verbose pairing logs, reproduce the problem, then copy the log and paste it elsewhere." />
 
+            <TextView
+                android:id="@+id/tlsPinSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="TLS pin: none" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/resetTlsPinButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Reset pinned broker certificate" />
+
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/pairingDebugSwitch"
                 android:layout_width="match_parent"

@@ -129,7 +129,10 @@ public class DeviceListFragment extends Fragment {
             public void onFailure(Exception result) {
                 mRefreshButton.setEnabled(true);
                 dialog.dismiss();
-                Toast.makeText(requireContext(), "Failed to obtain device list.", Toast.LENGTH_LONG).show();
+                String tlsError = org.localpairer.AndroidTlsPolicy.pinMismatchMessage(result);
+                Toast.makeText(requireContext(),
+                        tlsError != null ? tlsError : "Failed to obtain device list.",
+                        Toast.LENGTH_LONG).show();
             }
         });
     }

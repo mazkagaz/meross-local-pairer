@@ -36,6 +36,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -56,12 +58,36 @@ public class MerossHttpClient implements Serializable {
     // Class attributes
     private ApiCredentials mCredentials;
     private OkHttpClient mClient;
+    private static volatile TlsPolicy tlsPolicy;
 
     public MerossHttpClient() {
         this(null, new OkHttpClient());
     }
     public void setSocketFactory(SocketFactory socketFactory) {
         mClient.setSocketFactory(socketFactory);
+    }
+
+    /**
+     * Installs the trust policy used for https:// broker endpoints. The app
+     * supplies a pinning policy; tests may leave it unset.
+     */
+    public static void setTlsPolicy(TlsPolicy policy) {
+        tlsPolicy = policy;
+    }
+
+    private void configureTls(String url) {
+        TlsPolicy policy = tlsPolicy;
+        if (policy == null || url == null || !url.regionMatches(true, 0, "https://", 0, 8)) {
+            return;
+        }
+        SSLSocketFactory socketFactory = policy.socketFactoryFor(url);
+        HostnameVerifier hostnameVerifier = policy.hostnameVerifierFor(url);
+        if (socketFactory != null) {
+            mClient.setSslSocketFactory(socketFactory);
+        }
+        if (hostnameVerifier != null) {
+            mClient.setHostnameVerifier(hostnameVerifier);
+        }
     }
     public MerossHttpClient(ApiCredentials creds) {
         this(creds, new OkHttpClient());
@@ -158,6 +184,7 @@ public class MerossHttpClient implements Serializable {
 
     @SneakyThrows({UnsupportedEncodingException.class, NoSuchAlgorithmException.class})
     private <T> T authenticatedPost(@NonNull String url, HashMap<String, Object> data, String httpToken, Type dataType) throws IOException, HttpApiException  {
+        configureTls(url);
 
         String nonce = generateNonce(16);
         long timestampMillis = new Date().getTime();
