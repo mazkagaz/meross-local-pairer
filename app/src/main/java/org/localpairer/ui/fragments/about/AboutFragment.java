@@ -1,16 +1,19 @@
 package org.localpairer.ui.fragments.about;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.BuildConfig;
 import org.localpairer.R;
@@ -28,16 +31,15 @@ public class AboutFragment extends Fragment {
         TextView repositoryLink = view.findViewById(R.id.aboutRepositoryLink);
         repositoryLink.setMovementMethod(LinkMovementMethod.getInstance());
 
-        TextView disclosure = view.findViewById(R.id.aboutDisclosureTextView);
-        disclosure.setMovementMethod(LinkMovementMethod.getInstance());
-
-        view.findViewById(R.id.aboutSupportButton).setOnClickListener(v ->
-                NavHostFragment.findNavController(AboutFragment.this)
-                        .navigate(R.id.action_about_to_support));
-
-        view.findViewById(R.id.aboutBackToDevicesButton).setOnClickListener(v ->
-                NavHostFragment.findNavController(AboutFragment.this)
-                        .navigate(R.id.action_about_to_devices));
+        view.findViewById(R.id.aboutCoffeeBanner).setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse(getString(R.string.about_coffee_url))));
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(requireContext(), "No browser found.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return view;
     }

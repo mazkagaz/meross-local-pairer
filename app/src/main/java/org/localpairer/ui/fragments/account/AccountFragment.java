@@ -71,7 +71,6 @@ public class AccountFragment extends Fragment {
         final EditText httpTokenEditText = root.findViewById(R.id.httpTokenEditText);
         final EditText mqttKeyEditText = root.findViewById(R.id.mqttKeyEditText);
         final Button httpLogoutButton = root.findViewById(R.id.httpLogoutButton);
-        final Button accountBackToDevicesButton = root.findViewById(R.id.accountBackToDevicesButton);
         final Button haBrokerLoginButton = root.findViewById(R.id.haBrokerLoginButton);
         final CardView loginCardView = root.findViewById(R.id.loginCard);
         final Button manualSetupButton = root.findViewById(R.id.setManualButton);
@@ -217,13 +216,6 @@ public class AccountFragment extends Fragment {
 
         haBrokerLoginButton.setOnClickListener(v -> navigateToLogin());
         reloginButton.setOnClickListener(v -> navigateToLogin());
-        accountBackToDevicesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavHostFragment.findNavController(AccountFragment.this)
-                        .navigate(R.id.action_account_to_devices);
-            }
-        });
 
         manualSetupButton.setOnClickListener(new View.OnClickListener() {
             @Override

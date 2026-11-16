@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.5
+
+- Page **About** réécrite pour téléphone : sections courtes, crédits du fork,
+  principes, vie privée et mentions légales, puis support et code source.
+- La page **Supporting this app** est supprimée ; son contenu est intégré à la
+  page About.
+- Nouvelle bannière café discrète en bas d'About (« Offer me a coffee »), avec
+  icône locale neutre et lien PayPal. Le dépôt upstream n'est plus lié : seul
+  le nom de l'auteur et du projet d'origine est cité.
+- Tous les boutons **Back to devices** sont supprimés (About, Settings, écran
+  d'appairage) au profit de la flèche retour standard de la barre d'outils.
+
 ## 1.4.4
 
 - Le **Device name** est obligatoire pendant l'appairage (FW7 et FW8) ; il est

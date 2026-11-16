@@ -85,13 +85,7 @@
     <string name="never_ask_again">Never ask again</string>
     <string name="modify_default_broker">Modify</string>
     <string name="default_broker_name">default</string>
-    <string name="back_to_devices">Back to devices</string>
-    <string name="fragment_support_title">Supporting this app</string>
-    <string name="support_this_app_text_intro">Meross Local Pairer is free and open source.</string>
-    <string name="support_this_app_text">If you find it useful, you can star the repository, report issues, or contribute improvements. You can also buy me a coffee.</string>
-    <string name="support_this_app_links">Project links and support:</string>
-    <string name="support_this_app_repository_link"><a href="https://github.com/mazkagaz/meross-local-pairer">Meross Local Pairer on GitHub</a></string>
-    <string name="support_this_app_buy_me_a_coffee_link"><a href="https://paypal.me/mazkagaz">Buy me a coffee</a></string>
+    <string name="about_coffee_url" translatable="false">https://paypal.me/mazkagaz</string>
 
 
     <string name="manual_setup_info">Use this option to manually set the UserId and Key values manually. Such values are usually provided by the Meross HTTP API broker or by the HA Local Addon. However, you can manually set such values in case you want to pair against third-party brokers: you sure know what you are doing.</string>
@@ -100,16 +94,18 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="menu_about">About...</string>
-    <string name="about_text_title">What is Meross Local Pairer?</string>
-    <string name="about_text_body">Meross Local Pairer configures Meross devices to use a local MQTT broker instead of the Meross cloud. It works with the Meross Local Broker Home Assistant add-on and the meross-cloud integration.</string>
+    <string name="about_text_title">What it does</string>
+    <string name="about_text_body">Pairs Meross devices with a local MQTT broker instead of the Meross cloud. Use it once per device; Home Assistant then controls the device on your local network.</string>
     <string name="about_version_format">Version %1$s</string>
-    <string name="about_maintainer">Meross Local Pairer is developed and maintained by mazkagaz.</string>
+    <string name="about_fork_title">Fork and credits</string>
+    <string name="about_fork_body">Meross Local Pairer is an independent fork of Custom Pairer for Meross Devices, originally created by Alberto Geniola. This fork is maintained by mazkagaz and has substantial changes: Bluetooth LE provisioning for firmware 8, TLS, local-only login, trusted Wi-Fi handling, device revocation and re-claiming, a simplified setup and a redesigned interface.\n\nAlberto Geniola also wrote the original Meross low-level library and documentation. Icons: Freepik (flaticon.com).</string>
+    <string name="about_legal_title">Principles and legal notices</string>
+    <string name="about_legal_body">• Not affiliated with, endorsed by or sponsored by Meross or the original author. Meross is a trademark of its owner.\n• Local only: no Meross cloud account, no ads, no tracking, no telemetry.\n• Credentials are stored encrypted on the phone. Device names and identifiers stay in your local broker.\n• Open source under GPL-2.0. Provided as is, without warranty. Pairing changes the device configuration; use at your own risk.</string>
+    <string name="about_support_title">Open source and support</string>
+    <string name="about_support_body">This app is free and open source. If it helps you, you can report issues, suggest improvements or contribute code on GitHub.</string>
     <string name="about_repository_link"><a href="https://github.com/mazkagaz/meross-local-pairer">github.com/mazkagaz/meross-local-pairer</a></string>
-    <string name="about_disclosure_title">Disclosure</string>
-    <string name="about_disclosure">Meross Local Pairer is an unofficial fork of <a href="https://github.com/albertogeniola/Custom-Meross-Pairer">Alberto Geniola</a>\'s Custom Pairer. The original protocol and application were created by <a href="https://github.com/albertogeniola/Custom-Meross-Pairer">Alberto Geniola</a>. This fork fixes response validation, custom credential handling, provisioning reliability and security issues. Meross Local Pairer is not affiliated with, endorsed by, or sponsored by Meross or the upstream author. Third-party trademarks, including Meross, remain the property of their respective owners. Source code is available under GPL-2.0.</string>
-    <string name="about_credits_title">Credits</string>
-    <string name="about_credits">Meross low-level library and documentation: Alberto Geniola. Icons made by Freepik from www.flaticon.com.</string>
-    <string name="about_support_button">Supporting this app</string>
+    <string name="about_coffee_title">Offer me a coffee</string>
+    <string name="about_coffee_subtitle">Optional — the app stays free, open source and ad-free.</string>
     <string name="about_fragment_title">About this app</string>
 
 </resources>

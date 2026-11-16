@@ -47,13 +47,6 @@ public class PairActivity extends AppCompatActivity {
                 finish();
             }
         });
-        findViewById(R.id.pairExitButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
         wifiTextView = findViewById(R.id.pairWifiOffTextView);
         locationTextView = findViewById(R.id.pairLocationOffTextView);
         wifiLocationStatusLayout = findViewById(R.id.pairWifiLocationStatusLayout);

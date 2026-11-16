@@ -51,8 +51,10 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         final NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        // Only the device list is a top-level destination; secondary screens
+        // get the standard toolbar back arrow instead of an in-page button.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.devices_fragment, R.id.account_fragment, R.id.about_fragment).build();
+                R.id.devices_fragment).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
         // Share the stored credentials with the fragments (Account in particular).
