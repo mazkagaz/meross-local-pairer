@@ -102,8 +102,7 @@ public class ScanDevicesFragment extends Fragment {
         if (savedInstanceState != null)
             tokens = savedInstanceState.getLong(STATE_N_TOKENS);
         scanBucket.refill(tokens);
-        if (android.os.Build.VERSION.SDK_INT > 32){
-            // For releases > 32, we just need
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
             REQUIRED_PERMISSIONS = new String[] {
                     NEARBY_WIFI_DEVICES,
                     ACCESS_FINE_LOCATION,
@@ -113,9 +112,18 @@ public class ScanDevicesFragment extends Fragment {
                     android.Manifest.permission.BLUETOOTH_SCAN,
                     android.Manifest.permission.BLUETOOTH_CONNECT
             };
-        } else{
-            // For releases <= 32, we need to ask also for location permissions in order to scan
-            // wifis
+        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            // Android 12/12L: Bluetooth permissions exist, but NEARBY_WIFI_DEVICES does not.
+            REQUIRED_PERMISSIONS = new String[] {
+                    ACCESS_FINE_LOCATION,
+                    ACCESS_COARSE_LOCATION,
+                    CHANGE_WIFI_STATE,
+                    CHANGE_NETWORK_STATE,
+                    android.Manifest.permission.BLUETOOTH_SCAN,
+                    android.Manifest.permission.BLUETOOTH_CONNECT
+            };
+        } else {
+            // Android 6-11: location is also required to scan Wi-Fi.
             REQUIRED_PERMISSIONS = new String[] {
                     ACCESS_FINE_LOCATION,
                     ACCESS_COARSE_LOCATION,
