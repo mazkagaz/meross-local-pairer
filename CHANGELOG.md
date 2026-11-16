@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.0.0
+
+Version majeure, local-only et orientée grand public.
+
+- Suppression du champ **Multifactor Authentication Code** : le broker local ne
+  gère pas le MFA, le champ n'avait aucun effet. La connexion se limite à
+  l'adresse du broker, au compte local et au mot de passe.
+- Appairage firmware 7 (AP Wi-Fi) et firmware 8 (Bluetooth LE), avec détection
+  automatique des appareils `MRBL_…`, nom d'appareil obligatoire et unique, et
+  réseau Wi-Fi IoT ajouté automatiquement aux réseaux de confiance.
+- API locale en HTTPS (port 2004), MQTT/TLS (port 2001), certificat épinglé
+  dans l'application ; découverte mDNS automatique avec adresses et ports
+  publiés par le broker.
+- Configuration simplifiée : adresse de Home Assistant + interrupteur HTTP/HTTPS,
+  ports dérivés, mode **Advanced settings** pour les overrides et secrets.
+- Gestion des appareils : oubli avec révocation, claim au réappairage (même
+  UUID), renommage par appui sur la ligne, icônes adaptées au type.
+- Interface : page About réécrite avec crédits, principes, confidentialité et
+  bannière café ; flèches retour standard ; icônes d'appairage cohérentes.
+- Signature stable des APK et notes de release générées depuis ce changelog.
+
 ## 1.4.11
 
 - La réutilisation du Wi-Fi en Bluetooth ne dépend plus du BSSID exact : le

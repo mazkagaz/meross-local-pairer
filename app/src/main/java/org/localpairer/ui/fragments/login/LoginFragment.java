@@ -41,7 +41,6 @@ import org.localpairer.ui.MainActivityViewModel;
 import org.localpairer.merosslib.model.http.ApiCredentials;
 import org.localpairer.merosslib.model.http.ErrorCodes;
 import org.localpairer.merosslib.model.http.exceptions.HttpApiException;
-import org.localpairer.merosslib.model.http.exceptions.HttpApiMissingMFAException;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.CircularProgressIndicatorSpec;
@@ -77,7 +76,6 @@ public class LoginFragment extends Fragment {
     private EditText mHttpHostnameEditText;
     private EditText mHttpUsernameEditText;
     private EditText mHttpPasswordEditText;
-    private EditText mHttpMfaEditText;
     private SwitchMaterial mHttpsSwitch;
     private LinearLayout mAdvancedEndpointFields;
     private TextInputLayout mHttpPortInputLayout;
@@ -124,7 +122,6 @@ public class LoginFragment extends Fragment {
         mHttpHostnameEditText = mHttpHostnameInputLayout.getEditText();
         mHttpPasswordEditText = ((TextInputLayout)view.findViewById(R.id.httpPasswordEditText)).getEditText();
         mHttpUsernameEditText = ((TextInputLayout)view.findViewById(R.id.httpUsernameEditText)).getEditText();
-        mHttpMfaEditText = ((TextInputLayout)view.findViewById(R.id.httpMFA)).getEditText();
         mHttpsSwitch = view.findViewById(R.id.httpsSwitch);
         mAdvancedEndpointFields = view.findViewById(R.id.advancedEndpointFields);
         mHttpPortInputLayout = view.findViewById(R.id.httpPortInputLayout);
@@ -372,10 +369,6 @@ public class LoginFragment extends Fragment {
         }
         mHttpPasswordEditText.setError(null);
 
-        // Retrieve MFA, if specified
-        final String mfa = mHttpMfaEditText.getText().toString().trim();
-        mHttpMfaEditText.setError(null);
-
         // Execute the login.
         final ProgressDialog dialog = new ProgressDialog(getContext());
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -384,7 +377,7 @@ public class LoginFragment extends Fragment {
         dialog.setMessage("Please wait while logging in...");
         dialog.show();
 
-        HttpClientManager.getInstance().asyncLogin(strurl, username, password, mfa, new HttpClientManager.Callback<ApiCredentials>() {
+        HttpClientManager.getInstance().asyncLogin(strurl, username, password, new HttpClientManager.Callback<ApiCredentials>() {
             @Override
             public void onSuccess(ApiCredentials creds) {
                 AndroidPreferencesManager.storeHttpCredentials(requireContext(), creds);
@@ -406,10 +399,6 @@ public class LoginFragment extends Fragment {
                 String tlsError = org.localpairer.AndroidTlsPolicy.pinMismatchMessage(exception);
                 if (tlsError != null) {
                     errorMessage = tlsError;
-                }
-                else if (exception instanceof HttpApiMissingMFAException) {
-                    errorMessage = "MFA code required. Please login with MFA.";
-                    mHttpMfaEditText.setError("Please specify MFA");
                 }
                 else if (exception instanceof HttpApiException) {
                     errorMessage = ((HttpApiException)exception).getErrorMessage();
