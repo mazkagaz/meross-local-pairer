@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.4.0
+
+- Configuration simplifiée : saisir uniquement l'adresse de Home Assistant
+  (nom `homeassistant.local` ou IP) et choisir HTTP ou HTTPS. Les ports par
+  défaut (2003 en HTTP, 2004 en HTTPS) sont construits automatiquement.
+- Nouveau mode **Advanced settings** (mémorisé) : ports API clair/chiffré
+  modifiables, `userId`, token, `mqttKey`, Manual setup, gestion des réseaux
+  Wi-Fi de confiance, diagnostics d'appairage et réinitialisation du
+  certificat épinglé.
+- Par défaut, le token, la clé MQTT et les diagnostics ne sont plus affichés.
+- Au démarrage, l'application propose de faire confiance au Wi-Fi courant ;
+  un refus est mémorisé et la gestion complète reste dans Advanced settings.
+- La découverte mDNS ne remplit plus que l'adresse ; le choix HTTP/HTTPS est
+  conservé.
+- HTTPS est proposé par défaut pour une nouvelle configuration.
+
 ## 1.3.0
 
 - Prise en charge du broker HTTPS (port **2004** du broker `alpha71`). Une URL

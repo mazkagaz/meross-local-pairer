@@ -24,6 +24,15 @@
         android:layout_marginEnd="10dp"
         android:text="@string/back_to_devices" />
 
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/advancedModeSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="10dp"
+        android:text="Advanced settings" />
+
     <LinearLayout
         android:id="@+id/accountSectionHeader"
         android:layout_width="match_parent"
@@ -76,72 +85,147 @@
                 android:text="@string/account_activity_logged_info" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textField"
+                android:id="@+id/brokerHostInputLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4sp"
-                android:hint="API Endpoint">
+                android:hint="Home Assistant address (homeassistant.local or IP)">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/httpUrlEditText"
+                    android:id="@+id/brokerHostEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:editable="false"
-                    android:text="N/A"
-                    android:textIsSelectable="true" />
+                    android:inputType="textUri"
+                    android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textField2"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/httpsSwitch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4sp"
-                android:hint="User ID">
+                android:layout_marginTop="8dp"
+                android:text="Use HTTPS" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/userIdEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:editable="false"
-                    android:text="N/A"
-                    android:textIsSelectable="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textField3"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <TextView
+                android:id="@+id/endpointSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4sp"
-                android:hint="HTTP Token">
+                android:layout_marginTop="4dp"
+                android:textSize="13sp" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/httpTokenEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:editable="false"
-                    android:text="N/A"
-                    android:textIsSelectable="true" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textField4"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <LinearLayout
+                android:id="@+id/advancedBrokerFields"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4sp"
-                android:hint="MQTT Key">
+                android:orientation="vertical"
+                android:visibility="gone">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/mqttKeyEditText"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/httpPortInputLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:editable="false"
-                    android:text="N/A"
-                    android:textIsSelectable="true" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginTop="4sp"
+                    android:hint="HTTP API port (default 2003)">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/httpPortEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:singleLine="true" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/httpsPortInputLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4sp"
+                    android:hint="HTTPS API port (default 2004)">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/httpsPortEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:singleLine="true" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:id="@+id/advancedSecrets"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textField2"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4sp"
+                        android:hint="User ID">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/userIdEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:editable="false"
+                            android:text="N/A"
+                            android:textIsSelectable="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textField3"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4sp"
+                        android:hint="HTTP Token">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/httpTokenEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:editable="false"
+                            android:text="N/A"
+                            android:textIsSelectable="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textField4"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4sp"
+                        android:hint="MQTT Key">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/mqttKeyEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:editable="false"
+                            android:text="N/A"
+                            android:textIsSelectable="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saveBrokerButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Save broker address" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reloginButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Log in again"
+                android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/httpLogoutButton"
@@ -193,7 +277,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Allowed Wi-Fi networks"
+            android:text="Wi-Fi network"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -234,7 +318,7 @@
                 android:id="@+id/allowCurrentWifiButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Allow current Wi-Fi" />
+                android:text="Trust current Wi-Fi network" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/manageAllowedWifiButton"

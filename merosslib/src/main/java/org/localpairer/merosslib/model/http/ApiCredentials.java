@@ -36,6 +36,10 @@ public class ApiCredentials {
         this.issuedOn = issuedOn;
     }
 
+    public void setApiServer(String apiServer) {
+        this.apiServer = apiServer;
+    }
+
     public boolean isManuallySet() {
         return apiServer==null || token == null || userEmail == null;
     }

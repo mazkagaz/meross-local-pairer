@@ -29,6 +29,12 @@ public class AndroidPreferencesManager {
     private static String KEY_HTTP_CONF = "http";
     private static String KEY_DISCLAIMER_ACCEPTED = "disclaimer_accepted";
     private static String KEY_PAIRING_DEBUG = "pairing_debug";
+    private static String KEY_BROKER_HOST = "broker_host";
+    private static String KEY_BROKER_HTTPS = "broker_use_https";
+    private static String KEY_API_HTTP_PORT = "api_http_port";
+    private static String KEY_API_HTTPS_PORT = "api_https_port";
+    private static String KEY_ADVANCED_MODE = "advanced_mode";
+    private static String KEY_DECLINED_WIFI = "declined_wifi_networks";
     private static Gson g = Utils.getGson();
 
     public static boolean isPairingDebugEnabled(Context c) {
@@ -39,6 +45,100 @@ public class AndroidPreferencesManager {
     public static void setPairingDebugEnabled(Context c, boolean enabled) {
         c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
                 .edit().putBoolean(KEY_PAIRING_DEBUG, enabled).apply();
+    }
+
+    /**
+     * Loads the broker endpoint shown by the simple setup UI. On first use it
+     * migrates the full URL from stored credentials; a non-default port keeps
+     * itself in the matching port field and opens the advanced mode.
+     */
+    public static BrokerEndpoint loadBrokerEndpoint(Context c) {
+        SharedPreferences settings = c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE);
+        String host = settings.getString(KEY_BROKER_HOST, null);
+        boolean https = settings.getBoolean(KEY_BROKER_HTTPS, true);
+        int httpPort = settings.getInt(KEY_API_HTTP_PORT, BrokerEndpoint.DEFAULT_HTTP_PORT);
+        int httpsPort = settings.getInt(KEY_API_HTTPS_PORT, BrokerEndpoint.DEFAULT_HTTPS_PORT);
+
+        if (host == null) {
+            ApiCredentials credentials = loadHttpCredentials(c);
+            if (credentials != null && credentials.getApiServer() != null) {
+                BrokerEndpoint migrated = BrokerEndpoint.fromUrl(credentials.getApiServer());
+                if (migrated != null) {
+                    host = migrated.getHost();
+                    https = migrated.isHttps();
+                    boolean customPort = false;
+                    if (https && migrated.getHttpsPort() != BrokerEndpoint.DEFAULT_HTTPS_PORT) {
+                        httpsPort = migrated.getHttpsPort();
+                        customPort = true;
+                    } else if (!https && migrated.getHttpPort() != BrokerEndpoint.DEFAULT_HTTP_PORT) {
+                        httpPort = migrated.getHttpPort();
+                        customPort = true;
+                    }
+                    saveBrokerEndpoint(c, new BrokerEndpoint(host, https, httpPort, httpsPort));
+                    if (customPort) {
+                        setAdvancedMode(c, true);
+                    }
+                }
+            } else if (credentials != null && credentials.isManuallySet()) {
+                // Manual credentials carry no endpoint: technical by nature.
+                setAdvancedMode(c, true);
+            }
+        }
+        return new BrokerEndpoint(host, https, httpPort, httpsPort);
+    }
+
+    public static void saveBrokerEndpoint(Context c, BrokerEndpoint endpoint) {
+        c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .edit()
+                .putString(KEY_BROKER_HOST, endpoint.getHost())
+                .putBoolean(KEY_BROKER_HTTPS, endpoint.isHttps())
+                .putInt(KEY_API_HTTP_PORT, endpoint.getHttpPort())
+                .putInt(KEY_API_HTTPS_PORT, endpoint.getHttpsPort())
+                .apply();
+    }
+
+    public static boolean isAdvancedMode(Context c) {
+        return c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .getBoolean(KEY_ADVANCED_MODE, false);
+    }
+
+    public static void setAdvancedMode(Context c, boolean enabled) {
+        c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .edit().putBoolean(KEY_ADVANCED_MODE, enabled).apply();
+    }
+
+    public static boolean isWifiDeclined(Context c, String ssid) {
+        if (ssid == null) {
+            return false;
+        }
+        return c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .getStringSet(KEY_DECLINED_WIFI, new java.util.HashSet<String>())
+                .contains(ssid);
+    }
+
+    public static void markWifiDeclined(Context c, String ssid) {
+        if (ssid == null) {
+            return;
+        }
+        SharedPreferences settings = c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE);
+        java.util.Set<String> declined =
+                new java.util.HashSet<>(settings.getStringSet(KEY_DECLINED_WIFI,
+                        new java.util.HashSet<String>()));
+        declined.add(ssid);
+        settings.edit().putStringSet(KEY_DECLINED_WIFI, declined).apply();
+    }
+
+    public static void clearWifiDeclined(Context c, String ssid) {
+        if (ssid == null) {
+            return;
+        }
+        SharedPreferences settings = c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE);
+        java.util.Set<String> declined =
+                new java.util.HashSet<>(settings.getStringSet(KEY_DECLINED_WIFI,
+                        new java.util.HashSet<String>()));
+        if (declined.remove(ssid)) {
+            settings.edit().putStringSet(KEY_DECLINED_WIFI, declined).apply();
+        }
     }
 
     public static boolean isDisclaimerAccepted(Context c) {

@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -127,6 +128,15 @@ public class MainActivity extends AppCompatActivity {
         boolean locationEnabled = AndroidUtils.isLocationEnabled(MainActivity.this);
         updateWifiStatus(connectedWifi!=null, connectedWifi);
         updateLocationStatus(locationEnabled);
+
+        WifiTrustPrompt.maybePrompt(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        WifiTrustPrompt.onPermissionsResult(this);
     }
 
     @Override

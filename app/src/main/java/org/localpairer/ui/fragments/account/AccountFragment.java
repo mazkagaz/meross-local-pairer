@@ -10,6 +10,8 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +32,7 @@ import org.localpairer.AllowedWifiNetworks;
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.AndroidTlsPolicy;
 import org.localpairer.AndroidUtils;
+import org.localpairer.BrokerEndpoint;
 import org.localpairer.Constants;
 import org.localpairer.MainActivity;
 import org.localpairer.MerossUtils;
@@ -56,7 +59,14 @@ public class AccountFragment extends Fragment {
         final MainActivityViewModel mainActivityViewModel = new ViewModelProvider(requireActivity()).get(MainActivityViewModel.class);
         View root = inflater.inflate(R.layout.fragment_account, container, false);
         final CardView httpInfoCard = root.findViewById(R.id.httpInfoCard);
-        final EditText httpUrlEditText = root.findViewById(R.id.httpUrlEditText);
+        final EditText brokerHostEditText = root.findViewById(R.id.brokerHostEditText);
+        final SwitchMaterial httpsSwitch = root.findViewById(R.id.httpsSwitch);
+        final EditText httpPortEditText = root.findViewById(R.id.httpPortEditText);
+        final EditText httpsPortEditText = root.findViewById(R.id.httpsPortEditText);
+        final TextView endpointSummary = root.findViewById(R.id.endpointSummary);
+        final Button saveBrokerButton = root.findViewById(R.id.saveBrokerButton);
+        final Button reloginButton = root.findViewById(R.id.reloginButton);
+        final SwitchMaterial advancedModeSwitch = root.findViewById(R.id.advancedModeSwitch);
         final EditText userIdEditText = root.findViewById(R.id.userIdEditText);
         final EditText httpTokenEditText = root.findViewById(R.id.httpTokenEditText);
         final EditText mqttKeyEditText = root.findViewById(R.id.mqttKeyEditText);
@@ -65,6 +75,20 @@ public class AccountFragment extends Fragment {
         final Button haBrokerLoginButton = root.findViewById(R.id.haBrokerLoginButton);
         final CardView loginCardView = root.findViewById(R.id.loginCard);
         final Button manualSetupButton = root.findViewById(R.id.setManualButton);
+        final Button manageAllowedWifiButton =
+                root.findViewById(R.id.manageAllowedWifiButton);
+
+        final BrokerEndpoint[] currentEndpoint = {
+                AndroidPreferencesManager.loadBrokerEndpoint(requireContext())
+        };
+        brokerHostEditText.setText(currentEndpoint[0].getHost());
+        httpsSwitch.setChecked(currentEndpoint[0].isHttps());
+        httpPortEditText.setText(String.valueOf(currentEndpoint[0].getHttpPort()));
+        httpsPortEditText.setText(String.valueOf(currentEndpoint[0].getHttpsPort()));
+        updateEndpointSummary(endpointSummary, brokerHostEditText, httpsSwitch,
+                httpPortEditText, httpsPortEditText);
+        advancedModeSwitch.setChecked(AndroidPreferencesManager.isAdvancedMode(requireContext()));
+        applyAdvancedVisibility(root);
 
         // Trusted Wi-Fi must be validated before any broker/API login. Put the
         // Wi-Fi section first so this is the first thing configured.
@@ -96,12 +120,6 @@ public class AccountFragment extends Fragment {
         mainActivityViewModel.getCredentials().observe(getViewLifecycleOwner(), new Observer<ApiCredentials>() {
             @Override
             public void onChanged(ApiCredentials apiCredentials) {
-                if (apiCredentials == null || Strings.isEmpty(apiCredentials.getApiServer())) {
-                    httpUrlEditText.setText("Not set");
-                } else {
-                    httpUrlEditText.setText(apiCredentials.getApiServer());
-                }
-
                 if (apiCredentials == null || Strings.isEmpty(apiCredentials.getUserId())) {
                     userIdEditText.setText("Not set");
                 } else {
@@ -132,22 +150,73 @@ public class AccountFragment extends Fragment {
                 loginCardView.setVisibility(accountSectionExpanded && apiCredentials == null
                         ? View.VISIBLE : View.GONE);
                 haBrokerLoginButton.setEnabled(apiCredentials == null);
-                manualSetupButton.setVisibility(apiCredentials == null ? View.VISIBLE : View.GONE);
+                boolean advanced = AndroidPreferencesManager.isAdvancedMode(requireContext());
+                manualSetupButton.setVisibility(apiCredentials == null && advanced
+                        ? View.VISIBLE : View.GONE);
+                reloginButton.setVisibility(apiCredentials != null
+                        ? View.VISIBLE : View.GONE);
             }
         });
 
-        haBrokerLoginButton.setOnClickListener(new View.OnClickListener() {
+        TextWatcher endpointWatcher = new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                Bundle args = new Bundle();
-                args.putBoolean(LoginFragment.Args.ENABLE_BROKER_DISCOVERY, true);
-                args.putString(LoginFragment.Args.HTTP_BROKER_EMAIL, Constants.HA_ADDON_DEFAULT_EMAIL);
-                args.putString(LoginFragment.Args.HTTP_BROKER_PASSWORD, Constants.HA_ADDON_DEFAULT_PASSWORD);
-                args.putInt(LoginFragment.Args.INTRO_TEXT_RESOURCE_ID, R.string.login_intro_ha_broker);
-                args.putBoolean(LoginFragment.Args.REQUIRES_WIFI_LOCATION, true);
-                NavHostFragment.findNavController(AccountFragment.this).navigate(R.id.login_fragment, args);
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                updateEndpointSummary(endpointSummary, brokerHostEditText, httpsSwitch,
+                        httpPortEditText, httpsPortEditText);
+            }
+        };
+        brokerHostEditText.addTextChangedListener(endpointWatcher);
+        httpPortEditText.addTextChangedListener(endpointWatcher);
+        httpsPortEditText.addTextChangedListener(endpointWatcher);
+        httpsSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                updateEndpointSummary(endpointSummary, brokerHostEditText, httpsSwitch,
+                        httpPortEditText, httpsPortEditText));
+
+        advancedModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            AndroidPreferencesManager.setAdvancedMode(requireContext(), isChecked);
+            applyAdvancedVisibility(root);
+            refreshTlsPinSummary();
         });
+
+        saveBrokerButton.setOnClickListener(v -> {
+            BrokerEndpoint endpoint = readEndpoint(brokerHostEditText, httpsSwitch,
+                    httpPortEditText, httpsPortEditText);
+            if (!endpoint.isValid()) {
+                brokerHostEditText.setError("Please input the Home Assistant address");
+                return;
+            }
+            brokerHostEditText.setError(null);
+            boolean hostChanged =
+                    !endpoint.getHost().equalsIgnoreCase(currentEndpoint[0].getHost());
+            AndroidPreferencesManager.saveBrokerEndpoint(requireContext(), endpoint);
+            currentEndpoint[0] = endpoint;
+
+            ApiCredentials credentials =
+                    AndroidPreferencesManager.loadHttpCredentials(requireContext());
+            if (credentials != null && !credentials.isManuallySet()) {
+                credentials.setApiServer(endpoint.baseUrl());
+                AndroidPreferencesManager.storeHttpCredentials(requireContext(), credentials);
+                mainActivityViewModel.setCredentials(credentials);
+            }
+            updateEndpointSummary(endpointSummary, brokerHostEditText, httpsSwitch,
+                    httpPortEditText, httpsPortEditText);
+            String message = "Broker address saved.";
+            if (credentials != null && hostChanged) {
+                message += " If this is a different broker, use Log in again.";
+            }
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+        });
+
+        haBrokerLoginButton.setOnClickListener(v -> navigateToLogin());
+        reloginButton.setOnClickListener(v -> navigateToLogin());
         accountBackToDevicesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -251,7 +320,6 @@ public class AccountFragment extends Fragment {
 
         final TextView allowedWifiSummary = root.findViewById(R.id.allowedWifiSummary);
         final Button allowCurrentWifiButton = root.findViewById(R.id.allowCurrentWifiButton);
-        final Button manageAllowedWifiButton = root.findViewById(R.id.manageAllowedWifiButton);
         refreshAllowedWifiSummary(allowedWifiSummary);
 
         allowCurrentWifiButton.setOnClickListener(v ->
@@ -261,6 +329,66 @@ public class AccountFragment extends Fragment {
                 showManageWifiDialog(allowedWifiSummary));
 
         return root;
+    }
+
+    private void navigateToLogin() {
+        Bundle args = new Bundle();
+        args.putBoolean(LoginFragment.Args.ENABLE_BROKER_DISCOVERY, true);
+        args.putString(LoginFragment.Args.HTTP_BROKER_EMAIL, Constants.HA_ADDON_DEFAULT_EMAIL);
+        args.putString(LoginFragment.Args.HTTP_BROKER_PASSWORD, Constants.HA_ADDON_DEFAULT_PASSWORD);
+        args.putInt(LoginFragment.Args.INTRO_TEXT_RESOURCE_ID, R.string.login_intro_ha_broker);
+        args.putBoolean(LoginFragment.Args.REQUIRES_WIFI_LOCATION, true);
+        NavHostFragment.findNavController(AccountFragment.this)
+                .navigate(R.id.login_fragment, args);
+    }
+
+    private void applyAdvancedVisibility(View root) {
+        boolean advanced = AndroidPreferencesManager.isAdvancedMode(requireContext());
+        int visibility = advanced ? View.VISIBLE : View.GONE;
+        root.findViewById(R.id.advancedBrokerFields).setVisibility(visibility);
+        root.findViewById(R.id.manageAllowedWifiButton).setVisibility(visibility);
+        View diagnosticsHeader = root.findViewById(R.id.diagnosticsSectionHeader);
+        diagnosticsHeader.setVisibility(visibility);
+        if (!advanced) {
+            root.findViewById(R.id.diagnosticsCard).setVisibility(View.GONE);
+            ((TextView) root.findViewById(R.id.diagnosticsSectionArrow)).setText("▸");
+        }
+        ApiCredentials credentials =
+                AndroidPreferencesManager.loadHttpCredentials(requireContext());
+        root.findViewById(R.id.setManualButton).setVisibility(
+                advanced && credentials == null ? View.VISIBLE : View.GONE);
+        root.findViewById(R.id.reloginButton).setVisibility(
+                credentials != null ? View.VISIBLE : View.GONE);
+    }
+
+    private static BrokerEndpoint readEndpoint(EditText hostField, SwitchMaterial httpsSwitch,
+                                               EditText httpPortField,
+                                               EditText httpsPortField) {
+        return new BrokerEndpoint(
+                BrokerEndpoint.sanitizeHost(hostField.getText().toString()),
+                httpsSwitch.isChecked(),
+                parsePort(httpPortField, BrokerEndpoint.DEFAULT_HTTP_PORT),
+                parsePort(httpsPortField, BrokerEndpoint.DEFAULT_HTTPS_PORT));
+    }
+
+    private static int parsePort(EditText field, int fallback) {
+        try {
+            int value = Integer.parseInt(field.getText().toString().trim());
+            return value >= 1 && value <= 65535 ? value : fallback;
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
+
+    private static void updateEndpointSummary(TextView summary, EditText hostField,
+                                              SwitchMaterial httpsSwitch,
+                                              EditText httpPortField,
+                                              EditText httpsPortField) {
+        BrokerEndpoint endpoint =
+                readEndpoint(hostField, httpsSwitch, httpPortField, httpsPortField);
+        summary.setText(endpoint.isValid()
+                ? "Endpoint: " + endpoint.baseUrl()
+                : "Endpoint: enter a Home Assistant address");
     }
 
     private String[] wifiPermissions() {
@@ -314,6 +442,7 @@ public class AccountFragment extends Fragment {
             return;
         }
         AllowedWifiNetworks.add(requireContext(), current.ssid, current.bssid);
+        AndroidPreferencesManager.clearWifiDeclined(requireContext(), current.ssid);
         PairingLog.log("network", "allowed current " + current.ssid + "/" + current.bssid);
         refreshAllowedWifiSummary(summary);
         Toast.makeText(requireContext(), "Allowed " + current.ssid, Toast.LENGTH_SHORT).show();
@@ -402,6 +531,7 @@ public class AccountFragment extends Fragment {
                     }
                     for (AllowedWifiNetworks.Entry entry : desired) {
                         AllowedWifiNetworks.add(requireContext(), entry.ssid, entry.bssid);
+                        AndroidPreferencesManager.clearWifiDeclined(requireContext(), entry.ssid);
                     }
                     refreshAllowedWifiSummary(summary);
                     Toast.makeText(requireContext(), "Allowed networks updated.",
@@ -456,13 +586,12 @@ public class AccountFragment extends Fragment {
         View header = root.findViewById(headerId);
         View content = root.findViewById(contentId);
         TextView arrow = root.findViewById(arrowId);
-        final boolean[] expanded = {initiallyExpanded};
         content.setVisibility(initiallyExpanded ? View.VISIBLE : View.GONE);
         arrow.setText(initiallyExpanded ? "▾" : "▸");
         header.setOnClickListener(v -> {
-            expanded[0] = !expanded[0];
-            content.setVisibility(expanded[0] ? View.VISIBLE : View.GONE);
-            arrow.setText(expanded[0] ? "▾" : "▸");
+            boolean expand = content.getVisibility() != View.VISIBLE;
+            content.setVisibility(expand ? View.VISIBLE : View.GONE);
+            arrow.setText(expand ? "▾" : "▸");
         });
     }
 

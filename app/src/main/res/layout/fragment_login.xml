@@ -47,8 +47,8 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:ems="10"
-            android:hint="API endpoint (http://homeassistant.local:2003)"
-            android:inputType="textPersonName"
+            android:hint="Home Assistant address (homeassistant.local or IP)"
+            android:inputType="textUri"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -75,6 +75,63 @@
             app:layout_constraintStart_toStartOf="@+id/httpHostnameInputLayout"
             app:layout_constraintTop_toBottomOf="@+id/httpHostnameInputLayout" />
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/httpsSwitch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Use HTTPS (port 2004)"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/hintForDiscovery" />
+
+        <LinearLayout
+            android:id="@+id/advancedEndpointFields"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/httpsSwitch">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/httpPortInputLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="HTTP API port (default 2003)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/httpsPortInputLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="HTTPS API port (default 2004)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/endpointSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="13sp" />
+        </LinearLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/httpUsernameEditText"
             android:layout_width="0dp"
@@ -88,7 +145,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/hintForDiscovery"
+            app:layout_constraintTop_toBottomOf="@+id/advancedEndpointFields"
             app:layout_constraintVertical_bias="0.0"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 

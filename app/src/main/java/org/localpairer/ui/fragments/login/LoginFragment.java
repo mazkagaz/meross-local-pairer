@@ -7,6 +7,8 @@ import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +30,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.AndroidPreferencesManager;
 import org.localpairer.AndroidUtils;
+import org.localpairer.BrokerEndpoint;
 import org.localpairer.MainActivity;
 import org.localpairer.NetworkPolicy;
 import org.localpairer.R;
@@ -41,6 +45,7 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.CircularProgressIndicatorSpec;
 import com.google.android.material.progressindicator.IndeterminateDrawable;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Timer;
@@ -65,6 +70,13 @@ public class LoginFragment extends Fragment {
     private EditText mHttpUsernameEditText;
     private EditText mHttpPasswordEditText;
     private EditText mHttpMfaEditText;
+    private SwitchMaterial mHttpsSwitch;
+    private LinearLayout mAdvancedEndpointFields;
+    private TextInputLayout mHttpPortInputLayout;
+    private TextInputLayout mHttpsPortInputLayout;
+    private EditText mHttpPortEditText;
+    private EditText mHttpsPortEditText;
+    private TextView mEndpointSummary;
     private MaterialButton mLoginButton;
     private MaterialButton mDiscoveryButton;
     private TextView httpLoginIntroText;
@@ -105,6 +117,13 @@ public class LoginFragment extends Fragment {
         mHttpPasswordEditText = ((TextInputLayout)view.findViewById(R.id.httpPasswordEditText)).getEditText();
         mHttpUsernameEditText = ((TextInputLayout)view.findViewById(R.id.httpUsernameEditText)).getEditText();
         mHttpMfaEditText = ((TextInputLayout)view.findViewById(R.id.httpMFA)).getEditText();
+        mHttpsSwitch = view.findViewById(R.id.httpsSwitch);
+        mAdvancedEndpointFields = view.findViewById(R.id.advancedEndpointFields);
+        mHttpPortInputLayout = view.findViewById(R.id.httpPortInputLayout);
+        mHttpsPortInputLayout = view.findViewById(R.id.httpsPortInputLayout);
+        mHttpPortEditText = mHttpPortInputLayout.getEditText();
+        mHttpsPortEditText = mHttpsPortInputLayout.getEditText();
+        mEndpointSummary = view.findViewById(R.id.endpointSummary);
         mLoginButton = view.findViewById(R.id.loginButton);
         mDiscoveryButton = view.findViewById(R.id.discoveryButton);
         httpLoginIntroText = view.findViewById(R.id.httpLoginIntroText);
@@ -163,7 +182,42 @@ public class LoginFragment extends Fragment {
         mRequiresWifiLocation = args.getBoolean(Args.REQUIRES_WIFI_LOCATION, false);
         mDiscoveryEnabled = args.getBoolean(Args.ENABLE_BROKER_DISCOVERY, false);
 
-        mHttpHostnameEditText.setText(args.getString(Args.HTTP_BROKER_URL, ""));
+        BrokerEndpoint endpoint = AndroidPreferencesManager.loadBrokerEndpoint(requireContext());
+        String legacyUrl = args.getString(Args.HTTP_BROKER_URL, "");
+        if (!legacyUrl.isEmpty()) {
+            BrokerEndpoint parsed = BrokerEndpoint.fromUrl(legacyUrl);
+            if (parsed != null) {
+                endpoint = parsed;
+            }
+        }
+        mHttpHostnameEditText.setText(endpoint.getHost());
+        mHttpsSwitch.setChecked(endpoint.isHttps());
+        mHttpPortEditText.setText(String.valueOf(endpoint.getHttpPort()));
+        mHttpsPortEditText.setText(String.valueOf(endpoint.getHttpsPort()));
+        boolean advanced = AndroidPreferencesManager.isAdvancedMode(requireContext());
+        mAdvancedEndpointFields.setVisibility(advanced ? View.VISIBLE : View.GONE);
+        updateEndpointSummary();
+
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                updateEndpointSummary();
+            }
+        };
+        mHttpHostnameEditText.addTextChangedListener(watcher);
+        mHttpPortEditText.addTextChangedListener(watcher);
+        mHttpsPortEditText.addTextChangedListener(watcher);
+        mHttpsSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                updateEndpointSummary());
+
         mHttpUsernameEditText.setText(args.getString(Args.HTTP_BROKER_EMAIL, ""));
         mHttpPasswordEditText.setText(args.getString(Args.HTTP_BROKER_PASSWORD, ""));
         mDiscoveryButton.setEnabled(mDiscoveryEnabled);
@@ -171,6 +225,34 @@ public class LoginFragment extends Fragment {
         httpLoginIntroText.setText(args.getInt(Args.INTRO_TEXT_RESOURCE_ID, R.string.login_intro_text));
 
         return view;
+    }
+
+    private BrokerEndpoint readEndpoint() {
+        String host = BrokerEndpoint.sanitizeHost(mHttpHostnameEditText.getText().toString());
+        return new BrokerEndpoint(
+                host,
+                mHttpsSwitch.isChecked(),
+                parsePort(mHttpPortEditText, BrokerEndpoint.DEFAULT_HTTP_PORT),
+                parsePort(mHttpsPortEditText, BrokerEndpoint.DEFAULT_HTTPS_PORT));
+    }
+
+    private static int parsePort(EditText field, int fallback) {
+        try {
+            int value = Integer.parseInt(field.getText().toString().trim());
+            return value >= 1 && value <= 65535 ? value : fallback;
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
+
+    private void updateEndpointSummary() {
+        if (mEndpointSummary == null) {
+            return;
+        }
+        BrokerEndpoint endpoint = readEndpoint();
+        mEndpointSummary.setText(endpoint.isValid()
+                ? "Endpoint: " + endpoint.baseUrl()
+                : "Endpoint: enter a Home Assistant address");
     }
 
     private void startApiDiscovery() {
@@ -259,17 +341,14 @@ public class LoginFragment extends Fragment {
             return;
         }
         // Validate inputs.
-        // Validate HOSTNAME/URL
-        final String strurl = mHttpHostnameEditText.getText().toString().trim();
-        if (strurl.isEmpty()) {
-            mHttpHostnameEditText.setError("Please input the HTTP API url");
-            return;
-        }
-        if (!AndroidUtils.validateBaseUrl(strurl)) {
-            mHttpHostnameEditText.setError("The provided HTTP API URL is invalid");
+        final BrokerEndpoint endpoint = readEndpoint();
+        if (!endpoint.isValid()) {
+            mHttpHostnameEditText.setError("Please input the Home Assistant address");
             return;
         }
         mHttpHostnameEditText.setError(null);
+        AndroidPreferencesManager.saveBrokerEndpoint(requireContext(), endpoint);
+        final String strurl = endpoint.baseUrl();
 
         // Validate username
         final String username = mHttpUsernameEditText.getText().toString().trim();
@@ -390,12 +469,15 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-            String result = "http://" + serviceInfo.getHost().getHostName()+":"+serviceInfo.getPort();
+            // Keep the user's HTTP/HTTPS choice and derived ports; discovery
+            // only supplies the host.
+            String host = BrokerEndpoint.sanitizeHost(
+                    serviceInfo.getHost().getHostName());
             mTimer.cancel();
             mTimer = null;
             if (mDiscoveryInProgress)
                 mNsdManager.stopServiceDiscovery(mDiscoveryListener);
-            configureUi(true,  false, result, "Found local HTTP API service!");
+            configureUi(true, false, host, "Found local API service!");
         }
     };
 

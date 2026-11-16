@@ -4,7 +4,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 1.3.0.** Elle gère l'appairage Wi-Fi des appareils au
+**Version stable 1.4.0.** Elle gère l'appairage Wi-Fi des appareils au
 firmware 7 et l'appairage **Bluetooth LE** des appareils au firmware 8 (MRS100
 8.x), dont l'AP Wi-Fi n'est pas ouvert sans confirmation BLE. Une recette
 F-Droid est préparée (`fdroid/org.localpairer.yml`) ; l'application
@@ -57,30 +57,36 @@ clé (et plus tard au passage à F-Droid, qui utilise sa propre clé). Voir
 ## Réseaux Wi-Fi autorisés
 
 Le broker et l'API locale sont contactés en HTTP(S) et MQTT/TLS :
-l'application refuse donc de leur parler sur un réseau non validé. Au premier
-usage, une boîte de dialogue propose d'autoriser le Wi-Fi courant. La liste se
-gère dans **Paramètres → Allowed Wi-Fi networks** (autoriser le réseau
-courant, gérer la liste). La gestion liste aussi les réseaux Wi-Fi
-**visibles** : ils peuvent être autorisés sans devoir s'y connecter. Les AP
-d'appairage `Meross_*` restent implicitement autorisés pendant l'appairage.
-Android exige les permissions Wi-Fi/Localisation et les services de
-localisation pour lire les noms de réseaux ; l'application les demande au
-moment de l'autorisation.
+l'application refuse donc de leur parler sur un réseau non validé. Au
+démarrage, elle détecte le Wi-Fi courant et propose de le déclarer **réseau de
+confiance**. S'il est accepté, il est ajouté automatiquement ; s'il est refusé,
+l'application ne le redemande plus.
+
+La gestion complète (réseaux validés, réseaux visibles, suppression) se trouve
+dans **Settings → Advanced settings**. Les AP d'appairage `Meross_*` restent
+implicitement autorisés pendant l'appairage. Android exige les permissions
+Wi-Fi/Localisation et les services de localisation pour lire les noms de
+réseaux ; l'application les demande au premier démarrage.
 
 ## HTTPS et certificat du broker
 
-Avec le broker `alpha71` ou plus récent, l'API locale écoute aussi en HTTPS sur
-le port **2004**. Saisir `https://homeassistant.local:2004` à la connexion
-HTTP recommande le chiffrement et fonctionne aussi avec une adresse IP, que le
-HTTP simple peut faire refuser par Android.
+L'écran de connexion ne demande que l'adresse de Home Assistant (nom ou IP) et
+un interrupteur **HTTPS**. Les ports sont construits automatiquement :
+**2003** en HTTP, **2004** en HTTPS (broker `alpha71` ou plus récent). HTTPS
+fonctionne aussi avec une adresse IP, que le HTTP simple peut faire refuser par
+Android. Pour un port personnalisé, activer **Advanced settings** et renseigner
+les champs *HTTP API port* / *HTTPS API port*.
+
+L'URL complète n'est jamais demandée : une URL collée par erreur est nettoyée
+(schéma, chemin et port retirés).
 
 Le certificat du broker est auto-signé. L'application l'**épingle** au premier
 contact : l'empreinte SHA-256 de la feuille est mémorisée pour ce
 `hôte:port`, puis vérifiée à chaque connexion. Aucun certificat racine n'est
 donc à installer sur le téléphone.
 
-L'empreinte est visible dans **Settings → Pairing diagnostics**. Pour la
-comparer avec le broker :
+L'empreinte est visible dans **Settings → Advanced settings → Pairing
+diagnostics**. Pour la comparer avec le broker :
 
 ```bash
 openssl x509 -in /data/mqtt/certs/server.crt -noout -fingerprint -sha256
@@ -91,21 +97,35 @@ La CA se récupère séparément sur `/ca.crt`. Si le certificat du broker est
 régénéré, la connexion échoue avec un message explicite : utiliser **Reset
 pinned broker certificate** dans les diagnostics, puis se reconnecter.
 
+## Mode Advanced settings
+
+Un interrupteur **Advanced settings** dans Settings révèle les réglages
+techniques, masqués par défaut :
+
+- ports API **HTTP** (2003) et **HTTPS** (2004), modifiables ;
+- endpoint complet calculé ;
+- `userId`, token HTTP et `mqttKey` ;
+- **Manual setup** ;
+- gestion des réseaux Wi-Fi de confiance ;
+- diagnostics d'appairage et réinitialisation du certificat épinglé ;
+- **Log in again**, utile après un changement de broker.
+
+Le mode est mémorisé. Le désactiver ne supprime aucun réglage.
+
 ## Appairage pas à pas
 
 1. Ouvrir Meross Local Pairer et accorder les permissions Wi-Fi et localisation.
 2. Se connecter au broker local :
-   - **recommandé** : écran de connexion HTTP, saisir
-     `https://homeassistant.local:2004` (broker `alpha71` ou plus récent),
-     l'email local et le mot de passe local ;
-   - **ou**, sans TLS : `http://homeassistant.local:2003` ;
-   - **ou** : menu **Manual setup**, saisir `UserId` (souvent `1`) et la clé
-     `mqttKey` du compte local.
+   - saisir l'adresse de Home Assistant : `homeassistant.local` ou son IP ;
+   - laisser **HTTPS** activé (broker `alpha71` ou plus récent), ou le
+     désactiver pour un broker plus ancien ;
+   - saisir l'email local et le mot de passe local.
 
-   Avec la connexion HTTP(S), l'application récupère automatiquement les
-   identifiants et peut vérifier l'appairage. Si `homeassistant.local` ne
-   répond pas, utiliser l'adresse IP de Home Assistant ; en HTTPS, l'adresse
-   IP fonctionne aussi.
+   L'application construit seule `https://<adresse>:2004` ou
+   `http://<adresse>:2003`. Pour un port personnalisé, activer **Advanced
+   settings** dans Settings. Le mode **Manual setup** (`UserId` + `mqttKey`,
+   souvent `1` et la clé du compte local) est également dans Advanced
+   settings.
 3. Revenir à l'écran d'appairage, puis choisir la méthode selon le firmware :
 
    **Firmware 7 — AP Wi-Fi**
@@ -154,9 +174,10 @@ valides après oubli puis réappairage.
 |---|---|
 | L'AP `Meross_*` n'apparaît pas | mode appairage activé ; en firmware 8, c'est normal : utiliser l'appairage Bluetooth |
 | Aucun appareil `MRBL_…` en Bluetooth | Bluetooth activé, permissions Bluetooth/localisation, appareil en mode appairage, à portée |
-| Connexion HTTP impossible | utiliser `homeassistant.local`, `https://…:2004` ou **Manual setup** |
+| Connexion impossible | vérifier `homeassistant.local`/IP et le toggle HTTPS ; en dernier recours, **Manual setup** dans Advanced settings |
 | Certificat TLS modifié | **Reset pinned broker certificate** dans Settings, puis se reconnecter |
-| « Untrusted Wi-Fi network » | autoriser le réseau courant dans **Allowed Wi-Fi networks** |
+| « Trust this Wi-Fi network? » refusé | accepter au démarrage, ou ajouter le réseau dans **Advanced settings** |
+| « Untrusted Wi-Fi network » | accepter le réseau courant, ou le gérer dans **Advanced settings** |
 | Suppression d'appareil refusée | broker `alpha69` ou plus récent, API accessible, appareil du compte courant |
 | Échec des identifiants | compte local de l'add-on, `UserId`/`mqttKey` corrects |
 | L'appareil ne rejoint pas le Wi-Fi | WPA2 2,4 GHz, mot de passe, portée |
