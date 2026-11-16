@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -229,14 +230,19 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
                         DeviceInfo d = findDevice(devices, requestedUuid);
                         if (d != null && !renamed && requestedName != null
                                 && !requestedName.trim().isEmpty()) {
+                            renamed = true;
                             try {
                                 client.renameDevice(requestedUuid, requestedName.trim());
-                                renamed = true;
                                 PairingLog.log("pairing", "renamed uuid " + requestedUuid
                                         + " to " + requestedName.trim());
                             } catch (Exception renameError) {
                                 PairingLog.log("pairing", "rename failed: "
                                         + renameError.getMessage());
+                                final String renameMessage = renameError.getMessage();
+                                uiThreadHandler.post(() -> Toast.makeText(requireContext(),
+                                        "Name not saved: " + renameMessage
+                                                + ". Rename the device from the list.",
+                                        Toast.LENGTH_LONG).show());
                             }
                         }
                         if (d == null) {

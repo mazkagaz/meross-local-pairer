@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -52,7 +53,17 @@ public class DeviceListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAdapter = new DeviceRecyclerViewAdapter(new ArrayList<DeviceInfo>(),
-                this::confirmDeleteDevice);
+                new DeviceRecyclerViewAdapter.OnDeviceActionListener() {
+                    @Override
+                    public void onDeleteDevice(DeviceInfo device) {
+                        confirmDeleteDevice(device);
+                    }
+
+                    @Override
+                    public void onRenameDevice(DeviceInfo device) {
+                        showRenameDialog(device);
+                    }
+                });
         setHasOptionsMenu(true);
     }
 
@@ -159,6 +170,62 @@ public class DeviceListFragment extends Fragment {
                     .navigate(R.id.action_devices_to_account);
         }
     };
+
+    private void showRenameDialog(DeviceInfo device) {
+        NetworkPolicy.ensureCurrentAllowed(requireActivity(), () -> {
+            EditText input = new EditText(requireContext());
+            input.setSingleLine(true);
+            input.setText(device.getDevName() == null ? "" : device.getDevName());
+            input.setSelection(input.getText().length());
+
+            AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                    .setTitle("Rename device")
+                    .setView(input)
+                    .setPositiveButton("Save", null)
+                    .setNegativeButton("Cancel", null)
+                    .create();
+            dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                    .setOnClickListener(v -> {
+                        String name = input.getText().toString().trim();
+                        if (name.isEmpty()) {
+                            input.setError("Please input a device name");
+                            return;
+                        }
+                        if (name.length() > 128) {
+                            input.setError("128 characters maximum");
+                            return;
+                        }
+                        renameDevice(device, name, dialog);
+                    }));
+            dialog.show();
+        });
+    }
+
+    private void renameDevice(DeviceInfo device, String name, AlertDialog dialog) {
+        ApiCredentials credentials =
+                AndroidPreferencesManager.loadHttpCredentials(requireContext());
+        if (credentials == null) {
+            Toast.makeText(requireContext(), "No broker credentials.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        new Thread(() -> {
+            try {
+                new MerossHttpClient(credentials).renameDevice(device.getUuid(), name);
+                requireActivity().runOnUiThread(() -> {
+                    dialog.dismiss();
+                    Toast.makeText(requireContext(), "Device renamed: " + name,
+                            Toast.LENGTH_LONG).show();
+                    updateData();
+                });
+            } catch (Exception e) {
+                String message = e.getMessage();
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(),
+                                "Could not rename the device: " + message,
+                                Toast.LENGTH_LONG).show());
+            }
+        }).start();
+    }
 
     private void confirmDeleteDevice(DeviceInfo device) {
         NetworkPolicy.ensureCurrentAllowed(requireActivity(), () -> {

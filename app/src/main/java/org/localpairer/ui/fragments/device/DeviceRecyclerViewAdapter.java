@@ -25,6 +25,8 @@ public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecycl
 
     public interface OnDeviceActionListener {
         void onDeleteDevice(DeviceInfo device);
+
+        void onRenameDevice(DeviceInfo device);
     }
 
     private final List<DeviceInfo> mValues;
@@ -65,6 +67,11 @@ public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecycl
         holder.mDeleteButton.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onDeleteDevice(holder.mItem);
+            }
+        });
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onRenameDevice(holder.mItem);
             }
         });
     }

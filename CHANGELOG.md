@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.4.4
+
+- Le **Device name** est obligatoire pendant l'appairage (FW7 et FW8) ; il est
+  masqué si des identifiants manuels sans API sont utilisés.
+- Les noms d'appareils sont uniques (comparaison insensible à la casse) côté
+  broker `alpha74`. Un doublon est refusé avec un message explicite.
+- Nouveau renommage depuis la liste des appareils : toucher la ligne ouvre un
+  dialogue de renommage, sans passer par le broker.
+- Si l'enregistrement du nom échoue après l'appairage (doublon, broker plus
+  ancien), un message l'indique et le renommage reste possible depuis la liste.
+
 ## 1.4.3
 
 - Champ **Device name (optional)** pendant l'appairage (écran du broker en

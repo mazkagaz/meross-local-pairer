@@ -146,7 +146,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         root.addView(passwordInput);
 
         deviceNameInput = new EditText(this);
-        deviceNameInput.setHint("Device name (optional)");
+        deviceNameInput.setHint("Device name (required)");
         deviceNameInput.setInputType(InputType.TYPE_CLASS_TEXT);
         root.addView(deviceNameInput);
 
@@ -268,6 +268,17 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             Toast.makeText(this, "Enter the Wi-Fi password.", Toast.LENGTH_SHORT).show();
             return;
         }
+        String deviceName = deviceNameInput.getText().toString().trim();
+        if (deviceName.isEmpty()) {
+            Toast.makeText(this, "Enter a device name.", Toast.LENGTH_SHORT).show();
+            deviceNameInput.requestFocus();
+            return;
+        }
+        if (deviceName.length() > 128) {
+            Toast.makeText(this, "Device name is too long.", Toast.LENGTH_SHORT).show();
+            deviceNameInput.requestFocus();
+            return;
+        }
 
         try {
             pairingSent = true;
@@ -342,14 +353,17 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
                             continue;
                         }
                         if (!renamed) {
+                            renamed = true;
                             try {
                                 client.renameDevice(uuid, requestedName);
-                                renamed = true;
                                 PairingLog.log("ble", "renamed uuid " + uuid
                                         + " to " + requestedName);
                             } catch (Exception renameError) {
                                 PairingLog.log("ble", "rename failed: "
                                         + renameError.getMessage());
+                                main.post(() -> setStatus("Name not saved: "
+                                        + renameError.getMessage()
+                                        + "\nRename the device from the device list."));
                             }
                         }
                         if (info.getOnlineStatus() == OnlineStatus.ONLINE) {

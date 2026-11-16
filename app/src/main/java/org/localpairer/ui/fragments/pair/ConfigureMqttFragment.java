@@ -131,6 +131,12 @@ public class ConfigureMqttFragment extends Fragment {
         mqttConfigurationSpinner = view.findViewById(R.id.mqttConfigurationSpinner);
         final TextInputLayout deviceNameInputLayout =
                 view.findViewById(R.id.deviceNameInputLayout);
+        ApiCredentials storedCredentials =
+                AndroidPreferencesManager.loadHttpCredentials(requireContext());
+        if (storedCredentials != null && storedCredentials.isManuallySet()) {
+            // Manual credentials cannot call the broker API to store the name.
+            deviceNameInputLayout.setVisibility(View.GONE);
+        }
         mqttConfigurationNameEditText = view.findViewById(R.id.mqttConfigurationNameEditText);
         mqttHostEditText = view.findViewById(R.id.mqttHostnameEditText);
         mqttPortEditText = view.findViewById(R.id.mqttPortEditText);
@@ -314,8 +320,20 @@ public class ConfigureMqttFragment extends Fragment {
                     pairActivityViewModel.setOverrideUserId(null);
                 }
 
-                String deviceName = deviceNameInputLayout.getEditText()
-                        .getText().toString().trim();
+                String deviceName = "";
+                if (deviceNameInputLayout.getVisibility() == View.VISIBLE) {
+                    deviceName = deviceNameInputLayout.getEditText()
+                            .getText().toString().trim();
+                    if (deviceName.isEmpty()) {
+                        deviceNameInputLayout.setError("Please input a device name");
+                        return;
+                    }
+                    if (deviceName.length() > 128) {
+                        deviceNameInputLayout.setError("Device name is too long");
+                        return;
+                    }
+                    deviceNameInputLayout.setError(null);
+                }
                 pairActivityViewModel.setTargetDeviceName(
                         deviceName.isEmpty() ? null : deviceName);
 

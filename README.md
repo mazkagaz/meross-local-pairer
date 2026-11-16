@@ -4,7 +4,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 1.4.3.** Elle gère l'appairage Wi-Fi des appareils au
+**Version stable 1.4.4.** Elle gère l'appairage Wi-Fi des appareils au
 firmware 7 et l'appairage **Bluetooth LE** des appareils au firmware 8 (MRS100
 8.x), dont l'AP Wi-Fi n'est pas ouvert sans confirmation BLE. Une recette
 F-Droid est préparée (`fdroid/org.localpairer.yml`) ; l'application
@@ -135,8 +135,8 @@ Le mode est mémorisé. Le désactiver ne supprime aucun réglage.
       `Meross_RS_chWF_*`).
    2. Sélectionner le Wi-Fi domestique et saisir son mot de passe.
    3. Saisir le broker : hôte = IP de Home Assistant (ou
-      `homeassistant.local`), port = **2001**, et éventuellement le
-      **Device name**.
+      `homeassistant.local`), port = **2001**, et le **Device name** (nom
+      unique et obligatoire).
    4. Lancer l'appairage. L'appareil redémarre, rejoint le Wi-Fi et se connecte
       au broker.
 
@@ -145,9 +145,10 @@ Le mode est mémorisé. Le désactiver ne supprime aucun réglage.
       apparaissent sous **Meross Bluetooth devices**, à côté des AP Wi-Fi.
    2. Toucher l'appareil `MRBL_…`. L'application se connecte seule et lit son
       identité (UUID/MAC/type) ainsi que sa liste Wi-Fi.
-   3. Sélectionner le Wi-Fi domestique, saisir le mot de passe et
-      éventuellement le **Device name**, puis **Configure device**. Le broker
-      local déjà configuré dans l'application est utilisé (port 2001).
+   3. Sélectionner le Wi-Fi domestique, saisir le mot de passe et le
+      **Device name** (nom unique et obligatoire), puis **Configure device**.
+      Le broker local déjà configuré dans l'application est utilisé
+      (port 2001).
    4. L'application vérifie que l'appareil devient **ONLINE** ; elle n'affiche
       pas de succès si ce n'est pas le cas.
 
@@ -159,10 +160,14 @@ capteur de statut sont créés dans Home Assistant.
 
 ## Gérer les appareils
 
-Dans la liste des appareils, l'icône corbeille permet de **supprimer un
-appareil** du broker après confirmation. L'opération utilise l'API authentifiée
-du broker (`POST /v1/Device/delete`, add-on `alpha69` ou plus récent) ; elle
-échoue avec un message si l'API n'est pas joignable.
+**Toucher une ligne** ouvre le renommage de l'appareil : le nouveau nom est
+enregistré dans le broker (`POST /v1/Device/name`, add-on `alpha73` ou plus
+récent) et doit être unique, sans tenir compte de la casse.
+
+L'icône corbeille permet de **supprimer un appareil** du broker après
+confirmation. L'opération utilise l'API authentifiée du broker
+(`POST /v1/Device/delete`, add-on `alpha69` ou plus récent) ; elle échoue avec
+un message si l'API n'est pas joignable.
 
 Avec le broker `alpha70` ou plus récent, la suppression **révoque** aussi le
 MAC : l'appareil ne peut plus se reconnecter seul avec les identifiants qu'il
