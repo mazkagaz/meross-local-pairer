@@ -5,7 +5,7 @@
 - Upstream version: 0.0.11
 - Upstream license: GPL-2.0
 - Fork license: GPL-2.0 (see `LICENSE`)
-- Fork version: 1.2.1 (`versionCode` 48)
+- Fork version: 1.3.0 (`versionCode` 50)
 - Application id: `org.localpairer` (distinct from upstream)
 - Display name: **Meross Local Pairer** (unofficial)
 
@@ -38,7 +38,9 @@
 |---|---|
 | `AndroidPreferencesManager.java` | Store Meross API credentials with SecurePreferences; migrate legacy plaintext entries. |
 | `res/xml/network_security_config.xml` | Cleartext HTTP limited to the AP endpoint `10.10.10.1` and local `.local`/`.lan` API hostnames. |
-| `app/build.gradle` | APKs signed with a stable project key when the CI signing variables are present; version 1.2.1. |
+| `app/build.gradle` | APKs signed with a stable project key when the CI signing variables are present; version 1.3.0. |
+| `AndroidTlsPolicy.java`, `TlsPinStore.java`, `merosslib/TlsPolicy.java` | **New**: TOFU certificate pinning for the broker HTTPS endpoint. |
+| `ExecutePairingFragment`, `BlePairActivity`, `MerossHttpClient` | **New**: claim the device MAC after re-pairing to lift a broker revocation. |
 | `app/.../ble/MerossBleClient.java`, `MerossBleProtocol.java`, `BlePairActivity.java` | **New**: Bluetooth LE provisioning for firmware 8 devices (service A00A, B002 write, B003 notify, JSON framing, AES Wi-Fi password); automatic BLE discovery in the scan screen. |
 | `AllowedWifiNetworks.java`, `NetworkPolicy.java` | **New**: broker traffic restricted to user-validated Wi-Fi networks; visible networks can be added from Settings; device APs allowed during pairing. |
 | `AccountFragment`, `fragment_account.xml` | Settings page with collapsible sections, general back button, visible-network management; legacy HA logo removed. |
