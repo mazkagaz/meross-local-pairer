@@ -81,10 +81,11 @@ demande au premier démarrage.
 
 L'écran de connexion ne demande que l'adresse de Home Assistant (nom ou IP) et
 un interrupteur **HTTPS**. Les ports sont construits automatiquement :
-**2003** en HTTP, **2004** en HTTPS (broker `0.0.1-alpha71` ou plus récent). HTTPS
-fonctionne aussi avec une adresse IP, que le HTTP simple peut faire refuser par
-Android. Pour un port personnalisé, activer **Advanced settings** et renseigner
-les champs *HTTP API port* / *HTTPS API port*.
+**2003** en HTTP, **2004** en HTTPS (broker `0.0.1-alpha71` ou plus récent). Pour
+une **adresse IP**, HTTPS est obligatoire : Android bloque le HTTP en clair vers
+une IP. Le HTTP reste disponible pour les noms `.local`/`.lan`. Pour un port
+personnalisé, activer **Advanced settings** et renseigner les champs *HTTP API
+port* / *HTTPS API port*.
 
 L'URL complète n'est jamais demandée : une URL collée par erreur est nettoyée
 (schéma, chemin et port retirés).
