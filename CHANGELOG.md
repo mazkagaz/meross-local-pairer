@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.0.3
+
+- Remplacement de la bibliothèque de stockage sécurisé abandonnée par
+  **AndroidX EncryptedSharedPreferences** (Keystore AES). Les anciens
+  identifiants et mots de passe Wi-Fi sont migrés automatiquement ; en cas
+  d'échec, l'application échoue en mode fermé, sans fallback en clair.
+- Suppression des dépendances inutilisées (Paho, WorkManager, Commons IO,
+  legacy support, cardview) et des permissions associées. L'APK release
+  descend à environ 3,6 Mo.
+- Mise à jour AndroidX, Gson, Lombok et du client OkHttp ; Navigation reste en
+  2.9.8, dernière version compatible avec Android 6.
+- HTTP en clair refusé pour une adresse IP : HTTPS est requis pour les IP, le
+  HTTP restant disponible pour les noms `.local`/`.lan`.
+- Sauvegardes et transferts de données Android désactivés explicitement.
+
 ## 2.0.2
 
 - Sécurité de distribution : les APK GitHub sont désormais construits en

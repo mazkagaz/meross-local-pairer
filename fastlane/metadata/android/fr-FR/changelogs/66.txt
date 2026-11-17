@@ -1,0 +1,1 @@
+Version sécurité et maintenance : identifiants et mots de passe Wi-Fi stockés avec AndroidX chiffré et migrés automatiquement, dépendances et permissions inutiles supprimées, HTTPS obligatoire pour les adresses IP.

@@ -1,0 +1,1 @@
+Security and maintenance release: credentials and Wi-Fi passwords now use AndroidX encrypted storage with automatic migration, unused libraries and permissions were removed, and HTTPS is required for IP endpoints.

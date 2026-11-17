@@ -29,7 +29,6 @@ final class SecureStore {
     private static final String MIGRATED = "legacy_migrated";
 
     private static SharedPreferences preferences;
-    private static boolean unavailable;
 
     private SecureStore() {
     }
@@ -59,9 +58,6 @@ final class SecureStore {
         if (preferences != null) {
             return preferences;
         }
-        if (unavailable) {
-            return null;
-        }
         Context appContext = context.getApplicationContext();
         try {
             MasterKey masterKey = new MasterKey.Builder(appContext)
@@ -82,7 +78,6 @@ final class SecureStore {
         } catch (Exception e) {
             // Fail closed: callers see no secret rather than a plaintext fallback.
             Log.e(TAG, "Could not open encrypted preferences.", e);
-            unavailable = true;
             return null;
         }
     }
