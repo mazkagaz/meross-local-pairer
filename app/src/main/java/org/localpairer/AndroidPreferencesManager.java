@@ -2,9 +2,7 @@ package org.localpairer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,13 +16,10 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.adorsys.android.securestoragelibrary.SecurePreferences;
-
 import static org.localpairer.Constants.LOG_TAG;
 
 public class AndroidPreferencesManager {
     private static String PREFS_CONFS = "org.localpairer.shared_preferences";
-    private static String PREFS_WIFI_CREDS = "org.localpairer.shared_preferences.wifi_creds";
     private static String KEY_MQTT_CONF = "mqtt";
     private static String KEY_HTTP_CONF = "http";
     private static String KEY_DISCLAIMER_ACCEPTED = "disclaimer_accepted";
@@ -184,48 +179,23 @@ public class AndroidPreferencesManager {
     }
 
     public static void storeHttpCredentials(Context c, ApiCredentials httpCredentials) {
-        String json = g.toJson(httpCredentials);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            try {
-                SecurePreferences.setValue(KEY_HTTP_CONF, json, c);
-                return;
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Secure credential storage unavailable, falling back to SharedPreferences.", e);
-            }
-        }
-        SharedPreferences settings = c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE);
-        settings.edit().putString(KEY_HTTP_CONF, json).apply();
+        SecureStore.put(c, KEY_HTTP_CONF, g.toJson(httpCredentials));
     }
 
     public static void removeHttpCredentials(Context c) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            try {
-                SecurePreferences.setValue(KEY_HTTP_CONF, "", c);
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Failed to remove secure HTTP credentials.", e);
-            }
-        }
-        SharedPreferences settings = c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE);
-        settings.edit().remove(KEY_HTTP_CONF).apply();
+        SecureStore.remove(c, KEY_HTTP_CONF);
+        // Remove a legacy plaintext copy left by old versions.
+        c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .edit().remove(KEY_HTTP_CONF).apply();
     }
 
     @Nullable
     public static String getWifiStoredPassword(@NonNull Context c, @NonNull String bssid) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            return SecurePreferences.getStringValue(bssid.trim().toLowerCase(), c, null);
-        } else {
-            return c.getSharedPreferences(PREFS_WIFI_CREDS, Context.MODE_PRIVATE).getString(bssid.trim().toLowerCase(), null);
-        }
+        return SecureStore.get(c, bssid.trim().toLowerCase());
     }
 
     public static void storeWifiStoredPassword(@NonNull Context c, @NonNull String bssid, @NonNull String password) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            SecurePreferences.setValue(bssid.trim().toLowerCase(), password, c);
-        } else {
-            SharedPreferences.Editor e = c.getSharedPreferences(PREFS_WIFI_CREDS, Context.MODE_PRIVATE).edit();
-            e.putString(bssid.trim().toLowerCase(), password);
-            e.apply();
-        }
+        SecureStore.put(c, bssid.trim().toLowerCase(), password);
     }
 
     /**
@@ -281,14 +251,7 @@ public class AndroidPreferencesManager {
 
     @Nullable
     public static ApiCredentials loadHttpCredentials(Context c) {
-        String json = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            try {
-                json = SecurePreferences.getStringValue(KEY_HTTP_CONF, c, null);
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Failed to read secure HTTP credentials.", e);
-            }
-        }
+        String json = SecureStore.get(c, KEY_HTTP_CONF);
         if (json == null) {
             // Migrate legacy plaintext credentials on first read.
             SharedPreferences settings = c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE);

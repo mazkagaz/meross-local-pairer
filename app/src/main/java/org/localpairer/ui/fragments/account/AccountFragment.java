@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +23,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -42,9 +42,10 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import org.localpairer.model.HttpClientManager;
 import org.localpairer.ui.MainActivityViewModel;
 import org.localpairer.ui.fragments.login.LoginFragment;
+import com.google.android.material.card.MaterialCardView;
 import org.localpairer.merosslib.model.http.ApiCredentials;
 
-import org.eclipse.paho.client.mqttv3.util.Strings;
+
 
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class AccountFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         final MainActivityViewModel mainActivityViewModel = new ViewModelProvider(requireActivity()).get(MainActivityViewModel.class);
         View root = inflater.inflate(R.layout.fragment_account, container, false);
-        final CardView httpInfoCard = root.findViewById(R.id.httpInfoCard);
+        final MaterialCardView httpInfoCard = root.findViewById(R.id.httpInfoCard);
         final EditText brokerHostEditText = root.findViewById(R.id.brokerHostEditText);
         final SwitchMaterial httpsSwitch = root.findViewById(R.id.httpsSwitch);
         final EditText httpPortEditText = root.findViewById(R.id.httpPortEditText);
@@ -72,7 +73,7 @@ public class AccountFragment extends Fragment {
         final EditText mqttKeyEditText = root.findViewById(R.id.mqttKeyEditText);
         final Button httpLogoutButton = root.findViewById(R.id.httpLogoutButton);
         final Button haBrokerLoginButton = root.findViewById(R.id.haBrokerLoginButton);
-        final CardView loginCardView = root.findViewById(R.id.loginCard);
+        final MaterialCardView loginCardView = root.findViewById(R.id.loginCard);
         final Button manualSetupButton = root.findViewById(R.id.setManualButton);
         final Button manageAllowedWifiButton =
                 root.findViewById(R.id.manageAllowedWifiButton);
@@ -119,19 +120,19 @@ public class AccountFragment extends Fragment {
         mainActivityViewModel.getCredentials().observe(getViewLifecycleOwner(), new Observer<ApiCredentials>() {
             @Override
             public void onChanged(ApiCredentials apiCredentials) {
-                if (apiCredentials == null || Strings.isEmpty(apiCredentials.getUserId())) {
+                if (apiCredentials == null || TextUtils.isEmpty(apiCredentials.getUserId())) {
                     userIdEditText.setText("Not set");
                 } else {
                     userIdEditText.setText(apiCredentials.getUserId());
                 }
 
-                if (apiCredentials == null || Strings.isEmpty(apiCredentials.getToken())) {
+                if (apiCredentials == null || TextUtils.isEmpty(apiCredentials.getToken())) {
                     httpTokenEditText.setText("Not set");
                 } else {
                     httpTokenEditText.setText(apiCredentials.getToken());
                 }
 
-                if (apiCredentials == null || Strings.isEmpty(apiCredentials.getKey())) {
+                if (apiCredentials == null || TextUtils.isEmpty(apiCredentials.getKey())) {
                     mqttKeyEditText.setText("Not set (empty string)");
                 } else {
                     mqttKeyEditText.setText(apiCredentials.getKey());
@@ -190,6 +191,10 @@ public class AccountFragment extends Fragment {
                     httpPortEditText, httpsPortEditText);
             if (!endpoint.isValid()) {
                 brokerHostEditText.setError("Please input the Home Assistant address");
+                return;
+            }
+            if (endpoint.requiresHttps()) {
+                brokerHostEditText.setError("Use HTTPS for an IP address");
                 return;
             }
             brokerHostEditText.setError(null);
@@ -378,9 +383,13 @@ public class AccountFragment extends Fragment {
                                               EditText httpsPortField) {
         BrokerEndpoint endpoint =
                 readEndpoint(hostField, httpsSwitch, httpPortField, httpsPortField);
-        summary.setText(endpoint.isValid()
-                ? "Endpoint: " + endpoint.baseUrl()
-                : "Endpoint: enter a Home Assistant address");
+        if (!endpoint.isValid()) {
+            summary.setText("Endpoint: enter a Home Assistant address");
+        } else if (endpoint.requiresHttps()) {
+            summary.setText("Endpoint: HTTPS is required for an IP address");
+        } else {
+            summary.setText("Endpoint: " + endpoint.baseUrl());
+        }
     }
 
     private String[] wifiPermissions() {

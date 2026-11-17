@@ -65,4 +65,20 @@ public class BrokerEndpointTest {
                 BrokerEndpoint.DEFAULT_HTTP_PORT,
                 BrokerEndpoint.DEFAULT_HTTPS_PORT).isValid());
     }
+
+    @Test
+    public void cleartextIpRequiresHttps() {
+        BrokerEndpoint ip = new BrokerEndpoint("192.168.1.10", false,
+                BrokerEndpoint.DEFAULT_HTTP_PORT, BrokerEndpoint.DEFAULT_HTTPS_PORT);
+        assertTrue(ip.requiresHttps());
+        assertFalse(ip.withHttps(true).requiresHttps());
+
+        BrokerEndpoint ipv6 = new BrokerEndpoint("[fe80::1]", false,
+                BrokerEndpoint.DEFAULT_HTTP_PORT, BrokerEndpoint.DEFAULT_HTTPS_PORT);
+        assertTrue(ipv6.requiresHttps());
+
+        BrokerEndpoint hostname = new BrokerEndpoint("homeassistant.local", false,
+                BrokerEndpoint.DEFAULT_HTTP_PORT, BrokerEndpoint.DEFAULT_HTTPS_PORT);
+        assertFalse(hostname.requiresHttps());
+    }
 }

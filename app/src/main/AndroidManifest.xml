@@ -63,13 +63,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Mqtt Service -->
-        <service android:name="org.eclipse.paho.android.service.MqttService">
-        </service>
-
-        <uses-library
-            android:name="org.apache.http.legacy"
-            android:required="false" />
     </application>
 
 </manifest>

@@ -50,6 +50,37 @@ public final class BrokerEndpoint {
         return host != null && !host.isEmpty();
     }
 
+    /** Cleartext is not permitted by the network security config for an IP endpoint. */
+    public boolean requiresHttps() {
+        return !https && isIpAddress(host);
+    }
+
+    public static boolean isIpAddress(String host) {
+        if (host == null) {
+            return false;
+        }
+        String value = host.trim();
+        if (value.startsWith("[") && value.endsWith("]") && value.length() > 2) {
+            value = value.substring(1, value.length() - 1);
+        }
+        if (value.indexOf(':') >= 0) {
+            return true;
+        }
+        String[] parts = value.split("\\.");
+        if (parts.length != 4) {
+            return false;
+        }
+        for (String part : parts) {
+            if (part.isEmpty() || part.length() > 3 || !isNumeric(part)) {
+                return false;
+            }
+            if (Integer.parseInt(part) > 255) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public BrokerEndpoint withHttps(boolean useHttps) {
         return new BrokerEndpoint(host, useHttps, httpPort, httpsPort);
     }

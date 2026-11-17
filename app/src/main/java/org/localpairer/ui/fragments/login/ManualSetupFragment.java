@@ -1,6 +1,7 @@
 package org.localpairer.ui.fragments.login;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -18,7 +19,6 @@ import org.localpairer.ui.MainActivityViewModel;
 import org.localpairer.merosslib.model.http.ApiCredentials;
 import com.google.android.material.button.MaterialButton;
 
-import org.eclipse.paho.client.mqttv3.util.Strings;
 
 
 public class ManualSetupFragment extends Fragment {
@@ -56,7 +56,7 @@ public class ManualSetupFragment extends Fragment {
             Integer userIdInt = null;
 
             // Check UserId
-            if (Strings.isEmpty(userId)) {
+            if (TextUtils.isEmpty(userId)) {
                 mManualUserIdEditText.setError("Missing UserId");
                 return;
             }

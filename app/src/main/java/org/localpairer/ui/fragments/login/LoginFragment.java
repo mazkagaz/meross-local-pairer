@@ -252,9 +252,13 @@ public class LoginFragment extends Fragment {
             return;
         }
         BrokerEndpoint endpoint = readEndpoint();
-        mEndpointSummary.setText(endpoint.isValid()
-                ? "Endpoint: " + endpoint.baseUrl()
-                : "Endpoint: enter a Home Assistant address");
+        if (!endpoint.isValid()) {
+            mEndpointSummary.setText("Endpoint: enter a Home Assistant address");
+        } else if (endpoint.requiresHttps()) {
+            mEndpointSummary.setText("Endpoint: HTTPS is required for an IP address");
+        } else {
+            mEndpointSummary.setText("Endpoint: " + endpoint.baseUrl());
+        }
     }
 
     private void startApiDiscovery() {
@@ -347,6 +351,10 @@ public class LoginFragment extends Fragment {
         final BrokerEndpoint endpoint = readEndpoint();
         if (!endpoint.isValid()) {
             mHttpHostnameEditText.setError("Please input the Home Assistant address");
+            return;
+        }
+        if (endpoint.requiresHttps()) {
+            mHttpHostnameEditText.setError("Use HTTPS for an IP address");
             return;
         }
         mHttpHostnameEditText.setError(null);

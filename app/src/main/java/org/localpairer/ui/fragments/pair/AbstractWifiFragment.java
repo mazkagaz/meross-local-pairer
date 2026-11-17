@@ -31,11 +31,12 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import android.text.TextUtils;
+
 import org.localpairer.AndroidUtils;
 import org.localpairer.PairingLog;
 import org.localpairer.model.exception.PermissionNotGrantedException;
 
-import org.eclipse.paho.client.mqttv3.util.Strings;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -283,7 +284,7 @@ public abstract class AbstractWifiFragment extends Fragment {
 
             if (conf.SSID.compareTo("\"" + ssid + "\"") == 0) {
                 // Found a matching configuration: make sure the network passphrase is OK
-                if (conf.preSharedKey != null && conf.preSharedKey.length() > 0 && Strings.isEmpty(passphrase) || Strings.isEmpty(conf.preSharedKey) && !Strings.isEmpty(passphrase)) {
+                if (conf.preSharedKey != null && conf.preSharedKey.length() > 0 && TextUtils.isEmpty(passphrase) || TextUtils.isEmpty(conf.preSharedKey) && !TextUtils.isEmpty(passphrase)) {
                     Log.i(TAG, "Network configuration (" + conf.networkId + ") ignored: passphrase mismatch.");
                     continue;
                 }
@@ -300,7 +301,7 @@ public abstract class AbstractWifiFragment extends Fragment {
             targetWifiConf = new android.net.wifi.WifiConfiguration();
             targetWifiConf.SSID = "\"" + ssid + "\"";
 
-            if (!Strings.isEmpty(passphrase)) {
+            if (!TextUtils.isEmpty(passphrase)) {
                 targetWifiConf.preSharedKey = "\"" + passphrase + "\"";
                 targetWifiConf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
             } else {
