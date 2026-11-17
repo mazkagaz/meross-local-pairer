@@ -1,0 +1,1 @@
+Preserve password whitespace, make Bluetooth verification cancellable, modernize Wi-Fi/back/system-bar handling and remove unused components.

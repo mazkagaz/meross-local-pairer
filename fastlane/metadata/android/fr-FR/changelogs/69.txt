@@ -1,0 +1,1 @@
+Conservation des espaces du mot de passe, vérification Bluetooth annulable, modernisation Wi-Fi/retour/barres système et suppression de composants inutilisés.

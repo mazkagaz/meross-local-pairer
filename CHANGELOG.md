@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.6
+
+- Les espaces en début/fin de mot de passe sont conservés lors de la connexion.
+- La vérification BLE est annulable et ne met plus à jour l'interface après la
+  fermeture de l'écran.
+- Modernisation : détection Wi-Fi via `NetworkCapabilities`, gestion du retour
+  par `OnBackPressedDispatcher`, barres système via `WindowCompat`.
+- Nettoyage : `PairActivity` n'est plus exportée, suppression du trust manager
+  et du client HTTP inutilisés.
+
 ## 2.0.5
 
 - Cible Android 17 (API 37) : AGP 9.5.1, Gradle 9.9.1, compileSdk/targetSdk 37.
