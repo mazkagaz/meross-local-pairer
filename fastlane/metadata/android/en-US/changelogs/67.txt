@@ -1,0 +1,1 @@
+Fix the trusted Wi-Fi list so it refreshes immediately after accepting the current network. Update the Android build toolchain to AGP 8.13.2, Gradle 8.14.7 and SDK 36.

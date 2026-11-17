@@ -1,0 +1,1 @@
+Correction de la liste des réseaux de confiance, mise à jour immédiatement après acceptation du réseau courant. Mise à jour de la toolchain Android : AGP 8.13.2, Gradle 8.14.7 et SDK 36.

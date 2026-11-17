@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.4
+
+- Correction de l'affichage des réseaux de confiance : après avoir accepté le
+  réseau courant, la liste se met immédiatement à jour au lieu d'afficher
+  encore « aucun réseau validé ».
+- Mise à jour de la toolchain Android : AGP 8.13.2, Gradle 8.14.7,
+  compileSdk/targetSdk 36.
+
 ## 2.0.3
 
 - Remplacement de la bibliothèque de stockage sécurisé abandonnée par

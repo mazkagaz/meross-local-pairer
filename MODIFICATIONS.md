@@ -5,7 +5,7 @@
 - Upstream version: 0.0.11
 - Upstream license: GPL-2.0
 - Fork license: GPL-2.0 (see `LICENSE`)
-- Fork version: 2.0.3 (`versionCode` 66)
+- Fork version: 2.0.4 (`versionCode` 67)
 - Application id: `org.localpairer` (distinct from upstream)
 - Display name: **Meross Local Pairer** (unofficial)
 
@@ -39,7 +39,7 @@
 |---|---|
 | `AndroidPreferencesManager.java`, `SecureStore.java` | Store credentials and Wi-Fi passwords with AndroidX EncryptedSharedPreferences; migrate legacy encrypted and plaintext entries once, without plaintext fallback. |
 | `res/xml/network_security_config.xml` | Cleartext HTTP limited to the AP endpoint `10.10.10.1` and local `.local`/`.lan` API hostnames. |
-| `app/build.gradle` | APKs signed with a stable project key when the CI signing variables are present; version 2.0.3. |
+| `app/build.gradle` | APKs signed with a stable project key when the CI signing variables are present; version 2.0.4. |
 | `ConfigureMqttFragment`, `BlePairActivity`, `ExecutePairingFragment` | **New**: required device name during pairing, stored through the authenticated broker `/v1/Device/name` endpoint. |
 | `DeviceListFragment`, `DeviceRecyclerViewAdapter` | **New**: touch a device row to rename it, with broker-side uniqueness errors surfaced. |
 | `ConfigureWifiFragment`, `ExecutePairingFragment`, `BlePairActivity` | Auto-trust the user-selected IoT Wi-Fi network during pairing, including when it differs from the phone network. |
@@ -53,7 +53,7 @@
 | `AccountFragment`, `fragment_account.xml` | Settings page with collapsible sections, general back button, visible-network management; legacy HA logo removed. |
 | `DeviceListFragment`, adapter, `MerossHttpClient` | **New**: forget a device through authenticated `POST /v1/Device/delete`. |
 | `build.gradle` | Removed dead `jcenter()` and the Paho snapshot repository (both returned errors on CI); use Maven Central + JitPack. |
-| `.github/workflows/build.yaml` | Install Android SDK 35 explicitly before the Gradle build. |
+| `.github/workflows/build.yaml` | Install Android SDK 36 explicitly before the Gradle build. |
 | Android package/namespace | Renamed to `org.localpairer`; app label changed to Meross Local Pairer. |
 
 The Wi-Fi provisioning protocol was not changed: `Appliance.Config.Key`,
