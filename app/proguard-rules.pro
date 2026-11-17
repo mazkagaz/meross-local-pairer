@@ -20,6 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+-dontwarn javax.annotation.**
+-dontwarn com.google.errorprone.annotations.**
 -keepattributes RuntimeVisibleAnnotations
 -keep class * extends androidx.navigation.Navigator
 -keep class org.localpairer.merosslib.model.** { *; }
