@@ -10,9 +10,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** User-validated Wi-Fi networks on which broker traffic is allowed. */
 public final class AllowedWifiNetworks {
+    public interface Listener {
+        void onNetworksChanged();
+    }
+
     public static final class Entry {
         public final String ssid;
         public final String bssid;
@@ -29,8 +34,19 @@ public final class AllowedWifiNetworks {
 
     private static final String PREFS = "org.localpairer.shared_preferences";
     private static final String KEY = "allowed_wifi_networks";
+    private static final List<Listener> LISTENERS = new CopyOnWriteArrayList<>();
 
     private AllowedWifiNetworks() {
+    }
+
+    public static void addListener(Listener listener) {
+        if (listener != null && !LISTENERS.contains(listener)) {
+            LISTENERS.add(listener);
+        }
+    }
+
+    public static void removeListener(Listener listener) {
+        LISTENERS.remove(listener);
     }
 
     public static List<Entry> load(Context context) {
@@ -60,6 +76,9 @@ public final class AllowedWifiNetworks {
         }
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 .edit().putString(KEY, array.toString()).apply();
+        for (Listener listener : LISTENERS) {
+            listener.onNetworksChanged();
+        }
     }
 
     public static void add(Context context, String ssid, String bssid) {

@@ -54,6 +54,12 @@ public class AccountFragment extends Fragment {
     private Runnable pendingWifiAction;
     private boolean accountSectionExpanded;
     private TextView tlsPinSummaryView;
+    private TextView allowedWifiSummaryView;
+    private final AllowedWifiNetworks.Listener allowedWifiListener = () -> {
+        if (allowedWifiSummaryView != null && isAdded()) {
+            refreshAllowedWifiSummary(allowedWifiSummaryView);
+        }
+    };
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -316,6 +322,7 @@ public class AccountFragment extends Fragment {
         });
 
         final TextView allowedWifiSummary = root.findViewById(R.id.allowedWifiSummary);
+        allowedWifiSummaryView = allowedWifiSummary;
         final Button allowCurrentWifiButton = root.findViewById(R.id.allowCurrentWifiButton);
         refreshAllowedWifiSummary(allowedWifiSummary);
 
@@ -640,7 +647,17 @@ public class AccountFragment extends Fragment {
     public void onResume() {
         super.onResume();
         ((MainActivity)requireActivity()).setWifiLocationWarnRequired(false);
+        AllowedWifiNetworks.addListener(allowedWifiListener);
+        if (allowedWifiSummaryView != null) {
+            refreshAllowedWifiSummary(allowedWifiSummaryView);
+        }
         refreshTlsPinSummary();
+    }
+
+    @Override
+    public void onPause() {
+        AllowedWifiNetworks.removeListener(allowedWifiListener);
+        super.onPause();
     }
 
 }
