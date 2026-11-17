@@ -395,7 +395,7 @@ public class LoginFragment extends Fragment {
         mHttpUsernameEditText.setError(null);
 
         // Validate password
-        final String password = mHttpPasswordEditText.getText().toString().trim();
+        final String password = mHttpPasswordEditText.getText().toString();
         if (password.isEmpty()) {
             mHttpPasswordEditText.setError("Please input your password");
             return;

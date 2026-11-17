@@ -6,7 +6,8 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.DisplayMetrics;
@@ -42,9 +43,13 @@ public class AndroidUtils {
     }
 
     public static Boolean isWifiConnected(Context context) {
-        ConnectivityManager connManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return mWifi != null && mWifi.isConnected();
+        ConnectivityManager connManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connManager == null ? null : connManager.getActiveNetwork();
+        NetworkCapabilities capabilities =
+                network == null ? null : connManager.getNetworkCapabilities(network);
+        return capabilities != null
+                && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
     }
 
     public static boolean validateBaseUrl(String url) {

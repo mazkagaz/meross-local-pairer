@@ -1,12 +1,9 @@
 package org.localpairer.model;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
 import androidx.annotation.Nullable;
 
-import org.localpairer.AndroidPreferencesManager;
-import org.localpairer.model.exception.MissingHttpCredentials;
 import org.localpairer.merosslib.MerossHttpClient;
 import org.localpairer.merosslib.model.http.ApiCredentials;
 import org.localpairer.merosslib.model.http.DeviceInfo;
@@ -76,17 +73,6 @@ public class HttpClientManager {
             }
         };
         t.execute(mClient);
-    }
-
-    private static MerossHttpClient fetchStoredClient(Context c) throws MissingHttpCredentials {
-        ApiCredentials creds = AndroidPreferencesManager.loadHttpCredentials(c);
-        if (creds == null)
-            throw new MissingHttpCredentials("No HTTP credentials are available");
-
-        if (creds.isExpired())
-            throw new MissingHttpCredentials("Stored HTTP credentials has expired");
-
-        return new MerossHttpClient(creds);
     }
 
     private static abstract class CallbackTask<T> {

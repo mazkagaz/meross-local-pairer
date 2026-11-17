@@ -13,13 +13,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
-import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                         !topLevel && controller.getPreviousBackStackEntry() != null);
             }
         });
+        setupBackNavigation();
 
         // Share the stored credentials with the fragments (Account in particular).
         MainActivityViewModel mainActivityViewModel =
@@ -176,30 +178,33 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
     private long mBackPressed;
+
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return navController.navigateUp() || super.onSupportNavigateUp();
     }
 
-    @Override
-    public void onBackPressed() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        int backFrags = fragmentManager.findFragmentById(R.id.nav_host_fragment).getChildFragmentManager().getBackStackEntryCount();
-
-        // If there are more fragments, popback (default behaviour)
-        if (backFrags>0)
-            super.onBackPressed();
-
-        // otherwise ask for confirmation to exit
-        else if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
-            super.onBackPressed();
-            return;
-        } else {
-            Toast.makeText(getBaseContext(), "Tap back button in order to exit", Toast.LENGTH_SHORT).show();
-        }
-
-        mBackPressed = System.currentTimeMillis();
+    private void setupBackNavigation() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Fragment host = getSupportFragmentManager()
+                        .findFragmentById(R.id.nav_host_fragment);
+                int backFrags = host == null ? 0
+                        : host.getChildFragmentManager().getBackStackEntryCount();
+                if (backFrags > 0
+                        || mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                    setEnabled(true);
+                    return;
+                }
+                Toast.makeText(getBaseContext(), "Tap back button in order to exit",
+                        Toast.LENGTH_SHORT).show();
+                mBackPressed = System.currentTimeMillis();
+            }
+        });
     }
 
 }

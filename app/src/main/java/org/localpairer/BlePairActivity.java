@@ -43,6 +43,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /** Bluetooth provisioning path for devices that expose the Meross BLE service, such as recent MRS100 units. */
 public class BlePairActivity extends AppCompatActivity implements MerossBleClient.Callback {
@@ -76,6 +78,8 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
     private boolean pairingSent;
     private String initialAddress;
     private String initialName;
+    private final ExecutorService verifyExecutor = Executors.newSingleThreadExecutor();
+    private volatile boolean destroyed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -376,7 +380,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         final String mac = deviceMac;
         final String requestedName = deviceNameInput != null
                 ? deviceNameInput.getText().toString().trim() : "";
-        new Thread(() -> {
+        verifyExecutor.execute(() -> {
             MerossHttpClient client = new MerossHttpClient(credentials);
             boolean renamed = requestedName.isEmpty();
             // Re-pairing a forgotten device must lift its broker revocation
@@ -390,7 +394,8 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
                 }
             }
             long deadline = System.currentTimeMillis() + 60000;
-            while (System.currentTimeMillis() < deadline) {
+            while (!destroyed && !Thread.currentThread().isInterrupted()
+                    && System.currentTimeMillis() < deadline) {
                 try {
                     List<DeviceInfo> list = client.listDevices();
                     for (DeviceInfo info : list) {
@@ -414,10 +419,17 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
                         if (info.getOnlineStatus() == OnlineStatus.ONLINE) {
                             PairingLog.log("ble", "device " + uuid + " is ONLINE");
                             main.post(() -> {
+                                if (destroyed) {
+                                    return;
+                                }
                                 setStatus("Device paired and ONLINE: " + uuid);
                                 Toast.makeText(this, "Device paired and online.",
                                         Toast.LENGTH_LONG).show();
-                                main.postDelayed(this::finish, 1500);
+                                main.postDelayed(() -> {
+                                    if (!destroyed) {
+                                        finish();
+                                    }
+                                }, 1500);
                             });
                             return;
                         }
@@ -432,9 +444,13 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
                     return;
                 }
             }
-            main.post(() -> setStatus("Configuration sent, but the device is not ONLINE yet: "
-                    + uuid + "\nCheck the broker and the device Wi-Fi."));
-        }).start();
+            main.post(() -> {
+                if (!destroyed) {
+                    setStatus("Configuration sent, but the device is not ONLINE yet: "
+                            + uuid + "\nCheck the broker and the device Wi-Fi.");
+                }
+            });
+        });
     }
 
     private void setStatus(String message) {
@@ -496,13 +512,15 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             if (resultCode == RESULT_OK) {
                 startBluetooth();
             } else {
-                setStatus("Bluetooth must be enabled to pair this firmware.");
+                setStatus("Bluetooth must be enabled to pair this device.");
             }
         }
     }
 
     @Override
     protected void onDestroy() {
+        destroyed = true;
+        verifyExecutor.shutdownNow();
         if (ble != null) {
             ble.disconnect();
         }
