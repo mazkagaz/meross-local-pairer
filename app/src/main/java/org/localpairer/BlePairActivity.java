@@ -44,7 +44,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Bluetooth provisioning path for firmware 8 devices such as the MRS100. */
+/** Bluetooth provisioning path for devices that expose the Meross BLE service, such as recent MRS100 units. */
 public class BlePairActivity extends AppCompatActivity implements MerossBleClient.Callback {
     public static final String EXTRA_ADDRESS = "ble_address";
     public static final String EXTRA_NAME = "ble_name";
@@ -82,7 +82,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         super.onCreate(savedInstanceState);
         initialAddress = getIntent().getStringExtra(EXTRA_ADDRESS);
         initialName = getIntent().getStringExtra(EXTRA_NAME);
-        setTitle("Bluetooth pairing (firmware 8)");
+        setTitle("Bluetooth pairing");
         getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         buildUi();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -479,7 +479,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             if (granted) {
                 startBluetooth();
             } else {
-                setStatus("Bluetooth permissions are required for firmware 8 pairing.");
+                setStatus("Bluetooth permissions are required for Bluetooth pairing.");
             }
         }
     }

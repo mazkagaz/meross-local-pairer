@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1
+
+- Textes et documentation alignés sur la prise en charge réelle : appairage
+  par AP Wi-Fi et Bluetooth LE, sans références génériques aux firmwares 7/8.
+- L'écran d'appairage Bluetooth et la page About ne mentionnent plus un numéro
+  de firmware. Le MRS100 reste la cible principalement testée ; les tests des
+  autres modèles Meross sont bienvenus.
+
 ## 2.0.0
 
 Version majeure, local-only et orientée grand public.

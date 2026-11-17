@@ -1,0 +1,1 @@
+Mise à jour des textes et de la documentation : appairage par AP Wi-Fi et Bluetooth LE, sans numéros de firmware génériques. Le MRS100 est la cible principalement testée ; les autres modèles Meross sont invités à être testés et signalés.

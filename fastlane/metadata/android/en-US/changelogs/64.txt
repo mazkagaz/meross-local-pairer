@@ -1,0 +1,1 @@
+Documentation and wording update: Wi-Fi AP and Bluetooth LE pairing are described without generic firmware numbers. The MRS100 is the primary tested target; other Meross models are welcome to be tested and reported.
