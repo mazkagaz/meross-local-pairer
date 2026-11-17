@@ -37,10 +37,10 @@ public final class PairingLog {
         synchronized (TIME_FORMAT) {
             line = TIME_FORMAT.format(new Date()) + " [" + area + "] " + message;
         }
-        Log.d(LOG_TAG, line);
         if (!enabled) {
             return;
         }
+        Log.d(LOG_TAG, line);
         synchronized (LINES) {
             LINES.add(line);
             while (LINES.size() > MAX_LINES) {

@@ -13,4 +13,4 @@ Fonctions :
 
 Le MRS100 est la cible principalement testée, mais les autres modèles Meross doivent continuer à fonctionner. Les retours de test et les demandes d'intégration spécifique sont bienvenus sur GitHub.
 
-L'application nécessite un broker local ; elle ne pilote pas les appareils seule. Projet non affilié à Meross. Code source sous GPL-2.0.
+L'application nécessite Android 6.0 ou plus récent et un broker local ; elle ne pilote pas les appareils seule. Projet non affilié à Meross. Code source sous GPL-2.0.

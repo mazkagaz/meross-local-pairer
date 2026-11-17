@@ -13,4 +13,4 @@ Features:
 
 The MRS100 is the primary tested target, but other Meross models are expected to keep working. Test reports and requests for specific device integrations are welcome on GitHub.
 
-The app requires a local broker; it does not control devices by itself. This project is not affiliated with, endorsed by, or sponsored by Meross. Source code is available under GPL-2.0.
+The app requires Android 6.0 or newer and a local broker; it does not control devices by itself. This project is not affiliated with, endorsed by, or sponsored by Meross. Source code is available under GPL-2.0.

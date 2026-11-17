@@ -14,7 +14,7 @@ explicite) a été retirée pour éviter un rejet.
 4. Ouvrir une merge request « New app: Meross Local Pairer ».
 5. Répondre aux éventuelles demandes des relecteurs.
 
-Le fichier pointe sur le tag `v2.0.1` et le `versionCode` 64, avec l'historique
+Le fichier pointe sur le tag `v2.0.2` et le `versionCode` 65, avec l'historique
 des versions précédentes. Les prochaines versions seront détectées par
 `AutoUpdateMode: Version` / `UpdateCheckMode: Tags`.
 
@@ -26,7 +26,7 @@ sinon Android refuse la mise à jour pour cause de signature différente.
 
 ## Vérifications
 
-- `minSdkVersion` 16, `targetSdkVersion` 35, Gradle 8.10.2, JDK 17.
+- `minSdkVersion` 23, `targetSdkVersion` 35, Gradle 8.10.2, JDK 17.
 - Réseau : HTTP en clair limité à l'AP d'appairage `10.10.10.1` et aux hôtes
   locaux `.local`/`.lan` ; MQTT en TLS.
 - Aucun identifiant du cloud Meross, aucune télémétrie.

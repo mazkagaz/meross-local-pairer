@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.2
+
+- Sécurité de distribution : les APK GitHub sont désormais construits en
+  **release** (non débuggables) et signés avec la clé stable du projet, au lieu
+  d'un APK debug signé.
+- Les journaux HTTP ne contiennent plus le token, les en-têtes ni les corps de
+  requête/réponse. Les diagnostics d'appairage ne sont écrits dans logcat que
+  lorsque l'utilisateur active explicitement l'option.
+- `minSdk` passe à **23 (Android 6.0)** : suppression du multi-dex legacy et des
+  API incompatibles avec les anciennes versions, préparation du stockage
+  chiffré moderne.
+- La CI exécute les tests unitaires et construit l'APK release.
+
 ## 2.0.1
 
 - Textes et documentation alignés sur la prise en charge réelle : appairage

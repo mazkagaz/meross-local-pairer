@@ -4,7 +4,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 2.0.1.** Elle gère l'appairage Wi-Fi classique et l'appairage
+**Version stable 2.0.2.** Elle gère l'appairage Wi-Fi classique et l'appairage
 **Bluetooth LE** des appareils qui exposent une publicité `MRBL_…` — par
 exemple les MRS100 récents, dont l'AP Wi-Fi n'est pas ouvert sans confirmation
 BLE. Une recette F-Droid est préparée (`fdroid/org.localpairer.yml`) ;
@@ -37,7 +37,8 @@ Appareil Meross ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT�
 1. Ouvrir la page
    [Releases](https://github.com/mazkagaz/meross-local-pairer/releases/latest).
 2. Télécharger le fichier `.apk` de la dernière release (APK signé).
-3. Sur Android, autoriser l'installation depuis cette source si demandé.
+3. Sur Android 6.0 ou plus récent, autoriser l'installation depuis cette source
+   si demandé.
 4. Installer l'APK.
 
 L'application n'est pas publiée sur le Play Store. La CI est configurée pour
@@ -143,7 +144,7 @@ Le mode est mémorisé. Le désactiver ne supprime aucun réglage.
    settings** dans Settings. Le bouton **Manual User/Key setup** ouvre la page
    **Manual API Setup** (User ID + MQTT Key, souvent `1` et la clé du compte
    local), uniquement visible en mode avancé et sans credentials enregistrés.
-3. Revenir à l'écran d'appairage, puis choisir la méthode selon le firmware :
+3. Revenir à l'écran d'appairage, puis choisir la méthode selon l'appareil :
 
    **Sans Bluetooth LE — AP Wi-Fi**
    1. Scanner et sélectionner l'AP `Meross_*` de l'appareil (par exemple

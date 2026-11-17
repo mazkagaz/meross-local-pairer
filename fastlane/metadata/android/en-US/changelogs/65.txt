@@ -1,0 +1,1 @@
+Security-focused release: GitHub APKs are now non-debuggable signed release builds, sensitive HTTP data is no longer logged, and diagnostic logs are opt-in. Minimum Android version is now 6.0.

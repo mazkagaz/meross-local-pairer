@@ -16,11 +16,6 @@ import org.localpairer.merosslib.MerossHttpClient;
 import org.localpairer.merosslib.model.http.ApiCredentials;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class SplashActivity extends AppCompatActivity {
 
     @Override
@@ -72,15 +67,6 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void init() {
-        // Configure logging
-        if (BuildConfig.DEBUG) {
-            ConsoleHandler handler = new ConsoleHandler();
-            handler.setLevel(Level.ALL);
-            Logger logger = Logger.getLogger("org.localpairer.merosslib");
-            logger.setLevel(Level.ALL);
-            logger.addHandler(handler);
-        }
-
         // Load credentials
         HttpClientManager instance = HttpClientManager.getInstance();
         ApiCredentials creds = AndroidPreferencesManager.loadHttpCredentials(this);

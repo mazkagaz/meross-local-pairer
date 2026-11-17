@@ -1,0 +1,1 @@
+Version orientée sécurité : les APK GitHub sont désormais des builds release signés et non débuggables, les données HTTP sensibles ne sont plus journalisées et les diagnostics sont optionnels. Android 6.0 minimum.

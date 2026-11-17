@@ -223,12 +223,12 @@ public class MerossHttpClient implements Serializable {
                 .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestData.getBytes("utf8")))
                 .build();
 
-        l.fine("HTTP Request, METHOD:" + request.method().toString() +", URL: " + request.urlString() + ", HEADERS: "+ request.headers() +", DATA:" +requestData);
         Response response = mClient.newCall(request).execute();
         String strdata = response.body().string();
-        l.fine("HTTP Response, STATUS_CODE: "+response.code()+", HEADERS: "+response.headers() + ", BODY: "+strdata);
+        l.fine("HTTP " + request.method().toString() + " " + request.urlString()
+                + " -> " + response.code());
         if (response.code() != 200) {
-            l.severe("Bad HTTP Response code: " + response.code() );
+            l.severe("Bad HTTP Response code: " + response.code());
         }
 
         TypeToken<?> token = TypeToken.getParameterized(ApiResponse.class, dataType);

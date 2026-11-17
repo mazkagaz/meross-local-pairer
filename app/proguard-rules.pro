@@ -23,3 +23,5 @@
 -keepattributes RuntimeVisibleAnnotations
 -keep class * extends androidx.navigation.Navigator
 -keep class org.localpairer.merosslib.model.** { *; }
+# Stored as JSON with Gson; field names are part of the persisted format.
+-keep class org.localpairer.model.MqttConfiguration { *; }

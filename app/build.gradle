@@ -7,18 +7,17 @@ android {
 
     defaultConfig {
         applicationId "org.localpairer"
-        minSdkVersion 16
-        multiDexEnabled true
+        minSdkVersion 23
         targetSdkVersion 35
-        versionCode 64
-        versionName "2.0.1"
+        versionCode 65
+        versionName "2.0.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
-        debug {
-            // CI injects a stable signing key so successive APKs can update
-            // each other. Without these variables, the local debug key is used.
+        release {
+            // CI injects the stable release key. Without these variables the
+            // release build stays unsigned (used by F-Droid and local checks).
             def keystorePath = System.getenv("ANDROID_KEYSTORE_FILE")
             if (keystorePath != null && !keystorePath.trim().isEmpty()) {
                 storeFile file(keystorePath)
@@ -45,7 +44,10 @@ android {
             proguardFiles getDefaultProguardFile(
                     'proguard-android-optimize.txt'),
                     'proguard-rules.pro'
-            // Intentionally unsigned: sign with your own key for distribution.
+            def keystorePath = System.getenv("ANDROID_KEYSTORE_FILE")
+            if (keystorePath != null && !keystorePath.trim().isEmpty()) {
+                signingConfig signingConfigs.release
+            }
         }
         releaseUnsigned.initWith(buildTypes.release)
         releaseUnsigned {
