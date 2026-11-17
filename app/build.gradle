@@ -79,6 +79,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
     implementation "androidx.navigation:navigation-fragment:$nav_version"
     implementation "androidx.navigation:navigation-ui:$nav_version"
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
     implementation 'androidx.security:security-crypto:1.1.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'
@@ -94,4 +95,10 @@ dependencies {
 
     // Token bucket
     implementation ('org.isomorphism:token-bucket:1.7')
+    implementation 'com.google.guava:guava:33.8.0-android'
+}
+
+configurations.all {
+    // AndroidX and Guava both ship this class; keep Guava's modern copy.
+    exclude group: 'com.google.guava', module: 'listenablefuture'
 }
