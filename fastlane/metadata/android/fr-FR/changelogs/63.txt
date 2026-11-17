@@ -1,1 +1,1 @@
-Version 2.0.0 : configuration HTTPS simplifiée, découverte automatique du broker, appairage Bluetooth LE pour le firmware 8, noms d'appareils uniques et renommage, réglages avancés, et suppression du champ MFA sans effet.
+Version 2.0.0 : configuration HTTPS simplifiée, découverte automatique du broker, appairage Bluetooth LE pour les appareils qui l'exposent, noms d'appareils uniques et renommage, réglages avancés, et suppression du champ MFA sans effet.

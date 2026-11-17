@@ -16,10 +16,11 @@ Description: |-
   add-on.
 
   The app is used once to join a device to the LAN. It supports Wi-Fi AP
-  pairing for firmware 7 and Bluetooth LE provisioning for firmware 8, with an
-  HTTPS broker endpoint, certificate pinning and automatic mDNS discovery. It
-  requires a local broker and does not control devices by itself. It contains
-  no ads, tracking or analytics and never contacts the Meross cloud.
+  pairing and Bluetooth LE provisioning for devices that expose it, with an
+  HTTPS broker endpoint, certificate pinning and automatic mDNS discovery. The
+  MRS100 is the primary tested target; other Meross models are welcome to test.
+  It requires a local broker and does not control devices by itself. It
+  contains no ads, tracking or analytics and never contacts the Meross cloud.
 
 RepoType: git
 Repo: https://github.com/mazkagaz/meross-local-pairer.git

@@ -5,10 +5,12 @@ Elle s'utilise une seule fois pour rejoindre un appareil au réseau local : sais
 Fonctions :
 - configuration simplifiée : adresse de Home Assistant + interrupteur HTTPS, ports dérivés automatiquement (HTTPS 2004, HTTP 2003) ;
 - découverte mDNS automatique du broker et gestion des réseaux Wi-Fi de confiance ;
-- appairage par AP Wi-Fi pour le firmware 7 et provisionnement Bluetooth LE pour le firmware 8 ;
+- appairage par AP Wi-Fi et provisionnement Bluetooth LE pour les appareils qui l'exposent (par exemple les MRS100 récents) ;
 - nom d'appareil obligatoire et unique, renommage et oubli, avec conservation des entités Home Assistant après réappairage ;
 - MQTT sur TLS et certificat HTTPS du broker épinglé ;
 - réglages avancés : ports personnalisés, secrets, configuration manuelle User ID/clé et diagnostics ;
 - aucun compte cloud Meross, aucun traqueur, aucune publicité, aucune analyse d'usage.
+
+Le MRS100 est la cible principalement testée, mais les autres modèles Meross doivent continuer à fonctionner. Les retours de test et les demandes d'intégration spécifique sont bienvenus sur GitHub.
 
 L'application nécessite un broker local ; elle ne pilote pas les appareils seule. Projet non affilié à Meross. Code source sous GPL-2.0.

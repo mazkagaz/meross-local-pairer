@@ -48,7 +48,7 @@
 | `AccountFragment` | Secrets, Manual setup, Wi-Fi management and diagnostics hidden behind a persisted **Advanced settings** switch. |
 | `AndroidTlsPolicy.java`, `TlsPinStore.java`, `merosslib/TlsPolicy.java` | **New**: TOFU certificate pinning for the broker HTTPS endpoint. |
 | `ExecutePairingFragment`, `BlePairActivity`, `MerossHttpClient` | **New**: claim the device MAC after re-pairing to lift a broker revocation. |
-| `app/.../ble/MerossBleClient.java`, `MerossBleProtocol.java`, `BlePairActivity.java` | **New**: Bluetooth LE provisioning for firmware 8 devices (service A00A, B002 write, B003 notify, JSON framing, AES Wi-Fi password); automatic BLE discovery in the scan screen. |
+| `app/.../ble/MerossBleClient.java`, `MerossBleProtocol.java`, `BlePairActivity.java` | **New**: Bluetooth LE provisioning for devices that expose the Meross BLE service (notably recent MRS100 units): service A00A, B002 write, B003 notify, JSON framing, AES Wi-Fi password; automatic BLE discovery in the scan screen. |
 | `AllowedWifiNetworks.java`, `NetworkPolicy.java` | **New**: broker traffic restricted to user-validated Wi-Fi networks; visible networks can be added from Settings; device APs allowed during pairing. |
 | `AccountFragment`, `fragment_account.xml` | Settings page with collapsible sections, general back button, visible-network management; legacy HA logo removed. |
 | `DeviceListFragment`, adapter, `MerossHttpClient` | **New**: forget a device through authenticated `POST /v1/Device/delete`. |
@@ -59,7 +59,9 @@
 The Wi-Fi provisioning protocol was not changed: `Appliance.Config.Key`,
 `Appliance.Config.WifiList`, `Appliance.Config.Wifi` and
 `Appliance.System.All` payloads remain compatible with the official app.
-Firmware 8 adds a Bluetooth LE transport for the same protocol, using
-`Appliance.Config.Key` + `Appliance.Config.WifiX` frames over GATT A00A.
+The Bluetooth LE path carries the same protocol over GATT A00A, using
+`Appliance.Config.Key` + `Appliance.Config.WifiX` frames. It applies to devices
+that expose this service (recent MRS100 units use it); other models keep the
+Wi-Fi AP flow.
 
 All source files remain under GPL-2.0. The upstream LICENSE is preserved.

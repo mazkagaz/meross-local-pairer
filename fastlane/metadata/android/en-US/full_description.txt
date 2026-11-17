@@ -5,10 +5,12 @@ Use it once to join a device to your LAN: enter the Home Assistant address, keep
 Features:
 - simplified setup: Home Assistant host or IP plus an HTTPS toggle, with automatic port selection (HTTPS 2004, HTTP 2003);
 - automatic mDNS discovery of the broker, with trusted Wi-Fi handling;
-- Wi-Fi AP pairing for firmware 7 and Bluetooth LE provisioning for firmware 8;
+- Wi-Fi AP pairing and Bluetooth LE provisioning for devices that expose it (for example recent MRS100 models);
 - required unique device names, rename and forget actions, with the same Home Assistant entities after re-pairing;
 - MQTT over TLS and a pinned broker HTTPS certificate;
 - advanced settings for custom ports, secrets, manual User ID/key setup and diagnostics;
 - no Meross cloud account, no tracking, no ads and no analytics.
+
+The MRS100 is the primary tested target, but other Meross models are expected to keep working. Test reports and requests for specific device integrations are welcome on GitHub.
 
 The app requires a local broker; it does not control devices by itself. This project is not affiliated with, endorsed by, or sponsored by Meross. Source code is available under GPL-2.0.

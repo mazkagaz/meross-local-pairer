@@ -4,12 +4,18 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 2.0.0.** Elle gère l'appairage Wi-Fi des appareils au
-firmware 7 et l'appairage **Bluetooth LE** des appareils au firmware 8 (MRS100
-8.x), dont l'AP Wi-Fi n'est pas ouvert sans confirmation BLE. Une recette
-F-Droid est préparée (`fdroid/org.localpairer.yml`) ; l'application
-n'apparaîtra dans F-Droid qu'après acceptation de la merge request dans
-`fdroiddata`.
+**Version stable 2.0.0.** Elle gère l'appairage Wi-Fi classique et l'appairage
+**Bluetooth LE** des appareils qui exposent une publicité `MRBL_…` — par
+exemple les MRS100 récents, dont l'AP Wi-Fi n'est pas ouvert sans confirmation
+BLE. Une recette F-Droid est préparée (`fdroid/org.localpairer.yml`) ;
+l'application n'apparaîtra dans F-Droid qu'après acceptation de la merge request
+dans `fdroiddata`.
+
+Le MRS100 est la cible principalement testée, mais l'application doit rester
+compatible avec les autres appareils Meross pris en charge par Custom Pairer.
+Les retours de test sont précieux : ouvrez une issue en précisant le modèle, le
+firmware et les fonctions qui marchent ou non. Les demandes d'intégration
+spécifique sont bienvenues.
 
 ## Les trois briques du montage
 
@@ -20,7 +26,7 @@ n'apparaîtra dans F-Droid qu'après acceptation de la merge request dans
 | **Meross Local Cloud** | intégration Home Assistant (HACS) | [mazkagaz/meross-local-cloud](https://github.com/mazkagaz/meross-local-cloud) |
 
 ```
-MRS100 ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> intégration HA
+Appareil Meross ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> intégration HA
                             ^
                             │ appairage initial
                  Meross Local Pairer (Android)
@@ -45,13 +51,14 @@ clé (et plus tard au passage à F-Droid, qui utilise sa propre clé). Voir
 
 - L'add-on **Meross Local Broker** est installé et démarré.
 - Un **compte local** existe dans l'add-on (identifiant et mot de passe).
-- Le téléphone et le MRS100 sont à portée Wi-Fi (et Bluetooth pour le
-  firmware 8).
-- Le Wi-Fi domestique est en **2,4 GHz WPA2** (le MRS100 ne gère pas le 5 GHz
-  ni WPA3).
+- Le téléphone et l'appareil Meross sont à portée Wi-Fi (et Bluetooth si
+  l'appairage BLE est nécessaire).
+- Le Wi-Fi domestique est en **2,4 GHz WPA2** : beaucoup d'appareils Meross ne
+  gèrent ni le 5 GHz ni WPA3, vérifier la notice du modèle.
 - L'appareil est en mode appairage : maintenir le bouton jusqu'au clignotement,
-  selon la notice du modèle. Un MRS100 en firmware 8 se met alors en
-  **publicité Bluetooth** (`MRBL_…`), pas en AP Wi-Fi.
+  selon la notice du modèle. Certains appareils récents, dont le MRS100, se
+  mettent alors en **publicité Bluetooth** (`MRBL_…`) au lieu d'ouvrir un AP
+  Wi-Fi.
 
 ## Réseaux Wi-Fi autorisés
 
@@ -138,9 +145,9 @@ Le mode est mémorisé. Le désactiver ne supprime aucun réglage.
    local), uniquement visible en mode avancé et sans credentials enregistrés.
 3. Revenir à l'écran d'appairage, puis choisir la méthode selon le firmware :
 
-   **Firmware 7 — AP Wi-Fi**
-   1. Scanner et sélectionner l'AP `Meross_RS_XXXX` (ou
-      `Meross_RS_chWF_*`).
+   **Sans Bluetooth LE — AP Wi-Fi**
+   1. Scanner et sélectionner l'AP `Meross_*` de l'appareil (par exemple
+      `Meross_RS_*` pour un volet).
    2. Sélectionner le Wi-Fi domestique et saisir son mot de passe.
    3. Saisir le broker : hôte = IP de Home Assistant (ou
       `homeassistant.local`), port = **2001**, et le **Device name** (nom
@@ -150,7 +157,7 @@ Le mode est mémorisé. Le désactiver ne supprime aucun réglage.
    4. Lancer l'appairage. L'appareil redémarre, rejoint le Wi-Fi et se connecte
       au broker.
 
-   **Firmware 8 — Bluetooth LE**
+   **Avec Bluetooth LE — `MRBL_…`**
    1. La détection Bluetooth est automatique : les appareils `MRBL_…`
       apparaissent sous **Meross Bluetooth devices**, à côté des AP Wi-Fi.
    2. Toucher l'appareil `MRBL_…`. L'application se connecte seule et lit son
@@ -192,7 +199,7 @@ valides après oubli puis réappairage.
 
 | Problème | Vérifier |
 |---|---|
-| L'AP `Meross_*` n'apparaît pas | mode appairage activé ; en firmware 8, c'est normal : utiliser l'appairage Bluetooth |
+| L'AP `Meross_*` n'apparaît pas | mode appairage activé ; si l'appareil expose `MRBL_…`, utiliser l'appairage Bluetooth |
 | Aucun appareil `MRBL_…` en Bluetooth | Bluetooth activé, permissions Bluetooth/localisation, appareil en mode appairage, à portée |
 | Connexion impossible | vérifier `homeassistant.local`/IP et le toggle HTTPS ; en dernier recours, **Manual API Setup** dans Advanced settings |
 | Certificat TLS modifié | **Reset pinned broker certificate** dans Settings, puis se reconnecter |

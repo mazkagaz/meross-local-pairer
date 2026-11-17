@@ -7,9 +7,10 @@ Version majeure, local-only et orientée grand public.
 - Suppression du champ **Multifactor Authentication Code** : le broker local ne
   gère pas le MFA, le champ n'avait aucun effet. La connexion se limite à
   l'adresse du broker, au compte local et au mot de passe.
-- Appairage firmware 7 (AP Wi-Fi) et firmware 8 (Bluetooth LE), avec détection
-  automatique des appareils `MRBL_…`, nom d'appareil obligatoire et unique, et
-  réseau Wi-Fi IoT ajouté automatiquement aux réseaux de confiance.
+- Appairage par AP Wi-Fi et Bluetooth LE, avec détection automatique des
+  appareils `MRBL_…`, nom d'appareil obligatoire et unique, et réseau Wi-Fi IoT
+  ajouté automatiquement aux réseaux de confiance. Le MRS100 est pris en
+  charge ; les autres modèles Meross restent à tester et à signaler.
 - API locale en HTTPS (port 2004), MQTT/TLS (port 2001), certificat épinglé
   dans l'application ; découverte mDNS automatique avec adresses et ports
   publiés par le broker.
