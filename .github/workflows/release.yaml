@@ -21,7 +21,7 @@ jobs:
 
       - uses: android-actions/setup-android@v3
         with:
-          packages: 'platforms;android-36 build-tools;36.0.0'
+          packages: 'platforms;android-37 build-tools;37.0.0'
 
       - uses: gradle/actions/setup-gradle@v4
 
@@ -58,13 +58,13 @@ jobs:
           fi
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" \
-              app/build/outputs/apk/release/app-release.apk --clobber
+              app/build/outputs/apk/release/Meross-Local-Pairer-*.apk --clobber
             gh release edit "$GITHUB_REF_NAME" \
               --title "Meross Local Pairer $GITHUB_REF_NAME" \
               --notes-file "$NOTES_FILE"
           else
             gh release create "$GITHUB_REF_NAME" \
-              app/build/outputs/apk/release/app-release.apk \
+              app/build/outputs/apk/release/Meross-Local-Pairer-*.apk \
               --title "Meross Local Pairer $GITHUB_REF_NAME" \
               --notes-file "$NOTES_FILE"
           fi

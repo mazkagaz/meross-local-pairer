@@ -1,8 +1,10 @@
 package org.localpairer;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -53,6 +55,12 @@ public class AndroidUtils {
     public static int dpToPx(Context ctx, int dp) {
         DisplayMetrics displayMetrics = ctx.getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+
+    public static boolean hasLocalNetworkPermission(Context context) {
+        return Build.VERSION.SDK_INT < 37
+                || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_LOCAL_NETWORK)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     public static boolean checkPermissions(final Context ctx, String[] permissions) {

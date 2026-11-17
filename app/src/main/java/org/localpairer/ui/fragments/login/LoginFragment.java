@@ -1,7 +1,9 @@
 package org.localpairer.ui.fragments.login;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
@@ -23,7 +25,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavOptions;
@@ -64,6 +68,7 @@ public class LoginFragment extends Fragment {
     // Constants
     private static final String SERVICE_TYPE = "_meross-api._tcp";
     private static final  String TAG = "Login";
+    private static final int REQUEST_LOCAL_NETWORK = 61;
 
     // Instance attributes
     private Context mAppContext = null;
@@ -280,6 +285,19 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCAL_NETWORK && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            performLogin();
+        } else if (requestCode == REQUEST_LOCAL_NETWORK) {
+            Snackbar.make(mLoginButton, "Local network permission is required to reach the broker.",
+                    Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
     public void onDestroy() {
         if (mTimer != null) {
             mTimer.cancel();
@@ -343,6 +361,13 @@ public class LoginFragment extends Fragment {
     }
 
     private void performLogin() {
+        if (Build.VERSION.SDK_INT >= 37
+                && ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_LOCAL_NETWORK) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_LOCAL_NETWORK},
+                    REQUEST_LOCAL_NETWORK);
+            return;
+        }
         if (!NetworkPolicy.isCurrentAllowed(requireActivity())) {
             NetworkPolicy.ensureCurrentAllowed(requireActivity(), this::performLogin);
             return;

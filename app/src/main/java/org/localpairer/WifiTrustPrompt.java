@@ -83,6 +83,11 @@ public final class WifiTrustPrompt {
     }
 
     private static String[] permissions() {
+        if (Build.VERSION.SDK_INT >= 37) {
+            return new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.NEARBY_WIFI_DEVICES,
+                    Manifest.permission.ACCESS_LOCAL_NETWORK};
+        }
         if (Build.VERSION.SDK_INT >= 33) {
             return new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.NEARBY_WIFI_DEVICES};

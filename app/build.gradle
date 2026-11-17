@@ -3,12 +3,12 @@ apply plugin: 'com.android.application'
 android {
 
     namespace "org.localpairer"
-    compileSdk 36
+    compileSdk 37
 
     defaultConfig {
         applicationId "org.localpairer"
-        minSdkVersion 23
-        targetSdk 36
+        minSdk 23
+        targetSdk 37
         versionCode 67
         versionName "2.0.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -101,4 +101,12 @@ dependencies {
 configurations.all {
     // AndroidX and Guava both ship this class; keep Guava's modern copy.
     exclude group: 'com.google.guava', module: 'listenablefuture'
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.outputs.forEach { output ->
+            output.outputFileName.set("Meross-Local-Pairer-${output.versionName.get()}.apk")
+        }
+    }
 }
