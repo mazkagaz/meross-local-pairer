@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.5
+
+- Cible Android 17 (API 37) : AGP 9.5.1, Gradle 9.9.1, compileSdk/targetSdk 37.
+- Prise en charge de la permission Android 17 **Accès au réseau local**
+  (`ACCESS_LOCAL_NETWORK`) pour la découverte mDNS, le broker et l'appairage.
+- L'APK publié s'appelle désormais `Meross-Local-Pairer-<version>.apk` au lieu
+  du nom générique `app-release.apk`.
+
 ## 2.0.4
 
 - Correction de l'affichage des réseaux de confiance : après avoir accepté le

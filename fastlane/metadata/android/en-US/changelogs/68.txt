@@ -1,0 +1,1 @@
+Target Android 17 (SDK 37), request Android 17 local-network access for mDNS, broker and pairing, and publish the APK as Meross-Local-Pairer-<version>.apk.

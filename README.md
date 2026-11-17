@@ -4,7 +4,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 2.0.4.** Elle gère l'appairage Wi-Fi classique et l'appairage
+**Version stable 2.0.5.** Elle gère l'appairage Wi-Fi classique et l'appairage
 **Bluetooth LE** des appareils qui exposent une publicité `MRBL_…` — par
 exemple les MRS100 récents, dont l'AP Wi-Fi n'est pas ouvert sans confirmation
 BLE. Une recette F-Droid est préparée (`fdroid/org.localpairer.yml`) ;
@@ -36,7 +36,8 @@ Appareil Meross ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT�
 
 1. Ouvrir la page
    [Releases](https://github.com/mazkagaz/meross-local-pairer/releases/latest).
-2. Télécharger le fichier `.apk` de la dernière release (APK signé).
+2. Télécharger le fichier `Meross-Local-Pairer-<version>.apk` de la dernière
+   release (APK signé).
 3. Sur Android 6.0 ou plus récent, autoriser l'installation depuis cette source
    si demandé.
 4. Installer l'APK.
@@ -75,7 +76,8 @@ implicitement autorisés pendant l'appairage. Le Wi-Fi choisi pour les appareils
 IoT est **ajouté automatiquement** aux réseaux de confiance, même s'il diffère
 de celui du téléphone. Android exige les permissions Wi-Fi/Localisation et les
 services de localisation pour lire les noms de réseaux ; l'application les
-demande au premier démarrage.
+demande au premier démarrage. Sur Android 17, elle demande aussi l'accès au
+**réseau local**, requis pour mDNS, le broker et l'appairage.
 
 ## HTTPS et certificat du broker
 

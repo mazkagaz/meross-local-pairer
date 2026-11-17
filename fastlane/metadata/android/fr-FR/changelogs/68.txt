@@ -1,0 +1,1 @@
+Cible Android 17 (SDK 37), demande de l'accès au réseau local Android 17 pour mDNS, le broker et l'appairage, et APK publié sous le nom Meross-Local-Pairer-<version>.apk.
