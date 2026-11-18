@@ -1,3 +1,10 @@
+## 2.0.8
+
+- Découverte mDNS en **HTTPS uniquement** (`https_port`, défaut 2004) ;
+  suppression du repli HTTP.
+- Le port **2003** est refusé dans les champs de ports (connexion et compte)
+  avec le message « Port 2003 is reserved. ».
+
 ## 2.0.7
 
 - Lorsqu'un certificat broker différent est détecté, une boîte de dialogue

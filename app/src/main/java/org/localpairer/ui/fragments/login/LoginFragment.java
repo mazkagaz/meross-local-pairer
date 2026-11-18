@@ -382,6 +382,18 @@ public class LoginFragment extends Fragment {
             mHttpHostnameEditText.setError("Use HTTPS for an IP address");
             return;
         }
+        int selectedPort = endpoint.isHttps()
+                ? endpoint.getHttpsPort() : endpoint.getHttpPort();
+        if (selectedPort == 2003) {
+            if (endpoint.isHttps()) {
+                mHttpsPortEditText.setError("Port 2003 is reserved.");
+            } else {
+                mHttpPortEditText.setError("Port 2003 is reserved.");
+            }
+            return;
+        }
+        mHttpPortEditText.setError(null);
+        mHttpsPortEditText.setError(null);
         mHttpHostnameEditText.setError(null);
         AndroidPreferencesManager.saveBrokerEndpoint(requireContext(), endpoint);
         final String strurl = endpoint.baseUrl();
@@ -514,49 +526,33 @@ public class LoginFragment extends Fragment {
                 attributes = serviceInfo.getAttributes();
             }
             String hostTxt = BrokerDiscovery.decode(attributes, "host");
-            String httpTxt = BrokerDiscovery.decode(attributes, "http_port");
             String httpsTxt = BrokerDiscovery.decode(attributes, "https_port");
-            boolean hasTxt = hostTxt != null || httpTxt != null || httpsTxt != null;
+            boolean hasTxt = hostTxt != null || httpsTxt != null;
 
             String fallback = serviceInfo.getHost() != null
                     ? serviceInfo.getHost().getHostAddress() : null;
             final List<String> candidates = BrokerDiscovery.hostCandidates(hostTxt, fallback);
-            final int httpPort = BrokerDiscovery.parsePort(
-                    httpTxt, BrokerEndpoint.DEFAULT_HTTP_PORT);
-            final int advertisedHttpsPort = hasTxt
-                    ? BrokerDiscovery.parsePort(httpsTxt, 0)
+            int parsedHttpsPort = hasTxt
+                    ? BrokerDiscovery.parsePort(httpsTxt, BrokerEndpoint.DEFAULT_HTTPS_PORT)
                     : BrokerEndpoint.DEFAULT_HTTPS_PORT;
-            final int httpsPortForUi = advertisedHttpsPort > 0
-                    ? advertisedHttpsPort : BrokerEndpoint.DEFAULT_HTTPS_PORT;
-            final boolean preferHttps = hasTxt && advertisedHttpsPort > 0;
+            final int httpsPort = parsedHttpsPort > 0
+                    ? parsedHttpsPort : BrokerEndpoint.DEFAULT_HTTPS_PORT;
             final boolean updateEndpoint = hasTxt;
-            final int probePort = preferHttps ? advertisedHttpsPort : httpPort;
 
             new Thread(() -> {
                 String chosen = null;
-                boolean useHttps = preferHttps;
                 for (String candidate : candidates) {
-                    if (reachable(candidate, probePort)) {
+                    if (reachable(candidate, httpsPort)) {
                         chosen = candidate;
                         break;
                     }
                 }
-                if (chosen == null && preferHttps && httpPort > 0) {
-                    for (String candidate : candidates) {
-                        if (reachable(candidate, httpPort)) {
-                            chosen = candidate;
-                            useHttps = false;
-                            break;
-                        }
-                    }
-                }
                 final String resultHost = chosen;
-                final boolean resultHttps = useHttps;
                 mUiHandler.post(() -> {
                     mResolutionInProgress = false;
                     if (resultHost == null) {
                         configureUi(true, false, null,
-                                "Local service found, but no advertised address is reachable.");
+                                "Local service found, but the HTTPS endpoint is not reachable.");
                         setDiscoveryHint("No reachable local broker found — enter the address manually.");
                         return;
                     }
@@ -564,9 +560,8 @@ public class LoginFragment extends Fragment {
                             mHttpHostnameEditText.getText().toString().trim().isEmpty();
                     if (fieldEmpty) {
                         if (updateEndpoint) {
-                            mHttpsSwitch.setChecked(resultHttps);
-                            mHttpPortEditText.setText(String.valueOf(httpPort));
-                            mHttpsPortEditText.setText(String.valueOf(httpsPortForUi));
+                            mHttpsSwitch.setChecked(true);
+                            mHttpsPortEditText.setText(String.valueOf(httpsPort));
                         }
                         configureUi(true, false, resultHost, "Found local API service!");
                         updateEndpointSummary();

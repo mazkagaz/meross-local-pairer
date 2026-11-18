@@ -203,6 +203,15 @@ public class AccountFragment extends Fragment {
                 brokerHostEditText.setError("Use HTTPS for an IP address");
                 return;
             }
+            int selectedPort = endpoint.isHttps()
+                    ? endpoint.getHttpsPort() : endpoint.getHttpPort();
+            if (selectedPort == 2003) {
+                (endpoint.isHttps() ? httpsPortEditText : httpPortEditText)
+                        .setError("Port 2003 is reserved.");
+                return;
+            }
+            httpPortEditText.setError(null);
+            httpsPortEditText.setError(null);
             brokerHostEditText.setError(null);
             boolean hostChanged =
                     !endpoint.getHost().equalsIgnoreCase(currentEndpoint[0].getHost());
