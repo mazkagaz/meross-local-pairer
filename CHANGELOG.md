@@ -1,3 +1,11 @@
+## 2.0.7
+
+- Lorsqu'un certificat broker différent est détecté, une boîte de dialogue
+  affiche le sujet, l'émetteur, la date de validité et l'empreinte SHA-256 du
+  nouveau certificat, avec les boutons **Accept** et **Deny**. Accepter
+  remplace le pin et relance l'opération ; refuser conserve l'ancien
+  certificat.
+
 # Changelog
 
 ## 2.0.6

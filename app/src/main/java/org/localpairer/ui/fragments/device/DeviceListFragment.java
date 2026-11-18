@@ -141,8 +141,15 @@ public class DeviceListFragment extends Fragment {
                 mRefreshButton.setEnabled(true);
                 dialog.dismiss();
                 String tlsError = org.localpairer.AndroidTlsPolicy.pinMismatchMessage(result);
+                if (tlsError != null) {
+                    requireActivity().runOnUiThread(() ->
+                            org.localpairer.TlsPinMismatchDialog.show(
+                                    requireContext(), creds.getApiServer(), result,
+                                    DeviceListFragment.this::updateData));
+                    return;
+                }
                 Toast.makeText(requireContext(),
-                        tlsError != null ? tlsError : "Failed to obtain device list.",
+                        "Failed to obtain device list.",
                         Toast.LENGTH_LONG).show();
             }
         });

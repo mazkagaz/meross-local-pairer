@@ -428,12 +428,16 @@ public class LoginFragment extends Fragment {
             public void onFailure(Exception exception) {
                 dialog.dismiss();
                 Log.e(TAG, "Error occurred", exception);
-                String errorMessage = "An error occurred while executing the request.";
                 String tlsError = org.localpairer.AndroidTlsPolicy.pinMismatchMessage(exception);
                 if (tlsError != null) {
-                    errorMessage = tlsError;
+                    requireActivity().runOnUiThread(() ->
+                            org.localpairer.TlsPinMismatchDialog.show(
+                                    requireContext(), strurl, exception,
+                                    () -> mLoginButton.performClick()));
+                    return;
                 }
-                else if (exception instanceof HttpApiException) {
+                String errorMessage = "An error occurred while executing the request.";
+                if (exception instanceof HttpApiException) {
                     errorMessage = ((HttpApiException)exception).getErrorMessage();
                 }
                 Snackbar.make(mLoginButton,errorMessage , Snackbar.LENGTH_LONG).show();

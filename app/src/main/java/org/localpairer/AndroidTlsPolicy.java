@@ -11,6 +11,10 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -30,6 +34,8 @@ import javax.net.ssl.X509TrustManager;
 public final class AndroidTlsPolicy implements TlsPolicy {
     private static final String TAG = "LocalPairerTls";
     static final String PIN_MISMATCH = "MEROSS_PIN_MISMATCH";
+    private static final Map<String, String> MISMATCH_DESCRIPTIONS =
+            new ConcurrentHashMap<>();
 
     private final Context context;
 
@@ -61,13 +67,24 @@ public final class AndroidTlsPolicy implements TlsPolicy {
         while (current != null && depth < 10) {
             String message = current.getMessage();
             if (message != null && message.contains(PIN_MISMATCH)) {
-                return "The broker TLS certificate changed. Reset the pinned "
-                        + "certificate in Settings, then try again.";
+                return "The broker TLS certificate changed.";
             }
             current = current.getCause();
             depth++;
         }
         return null;
+    }
+
+    /**
+     * Description of the certificate presented by the broker during the last
+     * mismatch, or a generic text when it is not available anymore.
+     */
+    public static String mismatchDescription(String url) {
+        String key = hostKey(url);
+        String description = key == null ? null : MISMATCH_DESCRIPTIONS.get(key);
+        return description != null
+                ? description
+                : "The new certificate details are no longer available.";
     }
 
     @Override
@@ -100,9 +117,11 @@ public final class AndroidTlsPolicy implements TlsPolicy {
                     if (!pinned.equalsIgnoreCase(presented)) {
                         PairingLog.log("tls", "certificate mismatch for " + hostKey
                                 + " expected=" + pinned + " presented=" + presented);
+                        MISMATCH_DESCRIPTIONS.put(hostKey, describe(chain[0]));
                         throw new CertificateException(PIN_MISMATCH + " for " + hostKey
                                 + ": expected sha256 " + pinned + ", got " + presented);
                     }
+                    MISMATCH_DESCRIPTIONS.remove(hostKey);
                 }
 
                 @Override
@@ -145,6 +164,14 @@ public final class AndroidTlsPolicy implements TlsPolicy {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private static String describe(X509Certificate certificate) {
+        SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        return "Subject: " + certificate.getSubjectX500Principal().getName()
+                + "\nIssuer: " + certificate.getIssuerX500Principal().getName()
+                + "\nValid until: " + date.format(certificate.getNotAfter())
+                + "\nSHA-256: " + fingerprint(certificate);
     }
 
     private static String fingerprint(X509Certificate certificate) {
