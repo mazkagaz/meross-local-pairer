@@ -1,15 +1,18 @@
 # Meross Local Pairer — appairage Meross vers un broker local (non officiel)
 
+![Meross Local Pairer](branding/meross-local-pairer-banner.jpeg)
+
 Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 2.0.6.** Elle gère l'appairage Wi-Fi classique et l'appairage
+**Version stable 2.0.8.** Elle gère l'appairage Wi-Fi classique et l'appairage
 **Bluetooth LE** des appareils qui exposent une publicité `MRBL_…` — par
 exemple les MRS100 récents, dont l'AP Wi-Fi n'est pas ouvert sans confirmation
-BLE. Une recette F-Droid est préparée (`fdroid/org.localpairer.yml`) ;
-l'application n'apparaîtra dans F-Droid qu'après acceptation de la merge request
-dans `fdroiddata`.
+BLE. Avec le broker **1.0.0**, l'application se connecte exclusivement en
+**HTTPS 2004**. Une recette F-Droid est préparée
+(`fdroid/org.localpairer.yml`) ; l'application n'apparaîtra dans F-Droid
+qu'après acceptation de la merge request dans `fdroiddata`.
 
 Le MRS100 est la cible principalement testée, mais l'application doit rester
 compatible avec les autres appareils Meross pris en charge par Custom Pairer.
@@ -31,6 +34,14 @@ Appareil Meross ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT�
                             │ appairage initial
                  Meross Local Pairer (Android)
 ```
+
+## Compatibilité des versions
+
+| Brique | Version minimale | Remarques |
+|---|---|---|
+| Meross Local Pairer | 2.0.8 | HTTPS 2004 uniquement |
+| Meross Local Broker | 1.0.0 | alpha99 minimum pour la CA valide |
+| Meross Local Cloud | 2.3.2 | suppression des appareils et réparation 48 h |
 
 ## Télécharger l'application
 
@@ -82,23 +93,22 @@ demande au premier démarrage. Sur Android 17, elle demande aussi l'accès au
 ## HTTPS et certificat du broker
 
 L'écran de connexion ne demande que l'adresse de Home Assistant (nom ou IP) et
-un interrupteur **HTTPS**. Les ports sont construits automatiquement :
-**2003** en HTTP, **2004** en HTTPS (broker `0.0.1-alpha71` ou plus récent). Pour
-une **adresse IP**, HTTPS est obligatoire : Android bloque le HTTP en clair vers
-une IP. Le HTTP reste disponible pour les noms `.local`/`.lan`. Pour un port
-personnalisé, activer **Advanced settings** et renseigner les champs *HTTP API
-port* / *HTTPS API port*.
+un interrupteur **HTTPS**. Avec le broker **1.0.0**, laissez HTTPS activé :
+l'API LAN n'est servie que sur **2004** en TLS. Le port **2003** est réservé à
+l'ingress du Supervisor et n'est pas joignable depuis le téléphone. Le HTTP en
+clair ne concerne que d'anciens brokers ; Android le bloque de toute façon vers
+une adresse IP.
 
 L'URL complète n'est jamais demandée : une URL collée par erreur est nettoyée
-(schéma, chemin et port retirés).
+(schéma, chemin et port retirés). Pour un port personnalisé, activer
+**Advanced settings** et renseigner le champ *HTTPS API port*.
 
 La découverte mDNS est **automatique** à l'ouverture de l'écran de connexion :
 l'application interroge le service `_meross-api._tcp` publié par l'add-on.
-Depuis le broker `0.0.1-alpha75`, ce service contient les adresses LAN de Home
-Assistant et les ports HTTP/HTTPS ; l'application teste leur joignabilité,
-préfère HTTPS quand il est annoncé et préremplit l'hôte et les ports lorsque le
-champ est vide. Aucune adresse n'est préremplie si aucune ne répond, et la
-saisie manuelle reste disponible pendant la recherche.
+Le broker 1.0.0 n'annonce que l'API **HTTPS** et les adresses LAN de Home
+Assistant ; l'application teste leur joignabilité et préremplit l'hôte et le
+port lorsque le champ est vide. Aucune adresse n'est préremplie si aucune ne
+répond, et la saisie manuelle reste disponible pendant la recherche.
 
 Le certificat du broker est auto-signé. L'application l'**épingle** au premier
 contact : l'empreinte SHA-256 de la feuille est mémorisée pour ce
@@ -122,7 +132,8 @@ pinned broker certificate** dans les diagnostics, puis se reconnecter.
 Un interrupteur **Advanced settings** dans Settings révèle les réglages
 techniques, masqués par défaut :
 
-- ports API **HTTP** (2003) et **HTTPS** (2004), modifiables ;
+- port API **HTTPS** (2004), modifiable ; le champ HTTP (2003) ne sert
+  qu'aux brokers antérieurs à alpha100 ;
 - endpoint complet calculé ;
 - **User ID**, **HTTP Token** et **MQTT Key** ;
 - **Manual API Setup** (bouton **Manual User/Key setup**, sans identifiants
@@ -138,13 +149,12 @@ Le mode est mémorisé. Le désactiver ne supprime aucun réglage.
 1. Ouvrir Meross Local Pairer et accorder les permissions Wi-Fi et localisation.
 2. Se connecter au broker local :
    - saisir l'adresse de Home Assistant : `homeassistant.local` ou son IP ;
-   - laisser **HTTPS** activé (broker `0.0.1-alpha71` ou plus récent). HTTP
-     n'est possible qu'avec un nom `.local`/`.lan`, jamais une adresse IP ;
+   - laisser **HTTPS** activé (obligatoire avec le broker 1.0.0) ;
    - saisir l'identifiant local et le mot de passe local.
 
-   L'application construit seule `https://<adresse>:2004` ou
-   `http://<adresse>:2003`. Pour un port personnalisé, activer **Advanced
-   settings** dans Settings. Le bouton **Manual User/Key setup** ouvre la page
+   L'application construit seule `https://<adresse>:2004`. Pour un port
+   personnalisé, activer **Advanced settings** dans Settings. Le bouton
+   **Manual User/Key setup** ouvre la page
    **Manual API Setup** (User ID + MQTT Key, souvent `1` et la clé du compte
    local), uniquement visible en mode avancé et sans credentials enregistrés.
 3. Revenir à l'écran d'appairage, puis choisir la méthode selon l'appareil :
@@ -184,20 +194,23 @@ capteur de statut sont créés dans Home Assistant.
 ## Gérer les appareils
 
 **Toucher une ligne** ouvre le renommage de l'appareil : le nouveau nom est
-enregistré dans le broker (`POST /v1/Device/name`, add-on `0.0.1-alpha73` ou plus
-récent) et doit être unique, sans tenir compte de la casse.
+enregistré dans le broker (`POST /v1/Device/name`) et doit être unique, sans
+tenir compte de la casse.
 
 L'icône corbeille permet de **supprimer un appareil** du broker après
 confirmation. L'opération utilise l'API authentifiée du broker
-(`POST /v1/Device/delete`, add-on `0.0.1-alpha69` ou plus récent) ; elle échoue avec
-un message si l'API n'est pas joignable.
+(`POST /v1/Device/delete`) ; elle échoue avec un message si l'API n'est pas
+joignable.
 
-Avec le broker `0.0.1-alpha70` ou plus récent, la suppression **révoque** aussi le
-MAC : l'appareil ne peut plus se reconnecter seul avec les identifiants qu'il
-conserve. Un nouvel appairage réussit appelle automatiquement
-`POST /v1/Device/claim` pour lever la révocation. L'appareil garde le même
-UUID, donc les entités et automatisations Home Assistant existantes restent
-valides après oubli puis réappairage.
+La suppression **révoque** aussi le MAC : l'appareil ne peut plus se reconnecter
+seul avec les identifiants qu'il conserve. Un nouvel appairage réussit appelle
+automatiquement `POST /v1/Device/claim` pour lever la révocation. L'appareil
+garde le même UUID, donc les entités et automatisations Home Assistant
+existantes restent valides après oubli puis réappairage.
+
+Le broker **1.0.0** publie `Appliance.Control.Unbind` vers l'intégration : les
+entités disparaissent dans la minute. Avec Meross Local Cloud **2.3.2**, un
+appareil qui ne revient pas est proposé à la suppression après 48 heures.
 
 ## Dépannage
 
@@ -209,7 +222,8 @@ valides après oubli puis réappairage.
 | Certificat TLS modifié | **Reset pinned broker certificate** dans Settings, puis se reconnecter |
 | « Trust this Wi-Fi network? » refusé | accepter au démarrage, ou ajouter le réseau dans **Advanced settings** |
 | « Untrusted Wi-Fi network » | accepter le réseau courant, ou le gérer dans **Advanced settings** |
-| Suppression d'appareil refusée | broker `0.0.1-alpha69` ou plus récent, API accessible, appareil du compte courant |
+| Suppression d'appareil refusée | broker 1.0.0, API HTTPS 2004 accessible, appareil du compte courant |
+| Entités encore visibles après suppression | intégration 2.3.2+, attendre 60 s ; réparation 48 h ou suppression manuelle |
 | Échec des identifiants | compte local de l'add-on, `UserId`/`mqttKey` corrects |
 | L'appareil ne rejoint pas le Wi-Fi | WPA2 2,4 GHz, mot de passe, portée |
 | L'appareil n'est pas ONLINE | port 2001 joignable, broker démarré, logs de l'add-on |
@@ -224,7 +238,7 @@ valides après oubli puis réappairage.
 ./gradlew assembleReleaseUnsigned
 ```
 
-Le build nécessite JDK 17 et Android SDK 35. Les tests couvrent le format
+Le build nécessite JDK 17 et Android SDK 37. Les tests couvrent le format
 `Appliance.Config.Key` et la validation des réponses AP (SETACK/ERROR) ;
 l'appairage BLE se teste sur un appareil réel.
 
