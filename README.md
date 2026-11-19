@@ -40,7 +40,7 @@ Appareil Meross ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT�
 | Brique | Version minimale | Remarques |
 |---|---|---|
 | Meross Local Pairer | 2.0.8 | HTTPS 2004 uniquement |
-| Meross Local Broker | 1.0.0 | alpha99 minimum pour la CA valide |
+| Meross Local Broker | 1.0.0 | HTTPS 2004, CA valide |
 | Meross Local Cloud | 2.3.2 | suppression des appareils et réparation 48 h |
 
 ## Télécharger l'application
@@ -133,7 +133,7 @@ Un interrupteur **Advanced settings** dans Settings révèle les réglages
 techniques, masqués par défaut :
 
 - port API **HTTPS** (2004), modifiable ; le champ HTTP (2003) ne sert
-  qu'aux brokers antérieurs à alpha100 ;
+  qu'aux brokers antérieurs à 1.0.0 ;
 - endpoint complet calculé ;
 - **User ID**, **HTTP Token** et **MQTT Key** ;
 - **Manual API Setup** (bouton **Manual User/Key setup**, sans identifiants
