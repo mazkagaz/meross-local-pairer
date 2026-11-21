@@ -19,6 +19,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -80,10 +81,13 @@ public class ScanDevicesFragment extends Fragment {
     private final SimpleDateFormat scanTimeFormat =
             new SimpleDateFormat("HH:mm:ss", Locale.US);
     private boolean scanning;
-    private boolean followUpScansScheduled;
     private Runnable pendingScanRetry;
-    private Runnable pendingAutoScan;
-    private static final long AUTO_SCAN_INTERVAL_MS = 30000;
+    private Runnable pendingDiscoveryScan;
+    private Runnable scanTimeoutRunnable;
+    private boolean discoveryActive;
+    private int discoveryAttempt;
+    private long discoveryStartedAt;
+    private static final long[] DISCOVERY_DELAYS_MS = {0, 5000, 15000, 30000};
     private TextView bleSectionTitle;
     private LinearLayout bleDevicesContainer;
     private MerossBleClient bleScanner;
@@ -185,7 +189,7 @@ public class ScanDevicesFragment extends Fragment {
     @Override
     public void onDestroy() {
         cancelScanRetry();
-        cancelFollowUpScans();
+        cancelDiscovery();
         stopBleScanning();
         if (bleScanner != null) {
             bleScanner.disconnect();
@@ -199,7 +203,7 @@ public class ScanDevicesFragment extends Fragment {
         // Never let a delayed scan fire while the user is connecting to the
         // device AP (this fragment stays alive on the back stack).
         cancelScanRetry();
-        cancelFollowUpScans();
+        cancelDiscovery();
         stopBleScanning();
         super.onStop();
     }
@@ -408,44 +412,74 @@ public class ScanDevicesFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        startScan(false);
-        scheduleFollowUpScans();
+        startDiscovery();
     }
 
-    private void scheduleFollowUpScans() {
-        if (followUpScansScheduled || adapter.getItemCount() > 0) {
+    private void startDiscovery() {
+        cancelDiscovery();
+        discoveryActive = true;
+        discoveryAttempt = 0;
+        discoveryStartedAt = SystemClock.elapsedRealtime();
+        scheduleDiscoveryAttempt();
+    }
+
+    private void scheduleDiscoveryAttempt() {
+        if (pendingDiscoveryScan != null) {
+            uiHandler.removeCallbacks(pendingDiscoveryScan);
+            pendingDiscoveryScan = null;
+        }
+        if (!discoveryActive || !isAdded() || !isResumed()) {
             return;
         }
-        // Some devices bring their AP up late, or keep it for a short time.
-        // Keep a slow automatic scan running while the screen is visible and
-        // no device was found; 30 s stays within Android's scan budget.
-        followUpScansScheduled = true;
-        pendingAutoScan = new Runnable() {
-            @Override
-            public void run() {
-                pendingAutoScan = null;
-                if (!isAdded() || !isResumed()) {
-                    return;
-                }
-                if (adapter.getItemCount() > 0) {
-                    return;
-                }
-                if (!scanning) {
-                    startScan(false);
-                }
-                pendingAutoScan = this;
-                uiHandler.postDelayed(this, AUTO_SCAN_INTERVAL_MS);
-            }
-        };
-        uiHandler.postDelayed(pendingAutoScan, AUTO_SCAN_INTERVAL_MS);
+        if (adapter.getItemCount() > 0) {
+            cancelDiscovery();
+            return;
+        }
+        if (discoveryAttempt >= DISCOVERY_DELAYS_MS.length) {
+            finishDiscovery();
+            return;
+        }
+        if (scanning) {
+            pendingDiscoveryScan = this::scheduleDiscoveryAttempt;
+            uiHandler.postDelayed(pendingDiscoveryScan, 500);
+            return;
+        }
+        long target = discoveryStartedAt + DISCOVERY_DELAYS_MS[discoveryAttempt];
+        long delay = target - SystemClock.elapsedRealtime();
+        if (delay > 0) {
+            pendingDiscoveryScan = this::scheduleDiscoveryAttempt;
+            uiHandler.postDelayed(pendingDiscoveryScan, delay);
+            return;
+        }
+        if (scanBucket.getNumTokens() <= 0) {
+            finishDiscovery();
+            return;
+        }
+        discoveryAttempt++;
+        startScan(false);
     }
 
-    private void cancelFollowUpScans() {
-        if (pendingAutoScan != null) {
-            uiHandler.removeCallbacks(pendingAutoScan);
-            pendingAutoScan = null;
+    private void finishDiscovery() {
+        discoveryActive = false;
+        if (pendingDiscoveryScan != null) {
+            uiHandler.removeCallbacks(pendingDiscoveryScan);
+            pendingDiscoveryScan = null;
         }
-        followUpScansScheduled = false;
+        if (adapter.getItemCount() == 0) {
+            updateScanStatus("No Meross device found. Check pairing mode, 2.4 GHz Wi-Fi and permissions.");
+        }
+    }
+
+    private void cancelDiscovery() {
+        discoveryActive = false;
+        if (pendingDiscoveryScan != null) {
+            uiHandler.removeCallbacks(pendingDiscoveryScan);
+            pendingDiscoveryScan = null;
+        }
+        if (scanTimeoutRunnable != null) {
+            uiHandler.removeCallbacks(scanTimeoutRunnable);
+            scanTimeoutRunnable = null;
+        }
     }
 
     private void showScanMessage(String message, int length) {
@@ -516,15 +550,22 @@ public class ScanDevicesFragment extends Fragment {
             scanningProgressBar.setVisibility(View.VISIBLE);
             updateScanStatus("Scan in progress...");
             boolean success = wifiManager.startScan();
-            // Setup a timer
-            uiHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    scanning = false;
-                    scanningProgressBar.setVisibility(View.GONE);
-                    fab.show();
+            if (scanTimeoutRunnable != null) {
+                uiHandler.removeCallbacks(scanTimeoutRunnable);
+            }
+            scanTimeoutRunnable = () -> {
+                scanTimeoutRunnable = null;
+                if (!scanning) {
+                    return;
                 }
-            }, 10000);
+                scanning = false;
+                scanningProgressBar.setVisibility(View.GONE);
+                fab.show();
+                if (discoveryActive) {
+                    scheduleDiscoveryAttempt();
+                }
+            };
+            uiHandler.postDelayed(scanTimeoutRunnable, 10000);
 
             if (!success) {
                 scanFailure();
@@ -554,13 +595,16 @@ public class ScanDevicesFragment extends Fragment {
 
         adapter.updateData(data);
         if (!data.isEmpty()) {
-            // A visible device is enough: keep the remaining scan budget for
-            // the manual rescan button.
-            cancelFollowUpScans();
+            // A visible device is enough: stop the discovery burst.
+            cancelDiscovery();
         }
         fab.show();
         scanningProgressBar.setVisibility(View.GONE);
         this.scanning = false;
+        if (scanTimeoutRunnable != null) {
+            uiHandler.removeCallbacks(scanTimeoutRunnable);
+            scanTimeoutRunnable = null;
+        }
 
         StringBuilder found = new StringBuilder();
         for (ScanResult r : data) {
@@ -574,8 +618,14 @@ public class ScanDevicesFragment extends Fragment {
             scanTime = scanTimeFormat.format(new Date());
         }
         if (data.isEmpty()) {
-            updateScanStatus("Last scan at " + scanTime
-                    + ": 0 Meross device. Automatic search every 30 s.");
+            if (discoveryActive) {
+                updateScanStatus("Last scan at " + scanTime
+                        + ": 0 Meross device. Automatic search continues.");
+                scheduleDiscoveryAttempt();
+            } else {
+                updateScanStatus("Last scan at " + scanTime
+                        + ": 0 Meross device.");
+            }
         } else {
             updateScanStatus("Last scan at " + scanTime + ": " + data.size()
                     + " Meross device(s). Tap one to pair it.");
@@ -599,8 +649,13 @@ public class ScanDevicesFragment extends Fragment {
         // Android can refuse a scan (rate limiting, Wi-Fi busy). Keep the last
         // results and retry shortly instead of treating it as "no device".
         updateScanData(wifiManager.getScanResults());
-        showScanMessage("Wi-Fi scan busy; retrying in 3 s...", Snackbar.LENGTH_SHORT);
-        scheduleScanRetry();
+        showScanMessage(discoveryActive
+                        ? "Wi-Fi scan busy; next automatic attempt is scheduled."
+                        : "Wi-Fi scan busy; retrying in 3 s...",
+                Snackbar.LENGTH_SHORT);
+        if (!discoveryActive) {
+            scheduleScanRetry();
+        }
     }
 
     private void scheduleScanRetry() {

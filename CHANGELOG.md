@@ -3,6 +3,9 @@
 - Après un appairage réussi, le bouton de confirmation et le retour depuis
   l’appairage Bluetooth ferment l’écran d’appairage et reviennent à la liste
   des appareils.
+- Découverte Wi-Fi par rafale de scans à 0/5/15/30 s : un premier scan vide
+  n’arrête plus la recherche, le statut reste visible et la rafale s’annule dès
+  qu’un AP Meross est trouvé.
 - Corrections de textes visibles et de la documentation.
 
 ## 2.0.8
