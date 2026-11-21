@@ -1,4 +1,4 @@
-## Unreleased
+## 2.0.9
 
 - Après un appairage réussi, le bouton de confirmation et le retour depuis
   l’appairage Bluetooth ferment l’écran d’appairage et reviennent à la liste

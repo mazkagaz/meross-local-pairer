@@ -6,7 +6,7 @@ Application Android qui configure un appareil Meross pour qu'il se connecte à
 un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
 lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 
-**Version stable 2.0.8.** Elle gère l'appairage Wi-Fi classique et l'appairage
+**Version stable 2.0.9.** Elle gère l'appairage Wi-Fi classique et l'appairage
 **Bluetooth LE** des appareils qui exposent une publicité `MRBL_…` — par
 exemple les MRS100 récents, dont l'AP Wi-Fi n'est pas ouvert sans confirmation
 BLE. Avec le broker **1.2.1**, l'application se connecte exclusivement en
@@ -39,7 +39,7 @@ Appareil Meross ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT�
 
 | Brique | Version minimale | Remarques |
 |---|---|---|
-| Meross Local Pairer | 2.0.8 | HTTPS 2004 uniquement |
+| Meross Local Pairer | 2.0.9 | HTTPS 2004 uniquement |
 | Meross Local Broker | 1.2.1 | HTTPS 2004, CA valide, profils MRS100 |
 | Meross Local Cloud | 3.0.0-beta.3 | suppression des appareils et réparation 48 h |
 

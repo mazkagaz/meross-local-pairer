@@ -9,8 +9,8 @@ android {
         applicationId "org.localpairer"
         minSdk 23
         targetSdk 37
-        versionCode 71
-        versionName "2.0.8"
+        versionCode 72
+        versionName "2.0.9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
