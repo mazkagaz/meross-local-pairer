@@ -12,10 +12,16 @@ explicite) a été retirée pour éviter un rejet.
 3. Vérifier localement (facultatif) :
    `fdroid lint org.localpairer && fdroid build org.localpairer`.
 4. Ouvrir une merge request « New app: Meross Local Pairer ».
-5. Répondre aux éventuelles demandes des relecteurs.
+5. Utiliser le template `Default.md` de fdroiddata (abstract, captures,
+   checklists) et répondre aux demandes des relecteurs.
 
-Le fichier pointe sur le tag `v2.0.9` et le `versionCode` 72, avec l'historique
-des versions précédentes. Les prochaines versions seront détectées par
+La première MR (`!58475`) a été fermée en novembre 2026 : template non suivi
+et dépôt maintenu depuis moins de trois mois. Ne pas la rouvrir ; soumettre
+une nouvelle MR après la période de trois mois, avec la recette réduite à la
+dernière version.
+
+Le fichier ne contient que la dernière version (2.0.9, `versionCode` 72) et
+son hash de commit complet, comme exigé par le template F-Droid. Les prochaines versions seront détectées par
 `AutoUpdateMode: Version` / `UpdateCheckMode: Tags`.
 
 ## Signature
