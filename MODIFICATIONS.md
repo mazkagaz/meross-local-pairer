@@ -13,8 +13,8 @@
 
 - Banner: `branding/meross-local-pairer-banner.jpeg`, displayed at the top of every screen
   and as the splash art.
-- Launcher logo: `branding/meross-local-pairer-logo.jpeg`, used to generate the
-  `mipmap-*` launcher icons.
+- Launcher logo: `branding/meross-local-pairer-logo-transparent.png`, used to
+  generate the `mipmap-*` launcher icons; the JPEG is only a flattened copy.
 
 ## Behavior fixes
 
