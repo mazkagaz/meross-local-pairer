@@ -7,6 +7,7 @@ import static android.Manifest.permission.CHANGE_WIFI_STATE;
 import static android.Manifest.permission.NEARBY_WIFI_DEVICES;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -89,6 +90,7 @@ public class ScanDevicesFragment extends Fragment {
     private final List<String> bleAddresses = new ArrayList<>();
     private Runnable bleScanLoop;
     private ActivityResultLauncher<String[]> multiplePermissionLauncher;
+    private ActivityResultLauncher<Intent> blePairLauncher;
     private static String[] REQUIRED_PERMISSIONS = null;
     private static final String STATE_N_TOKENS = "_state_num_tokens";
     private static final long DEFAULT_N_SCANS_PER_INTERVAL = 4;
@@ -148,6 +150,13 @@ public class ScanDevicesFragment extends Fragment {
             }
         });
         multiplePermissionLauncher.launch(REQUIRED_PERMISSIONS);
+        blePairLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        requireActivity().finish();
+                    }
+                });
     }
 
     private void askPermissions(ActivityResultLauncher<String[]> multiplePermissionLauncher) {
@@ -280,7 +289,7 @@ public class ScanDevicesFragment extends Fragment {
             Intent intent = new Intent(requireContext(), BlePairActivity.class);
             intent.putExtra(BlePairActivity.EXTRA_ADDRESS, device.getAddress());
             intent.putExtra(BlePairActivity.EXTRA_NAME, name);
-            startActivity(intent);
+            blePairLauncher.launch(intent);
         });
         bleDevicesContainer.addView(row, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

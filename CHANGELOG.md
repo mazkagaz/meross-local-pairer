@@ -1,3 +1,10 @@
+## Unreleased
+
+- Après un appairage réussi, le bouton de confirmation et le retour depuis
+  l’appairage Bluetooth ferment l’écran d’appairage et reviennent à la liste
+  des appareils.
+- Corrections de textes visibles et de la documentation.
+
 ## 2.0.8
 
 - Découverte mDNS en **HTTPS uniquement** (`https_port`, défaut 2004) ;

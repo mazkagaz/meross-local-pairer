@@ -427,6 +427,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
                                         Toast.LENGTH_LONG).show();
                                 main.postDelayed(() -> {
                                     if (!destroyed) {
+                                        setResult(RESULT_OK);
                                         finish();
                                     }
                                 }, 1500);

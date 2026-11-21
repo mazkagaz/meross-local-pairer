@@ -11,8 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.R;
 
@@ -47,8 +45,7 @@ public class PairCompletedFragment extends Fragment {
         pairDoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NavController ctrl = NavHostFragment.findNavController(PairCompletedFragment.this);
-                ctrl.popBackStack(R.id.ScanDeviceFragment, false);
+                requireActivity().finish();
             }
         });
 

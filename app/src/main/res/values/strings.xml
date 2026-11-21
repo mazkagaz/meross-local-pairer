@@ -25,6 +25,7 @@
     <string name="pairing_done_icon_description">Pairing completed icon</string>
     <string name="fragment_info_text">"The discovery process has queried the device and obtained the following information. "</string>
     <string name="pair_btn">Pair!</string>
+    <string name="pair_done_back">Back to devices</string>
     <string name="configuring_mqtt">Configuring MQTT info...</string>
     <string name="configuring_wifi">Configuring Wi-Fi...</string>
     <string name="pair_fragment_text">"Please be patient while the app connects to the Meross Device. "</string>
