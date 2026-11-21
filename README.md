@@ -9,16 +9,17 @@ lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
 **Version stable 2.0.9.** Elle gère l'appairage Wi-Fi classique et l'appairage
 **Bluetooth LE** des appareils qui exposent une publicité `MRBL_…` — par
 exemple les MRS100 récents, dont l'AP Wi-Fi n'est pas ouvert sans confirmation
-BLE. Avec le broker **1.2.1**, l'application se connecte exclusivement en
+BLE. Avec le broker **1.2.1 ou plus récent**, l'application se connecte exclusivement en
 **HTTPS 2004**. Une recette F-Droid est préparée
 (`fdroid/org.localpairer.yml`) ; l'application n'apparaîtra dans F-Droid
 qu'après acceptation de la merge request dans `fdroiddata`.
 
-Le MRS100 est la cible principale des tests, mais l'application doit rester
-compatible avec les autres appareils Meross pris en charge par Custom Pairer.
-Les retours de test sont précieux : ouvrez une issue en précisant le modèle, le
-firmware et les fonctions qui marchent ou non. Les demandes d'intégration
-spécifiques sont bienvenues.
+Le MRS100 sert de référence de test ; l'application doit rester compatible
+avec les autres appareils Meross pris en charge par le pairer local et les
+familles du catalogue broker. **Toutes les familles ont besoin de testeurs sur
+matériel réel** : ouvrez une issue en précisant le modèle, le firmware et les
+fonctions qui marchent ou non. Les demandes d'intégration spécifiques sont
+bienvenues.
 
 ## Les trois briques du montage
 
@@ -40,7 +41,7 @@ Appareil Meross ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT�
 | Brique | Version minimale | Remarques |
 |---|---|---|
 | Meross Local Pairer | 2.0.9 | HTTPS 2004 uniquement |
-| Meross Local Broker | 1.2.1 | HTTPS 2004, CA valide, profils MRS100 |
+| Meross Local Broker | 1.2.1 | HTTPS 2004, CA valide, catalogue de profils |
 | Meross Local Cloud | 3.0.0-beta.3 | suppression des appareils et réparation 48 h |
 
 ## Télécharger l'application
@@ -93,7 +94,7 @@ demande au premier démarrage. Sur Android 17, elle demande aussi l'accès au
 ## HTTPS et certificat du broker
 
 L'écran de connexion ne demande que l'adresse de Home Assistant (nom ou IP) et
-un interrupteur **HTTPS**. Avec le broker **1.2.1**, laissez HTTPS activé :
+un interrupteur **HTTPS**. Avec le broker **1.2.1 ou plus récent**, laissez HTTPS activé :
 l'API LAN n'est servie que sur **2004** en TLS. Le port **2003** est réservé à
 l'ingress du Supervisor et n'est pas joignable depuis le téléphone. Le HTTP en
 clair ne concerne que d'anciens brokers ; Android le bloque de toute façon vers
