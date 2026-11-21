@@ -65,6 +65,7 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
     private MaterialButton mSkipButton;
     private TextInputLayout mWifiPasswordTextView;
     private WifiSpinnerAdapter adapter;
+    private List<GetConfigWifiListEntry> wifiList;
     private ProgressBar mLinearProgressBar;
     private CheckBox mSaveWifiPasswordCheckBox;
     private boolean mDiscoveryInProgress = false;
@@ -99,8 +100,12 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         wifiSpinner = view.findViewById(R.id.wifiListSpinner);
-        adapter = new WifiSpinnerAdapter(ConfigureWifiFragment.this.getContext(), pairActivityViewModel.getDeviceAvailableWifis().getValue().getPayload().getWifiList());
+        wifiList = pairActivityViewModel.getDeviceAvailableWifis().getValue()
+                .getPayload().getWifiList();
+        adapter = new WifiSpinnerAdapter(
+                ConfigureWifiFragment.this.getContext(), wifiList);
         wifiSpinner.setAdapter(adapter);
+        wifiSpinner.setSelection(preferredWifiIndex(), false);
 
         mWifiPasswordTextView = view.findViewById(R.id.wifi_password);
         mNextButton = view.findViewById(R.id.next_button);
@@ -127,12 +132,7 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
         wifiSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                GetConfigWifiListEntry selection = adapter.getItem(position);
-                String savedPassword = AndroidPreferencesManager.getWifiStoredPassword(requireContext(), selection.getBssid());
-                if (savedPassword != null)
-                    mWifiPasswordTextView.getEditText().setText(savedPassword);
-                else
-                    mWifiPasswordTextView.getEditText().setText("");
+                applySavedPassword(position);
             }
 
             @Override
@@ -140,6 +140,62 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
 
             }
         });
+        applySavedPassword(wifiSpinner.getSelectedItemPosition());
+    }
+
+    private void applySavedPassword(int position) {
+        if (position < 0 || position >= wifiList.size()) {
+            return;
+        }
+        GetConfigWifiListEntry selection = wifiList.get(position);
+        String savedPassword = AndroidPreferencesManager.getWifiStoredPassword(
+                requireContext(), selection.getBssid());
+        mWifiPasswordTextView.getEditText().setText(
+                savedPassword != null ? savedPassword : "");
+    }
+
+    private int preferredWifiIndex() {
+        AllowedWifiNetworks.Entry last =
+                AndroidPreferencesManager.loadLastDeviceWifi(requireContext());
+        int index = indexOfWifi(last);
+        if (index >= 0) {
+            return index;
+        }
+        index = indexOfWifi(AllowedWifiNetworks.current(requireContext()));
+        if (index >= 0) {
+            return index;
+        }
+        for (AllowedWifiNetworks.Entry entry :
+                AllowedWifiNetworks.load(requireContext())) {
+            index = indexOfWifi(entry);
+            if (index >= 0) {
+                return index;
+            }
+        }
+        for (int i = 0; i < wifiList.size(); i++) {
+            if (AndroidPreferencesManager.getWifiStoredPassword(
+                    requireContext(), wifiList.get(i).getBssid()) != null) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    private int indexOfWifi(@Nullable AllowedWifiNetworks.Entry target) {
+        if (target == null || target.ssid == null) {
+            return -1;
+        }
+        for (int i = 0; i < wifiList.size(); i++) {
+            GetConfigWifiListEntry entry = wifiList.get(i);
+            if (!target.ssid.equalsIgnoreCase(entry.getSsid())) {
+                continue;
+            }
+            if (target.bssid == null || target.bssid.trim().isEmpty()
+                    || target.bssid.equalsIgnoreCase(entry.getBssid())) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -323,6 +379,8 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
     private void trustSelectedWifi(String ssid, String bssid) {
         AllowedWifiNetworks.add(requireContext(), ssid, bssid);
         AndroidPreferencesManager.clearWifiDeclined(requireContext(), ssid);
+        AndroidPreferencesManager.storeLastDeviceWifi(
+                requireContext(), ssid, bssid);
         PairingLog.log("network", "trusted pairing network " + ssid + "/" + bssid);
     }
 

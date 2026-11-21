@@ -307,6 +307,8 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         // trust it even when the phone itself uses another Wi-Fi.
         AllowedWifiNetworks.add(this, wifi.ssid, wifi.bssid);
         AndroidPreferencesManager.clearWifiDeclined(this, wifi.ssid);
+        AndroidPreferencesManager.storeLastDeviceWifi(
+                this, wifi.ssid, wifi.bssid);
         String password = passwordInput.getText().toString();
         if (wifi.encryption != 0 && password.isEmpty()) {
             Toast.makeText(this, "Enter the Wi-Fi password.", Toast.LENGTH_SHORT).show();
@@ -617,8 +619,31 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         }
     }
 
-    /** Prefers the phone's current network, then one with a saved password. */
+    private int indexOfWifi(AllowedWifiNetworks.Entry target) {
+        if (target == null || target.ssid == null) {
+            return -1;
+        }
+        for (int i = 0; i < wifiEntries.size(); i++) {
+            MerossBleProtocol.WifiEntry entry = wifiEntries.get(i);
+            if (!target.ssid.equalsIgnoreCase(entry.ssid)) {
+                continue;
+            }
+            if (target.bssid == null || target.bssid.trim().isEmpty()
+                    || target.bssid.equalsIgnoreCase(entry.bssid)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /** Prefers the last device network, then the phone's current network. */
     private int preferredWifiIndex() {
+        AllowedWifiNetworks.Entry last =
+                AndroidPreferencesManager.loadLastDeviceWifi(this);
+        int lastIndex = indexOfWifi(last);
+        if (lastIndex >= 0) {
+            return lastIndex;
+        }
         AllowedWifiNetworks.Entry current = AllowedWifiNetworks.current(this);
         if (current != null) {
             for (int i = 0; i < wifiEntries.size(); i++) {

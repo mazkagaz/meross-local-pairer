@@ -6,6 +6,8 @@
 - Découverte Wi-Fi par rafale de scans à 0/5/15/30 s : un premier scan vide
   n’arrête plus la recherche, le statut reste visible et la rafale s’annule dès
   qu’un AP Meross est trouvé.
+- Le dernier réseau Wi-Fi utilisé pour un appareil est sélectionné par défaut
+  lors de l’appairage suivant, avec son mot de passe s’il est enregistré.
 - Corrections de textes visibles et de la documentation.
 
 ## 2.0.8

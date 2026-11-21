@@ -30,6 +30,8 @@ public class AndroidPreferencesManager {
     private static String KEY_API_HTTPS_PORT = "api_https_port";
     private static String KEY_ADVANCED_MODE = "advanced_mode";
     private static String KEY_DECLINED_WIFI = "declined_wifi_networks";
+    private static String KEY_LAST_DEVICE_WIFI_SSID = "last_device_wifi_ssid";
+    private static String KEY_LAST_DEVICE_WIFI_BSSID = "last_device_wifi_bssid";
     private static Gson g = Utils.getGson();
 
     public static boolean isPairingDebugEnabled(Context c) {
@@ -134,6 +136,34 @@ public class AndroidPreferencesManager {
         if (declined.remove(ssid)) {
             settings.edit().putStringSet(KEY_DECLINED_WIFI, declined).apply();
         }
+    }
+
+    public static void storeLastDeviceWifi(Context c, @Nullable String ssid,
+                                           @Nullable String bssid) {
+        if (c == null || ssid == null || ssid.trim().isEmpty()) {
+            return;
+        }
+        c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE)
+                .edit()
+                .putString(KEY_LAST_DEVICE_WIFI_SSID, ssid)
+                .putString(KEY_LAST_DEVICE_WIFI_BSSID,
+                        bssid != null ? bssid : "")
+                .apply();
+    }
+
+    @Nullable
+    public static AllowedWifiNetworks.Entry loadLastDeviceWifi(@Nullable Context c) {
+        if (c == null) {
+            return null;
+        }
+        SharedPreferences settings =
+                c.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE);
+        String ssid = settings.getString(KEY_LAST_DEVICE_WIFI_SSID, null);
+        if (ssid == null || ssid.trim().isEmpty()) {
+            return null;
+        }
+        return new AllowedWifiNetworks.Entry(
+                ssid, settings.getString(KEY_LAST_DEVICE_WIFI_BSSID, ""));
     }
 
     public static boolean isDisclaimerAccepted(Context c) {
