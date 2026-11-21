@@ -89,6 +89,12 @@
     <string name="about_text_title">What it does</string>
     <string name="about_text_body">Pairs Meross devices with a local MQTT broker instead of the Meross cloud. Use it once per device; Home Assistant then controls the device on your local network.</string>
     <string name="about_version_format">Version %1$s</string>
+    <string name="about_update_link">Check for updates</string>
+    <string name="update_available_title">Update available</string>
+    <string name="update_available_message">Version %1$s is available on GitHub. You are running %2$s.</string>
+    <string name="update_open">View on GitHub</string>
+    <string name="update_later">Later</string>
+    <string name="update_no_browser">No browser found.</string>
     <string name="about_fork_title">Fork and credits</string>
     <string name="about_fork_body">Meross Local Pairer is an independent fork of Custom Pairer for Meross Devices, originally created by Alberto Geniola. This fork is maintained by mazkagaz and has substantial changes: Bluetooth LE provisioning for devices that expose it, TLS, local-only login, trusted Wi-Fi handling, device revocation and re-claiming, a simplified setup and a redesigned interface. The MRS100 is the primary test target; other Meross models are welcome, and reports are useful.\n\nAlberto Geniola also wrote the original Meross low-level library and documentation. Icons: Freepik (flaticon.com).</string>
     <string name="about_legal_title">Principles and legal notices</string>

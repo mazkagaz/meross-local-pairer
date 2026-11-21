@@ -36,4 +36,7 @@ sinon Android refuse la mise à jour pour cause de signature différente.
 - Réseau : HTTP en clair limité à l'AP d'appairage `10.10.10.1` et aux hôtes
   locaux `.local`/`.lan` ; MQTT en TLS.
 - Aucun identifiant du cloud Meross, aucune télémétrie.
+- Construire avec `gradleprops: [fdroidBuild=true]` : le lien et la
+  vérification de mise à jour GitHub sont alors absents. L’app détecte aussi
+  une installation via F-Droid (`org.fdroid.fdroid` / `org.fdroid.basic`).
 - Fastlane : descriptions et changelog dans `fastlane/metadata/android/`.

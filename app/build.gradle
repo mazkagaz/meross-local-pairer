@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
 
+def fdroidBuild = project.hasProperty('fdroidBuild') &&
+        project.property('fdroidBuild').toString().toBoolean()
+
 android {
 
     namespace "org.localpairer"
@@ -11,6 +14,7 @@ android {
         targetSdk 37
         versionCode 72
         versionName "2.0.9"
+        buildConfigField "boolean", "FDROID_BUILD", fdroidBuild.toString()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

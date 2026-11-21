@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import org.localpairer.AppUpdateChecker;
 import org.localpairer.BuildConfig;
 import org.localpairer.R;
 
@@ -30,6 +31,15 @@ public class AboutFragment extends Fragment {
 
         TextView repositoryLink = view.findViewById(R.id.aboutRepositoryLink);
         repositoryLink.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView updateLink = view.findViewById(R.id.aboutUpdateLink);
+        if (AppUpdateChecker.isUpdateCheckDisabled(requireContext())) {
+            updateLink.setVisibility(View.GONE);
+        } else {
+            updateLink.setVisibility(View.VISIBLE);
+            updateLink.setOnClickListener(v ->
+                    AppUpdateChecker.openReleasesPage(requireContext()));
+        }
 
         view.findViewById(R.id.aboutCoffeeBanner).setOnClickListener(v -> {
             try {

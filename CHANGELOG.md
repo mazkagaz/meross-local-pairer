@@ -1,3 +1,11 @@
+## Unreleased
+
+- Page **About** : lien **Check for updates** vers la dernière release GitHub.
+- Vérification silencieuse des mises à jour à l’ouverture (une fois par
+  version, échec réseau ignoré).
+- Ces deux fonctions sont désactivées pour les builds F-Droid
+  (`-PfdroidBuild=true`) et les installations faites par F-Droid.
+
 ## 2.0.9
 
 - Après un appairage réussi, le bouton de confirmation et le retour depuis

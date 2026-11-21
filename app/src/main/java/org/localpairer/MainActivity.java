@@ -86,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
         wifiMerossWarning = findViewById(R.id.wifiMerossWarning);
         locationTextView = findViewById(R.id.locationOffTextView);
         wifiLocationStatusLayout = findViewById(R.id.wifiLocationStatusLayout);
+        AppUpdateChecker.checkOnStartup(this);
+
         this.mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {

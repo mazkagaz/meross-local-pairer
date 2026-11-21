@@ -61,6 +61,16 @@ unique est nécessaire au passage d'une ancienne build signée avec une autre
 clé (et plus tard au passage à F-Droid, qui utilise sa propre clé). Voir
 `fdroid/README.md` pour la soumission F-Droid.
 
+## Mises à jour
+
+Les builds GitHub affichent un lien **Check for updates** dans **About** et
+vérifient discrètement à l'ouverture si une release plus récente existe. Le
+lien ouvre la page GitHub des releases ; un échec réseau est ignoré.
+
+Les builds **F-Droid** désactivent le lien et la vérification. C'est déterminé
+à la compilation avec `-PfdroidBuild=true`, et aussi à l'exécution lorsque
+l'application a été installée par F-Droid.
+
 ## Avant l'appairage
 
 - L'add-on **Meross Local Broker** est installé et démarré.

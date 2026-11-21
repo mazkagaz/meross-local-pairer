@@ -32,6 +32,8 @@ Builds:
     commit: abeeb4d8fc2a26055b93ae06a9f884937835577e
     gradle:
       - yes
+    gradleprops:
+      - fdroidBuild=true
 
 
 AutoUpdateMode: Version
