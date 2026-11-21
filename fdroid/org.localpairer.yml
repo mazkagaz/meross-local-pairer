@@ -27,16 +27,17 @@ RepoType: git
 Repo: https://github.com/mazkagaz/meross-local-pairer.git
 
 Builds:
-  - versionName: 2.0.9
-    versionCode: 72
-    commit: abeeb4d8fc2a26055b93ae06a9f884937835577e
+  - versionName: 2.1.0
+    versionCode: 73
+    commit: d581aef0b51f80686f534f8ad51350b3e641a1ea
     gradle:
       - yes
     gradleprops:
       - fdroidBuild=true
 
 
+
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 2.0.9
-CurrentVersionCode: 72
+CurrentVersion: 2.1.0
+CurrentVersionCode: 73

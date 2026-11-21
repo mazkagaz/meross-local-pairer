@@ -20,7 +20,7 @@ et dépôt maintenu depuis moins de trois mois. Ne pas la rouvrir ; soumettre
 une nouvelle MR après la période de trois mois, avec la recette réduite à la
 dernière version.
 
-Le fichier ne contient que la dernière version (2.0.9, `versionCode` 72) et
+Le fichier ne contient que la dernière version (2.1.0, `versionCode` 73) et
 son hash de commit complet, comme exigé par le template F-Droid. Les prochaines versions seront détectées par
 `AutoUpdateMode: Version` / `UpdateCheckMode: Tags`.
 
