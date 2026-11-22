@@ -1,247 +1,239 @@
-# Meross Local Pairer — appairage Meross vers un broker local (non officiel)
+**English** · [Français](README.fr.md)
+
+# Meross Local Pairer — pair Meross devices with a local broker (unofficial)
 
 ![Meross Local Pairer](branding/meross-local-pairer-banner.jpeg)
 
-Application Android qui configure un appareil Meross pour qu'il se connecte à
-un broker MQTT local au lieu du cloud Meross. Elle est utilisée une seule fois,
-lors de l'appairage ; ensuite Home Assistant pilote l'appareil localement.
+Android app that configures a Meross device to connect to a local MQTT broker
+instead of the Meross cloud. It is used once, during pairing; afterwards Home
+Assistant controls the device locally.
 
-**Version stable 2.1.0.** Elle gère l'appairage Wi-Fi classique et l'appairage
-**Bluetooth LE** des appareils qui exposent une publicité `MRBL_…` — par
-exemple les MRS100 récents, dont l'AP Wi-Fi n'est pas ouvert sans confirmation
-BLE. Avec le broker **1.2.1 ou plus récent**, l'application se connecte exclusivement en
-**HTTPS 2004**. Une recette F-Droid est préparée
-(`fdroid/org.localpairer.yml`) ; l'application n'apparaîtra dans F-Droid
-qu'après acceptation de la merge request dans `fdroiddata`.
+**Stable version 2.1.0.** It supports classic Wi-Fi pairing and **Bluetooth LE**
+pairing for devices advertising `MRBL_…` — for example recent MRS100 units,
+whose Wi-Fi AP does not open without BLE confirmation. With broker **1.2.1 or
+newer**, the app connects over **HTTPS 2004** only. An F-Droid recipe is
+prepared (`fdroid/org.localpairer.yml`); the app will only appear in F-Droid
+after the merge request in `fdroiddata` is accepted.
 
-Le MRS100 sert de référence de test ; l'application doit rester compatible
-avec les autres appareils Meross pris en charge par le pairer local et les
-familles du catalogue broker. **Toutes les familles ont besoin de testeurs sur
-matériel réel** : ouvrez une issue en précisant le modèle, le firmware et les
-fonctions qui marchent ou non. Les demandes d'intégration spécifiques sont
-bienvenues.
+The MRS100 is the test reference; the app must remain compatible with the other
+Meross devices supported by the local pairer and by the broker catalog
+families. **All families need testers on real hardware**: open an issue with
+the model, firmware and the functions that work or fail. Requests for specific
+device families are welcome.
 
-## Les trois briques du montage
+## The three building blocks
 
-| Brique | Rôle | Dépôt |
-|---|---|---|
-| **Meross Local Pairer** | cette application Android | [mazkagaz/meross-local-pairer](https://github.com/mazkagaz/meross-local-pairer) |
-| **Meross Local Broker** | add-on Home Assistant (MQTT/TLS + API HTTP/HTTPS) | [mazkagaz/meross-local-broker](https://github.com/mazkagaz/meross-local-broker) |
-| **Meross Local Cloud** | intégration Home Assistant (HACS) | [mazkagaz/meross-local-cloud](https://github.com/mazkagaz/meross-local-cloud) |
+| Component | Role | Repository |
+| --- | --- | --- |
+| **Meross Local Pairer** | this Android app | [mazkagaz/meross-local-pairer](https://github.com/mazkagaz/meross-local-pairer) |
+| **Meross Local Broker** | Home Assistant add-on (MQTT/TLS + HTTP/HTTPS API) | [mazkagaz/meross-local-broker](https://github.com/mazkagaz/meross-local-broker) |
+| **Meross Local Cloud** | Home Assistant integration (HACS) | [mazkagaz/meross-local-cloud](https://github.com/mazkagaz/meross-local-cloud) |
 
 ```
-Appareil Meross ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT──> intégration HA
+Meross device ──MQTT/TLS──> Meross Local Broker add-on ──API/MQTT──> HA integration
                             ^
-                            │ appairage initial
+                            │ initial pairing
                  Meross Local Pairer (Android)
 ```
 
-## Compatibilité des versions
+## Version compatibility
 
-| Brique | Version minimale | Remarques |
-|---|---|---|
-| Meross Local Pairer | 2.1.0 | HTTPS 2004 uniquement |
-| Meross Local Broker | 1.2.1 | HTTPS 2004, CA valide, catalogue de profils |
-| Meross Local Cloud | 3.0.0-beta.3 | suppression des appareils et réparation 48 h |
+| Component | Minimum version | Notes |
+| --- | --- | --- |
+| Meross Local Pairer | 2.1.0 | HTTPS 2004 only |
+| Meross Local Broker | 1.2.1 | minimum; 1.4.8 recommended for the MRS100 `2026.11.4` profile |
+| Meross Local Cloud | 3.0.0-beta.3 | minimum; 3.2.2 recommended |
 
-## Télécharger l'application
+## Downloading the app
 
-1. Ouvrir la page
-   [Releases](https://github.com/mazkagaz/meross-local-pairer/releases/latest).
-2. Télécharger le fichier `Meross-Local-Pairer-<version>.apk` de la dernière
-   release (APK signé).
-3. Sur Android 6.0 ou plus récent, autoriser l'installation depuis cette source
-   si demandé.
-4. Installer l'APK.
+1. Open the
+   [Releases](https://github.com/mazkagaz/meross-local-pairer/releases/latest)
+   page.
+2. Download the `Meross-Local-Pairer-<version>.apk` file from the latest release
+   (signed APK).
+3. On Android 6.0 or newer, allow installation from this source if prompted.
+4. Install the APK.
 
-L'application n'est pas publiée sur le Play Store. La CI est configurée pour
-signer les APK de release avec une clé stable du projet : les mises à jour
-s'installeront ensuite par-dessus la version précédente. Une désinstallation
-unique est nécessaire au passage d'une ancienne build signée avec une autre
-clé (et plus tard au passage à F-Droid, qui utilise sa propre clé). Voir
-`fdroid/README.md` pour la soumission F-Droid.
+The app is not published on the Play Store. CI is configured to sign release
+APKs with a stable project key: updates then install over the previous version.
+A one-time uninstall is required when moving from an older build signed with a
+different key (and later when moving to F-Droid, which uses its own key). See
+`fdroid/README.md` for the F-Droid submission.
 
-## Mises à jour
+## Updates
 
-Les builds GitHub affichent un lien **Check for updates** dans **About** et
-vérifient discrètement à l'ouverture si une release plus récente existe. Le
-lien ouvre la page GitHub des releases ; un échec réseau est ignoré.
+GitHub builds show a **Check for updates** link in **About** and quietly check
+at startup whether a newer release exists. The link opens the GitHub releases
+page; network failures are ignored.
 
-Les builds **F-Droid** désactivent le lien et la vérification. C'est déterminé
-à la compilation avec `-PfdroidBuild=true`, et aussi à l'exécution lorsque
-l'application a été installée par F-Droid.
+**F-Droid** builds disable the link and the check. This is decided at build time
+with `-PfdroidBuild=true`, and also at runtime when the app was installed by
+F-Droid.
 
-## Avant l'appairage
+## Before pairing
 
-- L'add-on **Meross Local Broker** est installé et démarré.
-- Un **compte local** existe dans l'add-on (identifiant et mot de passe).
-- Le téléphone et l'appareil Meross sont à portée Wi-Fi (et Bluetooth si
-  l'appairage BLE est nécessaire).
-- Le Wi-Fi domestique est en **2,4 GHz WPA2** : beaucoup d'appareils Meross ne
-  gèrent ni le 5 GHz ni WPA3, vérifier la notice du modèle.
-- L'appareil est en mode appairage : maintenir le bouton jusqu'au clignotement,
-  selon la notice du modèle. Certains appareils récents, dont le MRS100, se
-  mettent alors en **publicité Bluetooth** (`MRBL_…`) au lieu d'ouvrir un AP
-  Wi-Fi.
+- The **Meross Local Broker** add-on is installed and running.
+- A **local account** exists in the add-on (login and password).
+- The phone and the Meross device are within Wi-Fi range (and Bluetooth if BLE
+  pairing is needed).
+- The home Wi-Fi is **2.4 GHz WPA2**: many Meross devices support neither 5 GHz
+  nor WPA3; check the model documentation.
+- The device is in pairing mode: hold the button until it blinks, according to
+  the model documentation. Some recent devices, including the MRS100, then
+  enter **Bluetooth advertising** (`MRBL_…`) instead of opening a Wi-Fi AP.
 
-## Réseaux Wi-Fi autorisés
+## Trusted Wi-Fi networks
 
-Le broker et l'API locale sont contactés en HTTP(S) et MQTT/TLS :
-l'application refuse donc de leur parler sur un réseau non validé. Au
-démarrage, elle détecte le Wi-Fi courant et propose de le déclarer **réseau de
-confiance**. S'il est accepté, il est ajouté automatiquement ; s'il est refusé,
-l'application ne le redemande plus.
+The broker and local API are contacted over HTTP(S) and MQTT/TLS: the app
+therefore refuses to talk to them on an unvalidated network. At startup it
+detects the current Wi-Fi network and offers to mark it as a **trusted
+network**. If accepted, it is added automatically; if declined, the app does
+not ask again.
 
-La gestion complète (réseaux validés, réseaux visibles, suppression) se trouve
-dans **Settings → Advanced settings**. Les AP d'appairage `Meross_*` restent
-implicitement autorisés pendant l'appairage. Le Wi-Fi choisi pour les appareils
-IoT est **ajouté automatiquement** aux réseaux de confiance, même s'il diffère
-de celui du téléphone. Android exige les permissions Wi-Fi/Localisation et les
-services de localisation pour lire les noms de réseaux ; l'application les
-demande au premier démarrage. Sur Android 17, elle demande aussi l'accès au
-**réseau local**, requis pour mDNS, le broker et l'appairage.
+Full management (trusted networks, visible networks, removal) is in
+**Settings → Advanced settings**. Pairing APs (`Meross_*`) remain implicitly
+allowed during pairing. The Wi-Fi chosen for IoT devices is **added
+automatically** to the trusted networks, even if it differs from the phone's
+network. Android requires Wi-Fi/Location permissions and location services to
+read network names; the app requests them on first start. On Android 17 it
+also requests **local network** access, required for mDNS, the broker and
+pairing.
 
-## HTTPS et certificat du broker
+## HTTPS and broker certificate
 
-L'écran de connexion ne demande que l'adresse de Home Assistant (nom ou IP) et
-un interrupteur **HTTPS**. Avec le broker **1.2.1 ou plus récent**, laissez HTTPS activé :
-l'API LAN n'est servie que sur **2004** en TLS. Le port **2003** est réservé à
-l'ingress du Supervisor et n'est pas joignable depuis le téléphone. Le HTTP en
-clair ne concerne que d'anciens brokers ; Android le bloque de toute façon vers
-une adresse IP.
+The login screen only asks for the Home Assistant address (name or IP) and an
+**HTTPS** switch. With broker **1.2.1 or newer**, leave HTTPS enabled: the LAN
+API is only served on **2004** with TLS. Port **2003** is reserved for the
+Supervisor ingress and is not reachable from the phone. Cleartext HTTP only
+concerns old brokers; Android blocks it for IP addresses anyway.
 
-L'URL complète n'est jamais demandée : une URL collée par erreur est nettoyée
-(schéma, chemin et port retirés). Pour un port personnalisé, activer
-**Advanced settings** et renseigner le champ *HTTPS API port*.
+The full URL is never requested: a pasted URL is cleaned (scheme, path and port
+removed). For a custom port, enable **Advanced settings** and fill in the
+*HTTPS API port* field.
 
-La découverte mDNS est **automatique** à l'ouverture de l'écran de connexion :
-l'application interroge le service `_meross-api._tcp` publié par l'add-on.
-Le broker n'annonce que l'API **HTTPS** et les adresses LAN de Home
-Assistant ; l'application teste leur joignabilité et préremplit l'hôte et le
-port lorsque le champ est vide. Aucune adresse n'est préremplie si aucune ne
-répond, et la saisie manuelle reste disponible pendant la recherche.
+mDNS discovery is **automatic** when the login screen opens: the app queries
+the `_meross-api._tcp` service published by the add-on. The broker advertises
+only the **HTTPS** API and Home Assistant's LAN addresses; the app tests their
+reachability and pre-fills the host and port when the field is empty. No
+address is pre-filled if none responds, and manual entry remains available
+during discovery.
 
-Le certificat du broker est auto-signé. L'application l'**épingle** au premier
-contact : l'empreinte SHA-256 de la feuille est mémorisée pour ce
-`hôte:port`, puis vérifiée à chaque connexion. Aucun certificat racine n'est
-donc à installer sur le téléphone.
+The broker certificate is self-signed. The app **pins** it on first contact: the
+SHA-256 fingerprint of the leaf certificate is stored for that `host:port`, then
+verified on every connection. No root certificate needs to be installed on the
+phone.
 
-L'empreinte est visible dans **Settings → Advanced settings → Pairing
-diagnostics**. Pour la comparer avec le broker :
+The fingerprint is visible in **Settings → Advanced settings → Pairing
+diagnostics**. To compare it with the broker:
 
 ```bash
 openssl x509 -in /data/mqtt/certs/server.crt -noout -fingerprint -sha256
 ```
 
-sur le certificat serveur (`server.crt` dans `/data/mqtt/certs` de l'add-on).
-La CA se récupère séparément sur `/ca.crt`. Si le certificat du broker est
-régénéré, la connexion échoue avec un message explicite : utiliser **Reset
-pinned broker certificate** dans les diagnostics, puis se reconnecter.
+on the server certificate (`server.crt` in the add-on's `/data/mqtt/certs`). The
+CA is fetched separately from `/ca.crt`. If the broker certificate is
+regenerated, the connection fails with an explicit message: use **Reset pinned
+broker certificate** in diagnostics, then reconnect.
 
-## Mode Advanced settings
+## Advanced settings mode
 
-Un interrupteur **Advanced settings** dans Settings révèle les réglages
-techniques, masqués par défaut :
+An **Advanced settings** switch in Settings reveals the technical settings,
+hidden by default:
 
-- port API **HTTPS** (2004), modifiable ; le champ HTTP (2003) ne sert
-  qu'aux brokers antérieurs à 1.0.0 ;
-- endpoint complet calculé ;
-- **User ID**, **HTTP Token** et **MQTT Key** ;
-- **Manual API Setup** (bouton **Manual User/Key setup**, sans identifiants
-  enregistrés) ;
-- gestion des réseaux Wi-Fi de confiance ;
-- diagnostics d'appairage et réinitialisation du certificat épinglé ;
-- **Log in again**, utile après un changement de broker.
+- **HTTPS** API port (2004), editable; the HTTP field (2003) only serves
+  brokers older than 1.0.0;
+- computed full endpoint;
+- **User ID**, **HTTP Token** and **MQTT Key**;
+- **Manual API Setup** (**Manual User/Key setup** button, without stored
+  credentials);
+- trusted Wi-Fi network management;
+- pairing diagnostics and pinned certificate reset;
+- **Log in again**, useful after changing broker.
 
-Le mode est mémorisé. Le désactiver ne supprime aucun réglage.
+The mode is remembered. Disabling it does not remove any setting.
 
-## Appairage pas à pas
+## Pairing step by step
 
-1. Ouvrir Meross Local Pairer et accorder les permissions Wi-Fi et localisation.
-2. Se connecter au broker local :
-   - saisir l'adresse de Home Assistant : `homeassistant.local` ou son IP ;
-   - laisser **HTTPS** activé (obligatoire avec le broker 1.2.1) ;
-   - saisir l'identifiant local et le mot de passe local.
+1. Open Meross Local Pairer and grant the Wi-Fi and location permissions.
+2. Connect to the local broker:
+   - enter the Home Assistant address: `homeassistant.local` or its IP;
+   - leave **HTTPS** enabled (required with broker 1.2.1);
+   - enter the local login and local password.
 
-   L'application construit seule `https://<adresse>:2004`. Pour un port
-   personnalisé, activer **Advanced settings** dans Settings. Le bouton
-   **Manual User/Key setup** ouvre la page
-   **Manual API Setup** (User ID + MQTT Key, souvent `1` et la clé du compte
-   local), uniquement visible en mode avancé et sans credentials enregistrés.
-3. Revenir à l'écran d'appairage, puis choisir la méthode selon l'appareil :
+   The app builds `https://<address>:2004` itself. For a custom port, enable
+   **Advanced settings** in Settings. The **Manual User/Key setup** button opens
+   the **Manual API Setup** page (User ID + MQTT Key, often `1` and the local
+   account key), visible only in advanced mode and without stored credentials.
+3. Return to the pairing screen, then choose the method for the device:
 
-   **Sans Bluetooth LE — AP Wi-Fi**
-   1. Scanner et sélectionner l'AP `Meross_*` de l'appareil (par exemple
-      `Meross_RS_*` pour un volet).
-   2. Sélectionner le Wi-Fi domestique et saisir son mot de passe.
-   3. Saisir le broker : hôte = IP de Home Assistant (ou
-      `homeassistant.local`), port = **2001**, et le **Device name** (nom
-      unique et obligatoire). Le port doit accepter **MQTT over TLS** ; une
-      configuration personnalisée est vérifiée avant l'appairage et un message
-      explicite s'affiche si ce n'est pas le cas.
-   4. Lancer l'appairage. L'appareil redémarre, rejoint le Wi-Fi et se connecte
-      au broker.
+   **Without Bluetooth LE — Wi-Fi AP**
+   1. Scan and select the device's `Meross_*` AP (for example `Meross_RS_*` for
+      a shutter).
+   2. Select the home Wi-Fi and enter its password.
+   3. Enter the broker: host = Home Assistant IP (or `homeassistant.local`),
+      port = **2001**, and the **Device name** (unique and required). The port
+      must accept **MQTT over TLS**; a custom configuration is verified before
+      pairing and an explicit message is shown if it is not the case.
+   4. Start pairing. The device restarts, joins the Wi-Fi and connects to the
+      broker.
 
-   **Avec Bluetooth LE — `MRBL_…`**
-   1. La détection Bluetooth est automatique : les appareils `MRBL_…`
-      apparaissent sous **Meross Bluetooth devices**, à côté des AP Wi-Fi.
-   2. Toucher l'appareil `MRBL_…`. L'application se connecte seule et lit son
-      identité (UUID/MAC/type) ainsi que sa liste Wi-Fi.
-   3. Le Wi-Fi courant ou déjà mémorisé est présélectionné ; le mot de passe
-      est rempli automatiquement s'il a été enregistré lors d'un appairage
-      précédent (case **Remember this Wi-Fi password**). Saisir le
-      **Device name** (nom unique et obligatoire), puis **Configure device**.
-      Le broker local déjà configuré dans l'application est utilisé
-      (port 2001).
-   4. L'application vérifie que l'appareil devient **ONLINE** ; elle n'affiche
-      pas de succès si ce n'est pas le cas.
+   **With Bluetooth LE — `MRBL_…`**
+   1. Bluetooth detection is automatic: `MRBL_…` devices appear under **Meross
+      Bluetooth devices**, next to Wi-Fi APs.
+   2. Tap the `MRBL_…` device. The app connects by itself and reads its identity
+      (UUID/MAC/type) and Wi-Fi list.
+   3. The current or previously stored Wi-Fi is pre-selected; the password is
+      filled automatically if it was saved during a previous pairing (**Remember
+      this Wi-Fi password** checkbox). Enter the **Device name** (unique and
+      required), then **Configure device**. The broker already configured in the
+      app is used (port 2001).
+   4. The app verifies that the device becomes **ONLINE**; it does not report
+      success otherwise.
 
-4. Vérifier dans l'add-on que l'appareil est **ONLINE**, puis ajouter
-   l'[intégration Home Assistant](https://github.com/mazkagaz/meross-local-cloud#installation-avec-hacs).
+4. Check in the add-on that the device is **ONLINE**, then add the
+   [Home Assistant integration](https://github.com/mazkagaz/meross-local-cloud#install-with-hacs).
 
-Après l'appairage, les entités `cover`, `number`, boutons de calibration et
-capteur de statut sont créés dans Home Assistant.
+After pairing, the `cover`, `number` (Position and durations), calibration
+button and status sensor entities are created in Home Assistant.
 
-## Gérer les appareils
+## Managing devices
 
-**Toucher une ligne** ouvre le renommage de l'appareil : le nouveau nom est
-enregistré dans le broker (`POST /v1/Device/name`) et doit être unique, sans
-tenir compte de la casse.
+**Tapping a row** opens device renaming: the new name is stored in the broker
+(`POST /v1/Device/name`) and must be unique, case-insensitively.
 
-L'icône corbeille permet de **supprimer un appareil** du broker après
-confirmation. L'opération utilise l'API authentifiée du broker
-(`POST /v1/Device/delete`) ; elle échoue avec un message si l'API n'est pas
-joignable.
+The trash icon **removes a device** from the broker after confirmation. The
+operation uses the broker's authenticated API (`POST /v1/Device/delete`); it
+fails with a message if the API is unreachable.
 
-La suppression **révoque** aussi le MAC : l'appareil ne peut plus se reconnecter
-seul avec les identifiants qu'il conserve. Un nouvel appairage réussit appelle
-automatiquement `POST /v1/Device/claim` pour lever la révocation. L'appareil
-garde le même UUID, donc les entités et automatisations Home Assistant
-existantes restent valides après oubli puis réappairage.
+Removal also **revokes** the MAC: the device can no longer reconnect on its own
+with the credentials it keeps. A successful new pairing automatically calls
+`POST /v1/Device/claim` to lift the revocation. The device keeps the same UUID,
+so existing Home Assistant entities and automations remain valid after
+forget/re-pair.
 
-Le broker publie `Appliance.Control.Unbind` vers l'intégration : les entités
-disparaissent immédiatement. Avec Meross Local Cloud **3.0.0-beta.3**, un
-appareil qui ne revient pas est proposé à la suppression après 48 heures.
+The broker publishes `Appliance.Control.Unbind` to the integration: entities
+disappear immediately. With Meross Local Cloud **3.0.0-beta.3**, a device that
+does not come back is proposed for removal after 48 hours.
 
-## Dépannage
+## Troubleshooting
 
-| Problème | Vérifier |
-|---|---|
-| L'AP `Meross_*` n'apparaît pas | mode appairage activé ; si l'appareil expose `MRBL_…`, utiliser l'appairage Bluetooth |
-| Aucun appareil `MRBL_…` en Bluetooth | Bluetooth activé, permissions Bluetooth/localisation, appareil en mode appairage, à portée |
-| Connexion impossible | vérifier `homeassistant.local`/IP et le toggle HTTPS ; en dernier recours, **Manual API Setup** dans Advanced settings |
-| Certificat TLS modifié | **Reset pinned broker certificate** dans Settings, puis se reconnecter |
-| « Trust this Wi-Fi network? » refusé | accepter au démarrage, ou ajouter le réseau dans **Advanced settings** |
-| « Untrusted Wi-Fi network » | accepter le réseau courant, ou le gérer dans **Advanced settings** |
-| Suppression d'appareil refusée | broker 1.2.1, API HTTPS 2004 accessible, appareil du compte courant |
-| Entités encore visibles après suppression | intégration 3.0.0-beta.3+, Unbind immédiat ; réparation 48 h ou suppression manuelle |
-| Échec des identifiants | compte local de l'add-on, `UserId`/`mqttKey` corrects |
-| L'appareil ne rejoint pas le Wi-Fi | WPA2 2,4 GHz, mot de passe, portée |
-| L'appareil n'est pas ONLINE | port 2001 joignable, broker démarré, logs de l'add-on |
-| Appareil déjà lié au cloud Meross | réinitialiser l'appareil avant l'appairage |
-| WPA3 uniquement | utiliser un SSID WPA2 ou un réseau 2,4 GHz dédié |
+| Problem | Check |
+| --- | --- |
+| The `Meross_*` AP does not appear | pairing mode enabled; if the device advertises `MRBL_…`, use Bluetooth pairing |
+| No `MRBL_…` device over Bluetooth | Bluetooth enabled, Bluetooth/location permissions, device in pairing mode, in range |
+| Cannot connect | check `homeassistant.local`/IP and the HTTPS toggle; as a last resort, **Manual API Setup** in Advanced settings |
+| TLS certificate changed | **Reset pinned broker certificate** in Settings, then reconnect |
+| “Trust this Wi-Fi network?” declined | accept at startup, or add the network in **Advanced settings** |
+| “Untrusted Wi-Fi network” | accept the current network, or manage it in **Advanced settings** |
+| Device removal refused | broker 1.2.1, HTTPS API 2004 reachable, device owned by the current account |
+| Entities still visible after removal | integration 3.0.0-beta.3+, immediate Unbind; 48 h repair or manual deletion |
+| Credentials fail | add-on local account, correct `UserId`/`mqttKey` |
+| The device does not join Wi-Fi | 2.4 GHz WPA2, password, range |
+| The device is not ONLINE | port 2001 reachable, broker running, add-on logs |
+| Device already linked to the Meross cloud | reset the device before pairing |
+| WPA3 only | use a WPA2 SSID or a dedicated 2.4 GHz network |
 
-## Pour les développeurs
+## For developers
 
 ```bash
 ./gradlew test
@@ -249,21 +241,23 @@ appareil qui ne revient pas est proposé à la suppression après 48 heures.
 ./gradlew assembleReleaseUnsigned
 ```
 
-Le build nécessite JDK 17 et Android SDK 37. Les tests couvrent le format
-`Appliance.Config.Key` et la validation des réponses AP (SETACK/ERROR) ;
-l'appairage BLE se teste sur un appareil réel.
+The build requires JDK 17 and Android SDK 37. Tests cover the
+`Appliance.Config.Key` format and AP response validation (SETACK/ERROR); BLE
+pairing is tested on a real device.
 
-La CI signe les APK avec une clé stable fournie par les secrets GitHub
-(`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
-`ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`). Ne jamais committer le keystore
-ni ses mots de passe.
+CI signs APKs with a stable key provided by GitHub secrets
+(`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
+`ANDROID_KEY_PASSWORD`). Never commit the keystore or its passwords.
 
-## Origine et licence
+Documentation translations: [policy](docs/TRANSLATIONS.md) and
+[glossary](docs/TRANSLATION-GLOSSARY.md).
 
-Fork non officiel de
+## Origin and license
+
+Unofficial fork of
 [Custom Pairer for Meross Devices](https://github.com/albertogeniola/Custom-Meross-Pairer)
-par Alberto Geniola, sous **GPL-2.0**. Le README upstream est conservé dans
-`UPSTREAM_README.md` ; voir aussi `NOTICE` et `MODIFICATIONS.md`.
+by Alberto Geniola, under **GPL-2.0**. The upstream README is kept in
+`UPSTREAM_README.md`; see also `NOTICE` and `MODIFICATIONS.md`.
 
-Ce fork n'est ni affilié, ni approuvé, ni sponsorisé par Meross ou l'auteur
-upstream. Meross est une marque de son propriétaire respectif.
+This fork is neither affiliated with, approved by, nor sponsored by Meross or
+the upstream author. Meross is a trademark of its respective owner.

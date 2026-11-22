@@ -1,0 +1,11 @@
+{
+  "source_language": "fr",
+  "pairs": [
+    {
+      "source": "README.fr.md",
+      "translation": "README.md",
+      "source_sha256": "e8bfc7c20a70a11a6d45ff318b96f6413fb839e72cbfab1a923e00c7aa78e75e",
+      "translation_sha256": "41b4bd1bb000d86b9bddbb1bb2e6294a535e800ef6a8b244b0561df072040444"
+    }
+  ]
+}

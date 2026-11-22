@@ -1,0 +1,24 @@
+name: Docs
+
+on:
+  push:
+    paths:
+      - "**.md"
+      - "docs/**"
+      - "tools/**"
+  pull_request:
+    paths:
+      - "**.md"
+      - "docs/**"
+      - "tools/**"
+
+permissions:
+  contents: read
+
+jobs:
+  translations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check documentation translations
+        run: python tools/check_docs_translations.py
