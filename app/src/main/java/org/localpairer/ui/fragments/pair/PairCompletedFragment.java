@@ -56,7 +56,7 @@ public class PairCompletedFragment extends Fragment {
                 ? R.string.pairing_done_verified
                 : R.string.pairing_done_unverified);
         if (mTargetUuid != null && !mTargetUuid.isEmpty()) {
-            message += "\n\nUUID appairé : " + mTargetUuid;
+            message += getString(R.string.paired_uuid, mTargetUuid);
         }
         mTextView.setText(message);
     }

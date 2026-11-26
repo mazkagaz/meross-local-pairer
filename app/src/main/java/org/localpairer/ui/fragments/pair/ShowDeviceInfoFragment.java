@@ -75,9 +75,10 @@ public class ShowDeviceInfoFragment extends Fragment {
         TextView identityNotice = view.findViewById(R.id.textView9);
         MerossDeviceAp pairingAp = pairActivityViewModel.getMerossPairingAp().getValue();
         if (pairingAp != null) {
-            identityNotice.setText("Appareil en cours d'appairage : " + pairingAp.getSsid()
-                    + "\nBSSID : " + pairingAp.getBssid()
-                    + "\n\nVérifiez que c'est bien le volet attendu avant de continuer.");
+            identityNotice.setText(getString(
+                    R.string.pair_device_in_progress,
+                    pairingAp.getSsid(),
+                    pairingAp.getBssid()));
         }
 
         configureButton.setOnClickListener(new OnClickListener() {
