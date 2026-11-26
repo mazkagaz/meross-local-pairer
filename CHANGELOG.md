@@ -1,3 +1,11 @@
+## 2.1.1
+
+- Écran d'information d'appairage : suppression du texte « volet », remplacé
+  par une formulation générique « expected device ».
+- Les libellés d'appairage sont désormais des ressources traduisibles.
+- L'icône par défaut n'est plus un volet mais l'icône générique du pairer.
+- Aucun changement du protocole d'appairage ; support MSL610 non inclus.
+
 ## 2.1.0
 
 - Page **About** : lien **Check for updates** vers la dernière release GitHub.
