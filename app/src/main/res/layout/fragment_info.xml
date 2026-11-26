@@ -18,7 +18,7 @@
         android:padding="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView9"
-        app:srcCompat="@drawable/ic_roller_shutter"
+        app:srcCompat="@drawable/ic_smart_plug"
         app:tint="@color/colorPrimary" />
 
     <TextView

@@ -24,6 +24,8 @@
     <string name="device_icon_description">Device Icon</string>
     <string name="pairing_done_icon_description">Pairing completed icon</string>
     <string name="fragment_info_text">"The discovery process has queried the device and obtained the following information. "</string>
+    <string name="pair_device_in_progress">Device being paired: %1$s\nBSSID: %2$s\n\nCheck that this is the expected device before continuing.</string>
+    <string name="paired_uuid">\n\nPaired UUID: %1$s</string>
     <string name="pair_btn">Pair!</string>
     <string name="pair_done_back">Back to devices</string>
     <string name="configuring_mqtt">Configuring MQTT info...</string>
