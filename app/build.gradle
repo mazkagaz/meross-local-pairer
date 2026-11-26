@@ -5,7 +5,7 @@ def fdroidBuild = project.hasProperty('fdroidBuild') &&
 
 android {
 
-    namespace "org.localpairer"
+    namespace = "org.localpairer"
     compileSdk 37
 
     defaultConfig {
@@ -40,7 +40,7 @@ android {
 
             // Enables resource shrinking, which is performed by the
             // Android Gradle plugin.
-            shrinkResources true
+            shrinkResources = true
 
             // Includes the default ProGuard rules files that are packaged with
             // the Android Gradle plugin. To learn more, go to the section about
@@ -50,12 +50,12 @@ android {
                     'proguard-rules.pro'
             def keystorePath = System.getenv("ANDROID_KEYSTORE_FILE")
             if (keystorePath != null && !keystorePath.trim().isEmpty()) {
-                signingConfig signingConfigs.release
+                signingConfig = signingConfigs.release
             }
         }
         releaseUnsigned.initWith(buildTypes.release)
         releaseUnsigned {
-            signingConfig null
+            signingConfig = null
         }
     }
     compileOptions {
@@ -63,8 +63,8 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
     buildFeatures {
-        viewBinding true
-        buildConfig true
+        viewBinding = true
+        buildConfig = true
     }
 
 }
