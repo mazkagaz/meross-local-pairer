@@ -7,7 +7,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.48'
     annotationProcessor 'org.projectlombok:lombok:1.18.48'
     api 'com.squareup.okhttp:okhttp:2.7.5'
-    api group: 'commons-codec', name: 'commons-codec', version: '1.23.0'
+    api 'commons-codec:commons-codec:1.23.0'
     testImplementation 'junit:junit:4.13.2'
 
 }
