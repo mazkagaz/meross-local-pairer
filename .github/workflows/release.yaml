@@ -14,16 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6
-        with:
-          java-version: 17
-          distribution: temurin
-
-      - uses: android-actions/setup-android@v4
-        with:
-          packages: 'platforms;android-37.0 build-tools;37.0.0'
-
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: ./.github/actions/setup-android
 
       - name: Require stable signing secrets
         run: |
@@ -36,7 +27,7 @@ jobs:
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/pairer-release.jks"
 
       - name: Build signed APK
-        run: ./gradlew testDebugUnitTest assembleRelease --stacktrace
+        run: ./gradlew testDebugUnitTest lintDebug assembleRelease --stacktrace
         env:
           ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/pairer-release.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}

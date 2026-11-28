@@ -4,7 +4,7 @@ Dernière revue : **2026-11-27**
 
 ## Politique de support
 
-- **Android** : `compileSdk`/`targetSdk` 37, `minSdk` 23.
+- **Android** : `compileSdk`/`targetSdk` 37, `minSdk` 24.
 - **JDK CI** : 17 ; source/toolchain Java 11.
 - **Gradle / AGP** : versions épinglées dans le wrapper et `build.gradle`.
 - **F-Droid** : recette différée après le 2027-02-15 ; ne pas la considérer
@@ -15,7 +15,7 @@ Dernière revue : **2026-11-27**
 
 | Fréquence | Action |
 |---|---|
-| Chaque PR | build, tests unitaires, traduction des docs |
+| Chaque PR | build, lint Android, tests unitaires, traductions |
 | Hebdomadaire | rebuild planifié pour détecter les changements d’environnement |
 | Mensuel | revue des PR Dependabot Gradle et GitHub Actions |
 | Trimestriel | revue SDK Android, AGP, Gradle, JDK |

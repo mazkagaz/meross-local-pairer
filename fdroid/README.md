@@ -32,7 +32,7 @@ sinon Android refuse la mise à jour pour cause de signature différente.
 
 ## Vérifications
 
-- `minSdkVersion` 23, `targetSdkVersion` 37, Gradle 9.9.1, JDK 17.
+- `minSdkVersion` 24, `targetSdkVersion` 37, Gradle 9.9.1, JDK 17.
 - Réseau : HTTP en clair limité à l'AP d'appairage `10.10.10.1` et aux hôtes
   locaux `.local`/`.lan` ; MQTT en TLS.
 - Aucun identifiant du cloud Meross, aucune télémétrie.

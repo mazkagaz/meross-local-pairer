@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+      docs: ${{ steps.filter.outputs.docs == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@0e4a8c6effa4802afeda77dc8d303f8176d7dfad
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'app/**'
+              - 'merosslib/**'
+              - '*.gradle'
+              - 'gradle/**'
+              - 'gradlew*'
+              - 'gradle.properties'
+            docs:
+              - '**.md'
+              - 'docs/**'
+              - 'tools/**'
+
+  build:
+    name: Build
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-android
+      - run: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
+      - uses: actions/upload-artifact@v7
+        with:
+          name: local-pairer-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+      - uses: actions/upload-artifact@v7
+        with:
+          name: local-pairer-release-unsigned
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+  docs:
+    name: Docs
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: python3 tools/check_docs_translations.py
+
+  gate:
+    name: CI
+    needs: [changes, build, docs]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every relevant job to succeed
+        run: |
+          for result in \
+            "${{ needs.changes.result }}" \
+            "${{ needs.build.result }}" \
+            "${{ needs.docs.result }}"; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "CI job result: $result" >&2; exit 1 ;;
+            esac
+          done
