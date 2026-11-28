@@ -1,7 +1,10 @@
-## Unreleased
+## 2.2.0
 
 - Android 7.0 minimum (`minSdk 24`), required by androidx.navigation 2.10.2.
 - Android 6.0 is no longer supported.
+- Navigation 2.10.2 et Gradle 9.9.2.
+- CI unique avec gate conditionnel code/docs/workflow/métadonnées.
+- Aucun changement du protocole d’appairage.
 
 ## 2.1.1
 
