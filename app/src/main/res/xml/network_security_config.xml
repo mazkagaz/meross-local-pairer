@@ -5,12 +5,9 @@
             <certificates src="system" />
         </trust-anchors>
     </base-config>
-    <!-- Cleartext is limited to the AP endpoint and local mDNS/LAN API
-         hostnames. The broker also serves HTTPS on port 2004, which is
-         required when the API is reached through an IP address. -->
+    <!-- Cleartext is limited to the device provisioning AP. The broker API
+         itself must always be reached over HTTPS. -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">10.10.10.1</domain>
-        <domain includeSubdomains="true">local</domain>
-        <domain includeSubdomains="true">lan</domain>
     </domain-config>
 </network-security-config>

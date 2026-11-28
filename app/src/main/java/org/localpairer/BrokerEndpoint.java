@@ -50,9 +50,9 @@ public final class BrokerEndpoint {
         return host != null && !host.isEmpty();
     }
 
-    /** Cleartext is not permitted by the network security config for an IP endpoint. */
+    /** The broker API must be reached over HTTPS. */
     public boolean requiresHttps() {
-        return !https && isIpAddress(host);
+        return !https;
     }
 
     public static boolean isIpAddress(String host) {

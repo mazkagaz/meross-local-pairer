@@ -202,7 +202,7 @@ public class AccountFragment extends Fragment {
                 return;
             }
             if (endpoint.requiresHttps()) {
-                brokerHostEditText.setError("Use HTTPS for an IP address");
+                brokerHostEditText.setError("HTTPS is required for the broker API");
                 return;
             }
             int selectedPort = endpoint.isHttps()
