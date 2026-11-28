@@ -222,7 +222,14 @@ public class AccountFragment extends Fragment {
 
             ApiCredentials credentials =
                     AndroidPreferencesManager.loadHttpCredentials(requireContext());
-            if (credentials != null && !credentials.isManuallySet()) {
+            if (hostChanged && credentials != null) {
+                // A token belongs to the broker host that issued it. Never
+                // carry it silently to a different endpoint.
+                AndroidPreferencesManager.removeHttpCredentials(requireContext());
+                mainActivityViewModel.setCredentials(null);
+                Toast.makeText(requireContext(), R.string.broker_changed_login_again,
+                        Toast.LENGTH_LONG).show();
+            } else if (credentials != null && !credentials.isManuallySet()) {
                 credentials.setApiServer(endpoint.baseUrl());
                 AndroidPreferencesManager.storeHttpCredentials(requireContext(), credentials);
                 mainActivityViewModel.setCredentials(credentials);
