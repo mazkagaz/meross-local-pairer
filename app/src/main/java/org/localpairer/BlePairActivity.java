@@ -378,11 +378,24 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
 
     private void verifyOnline(ApiCredentials credentials, String uuid) {
         setStatus("Checking that the device is online in the broker...");
-        final Handler main = new Handler(Looper.getMainLooper());
         final String mac = deviceMac;
         final String requestedName = deviceNameInput != null
                 ? deviceNameInput.getText().toString().trim() : "";
-        verifyExecutor.execute(() -> {
+        if (destroyed) {
+            return;
+        }
+        try {
+            verifyExecutor.execute(() -> verifyOnlineInBackground(credentials, uuid,
+                    mac, requestedName));
+        } catch (java.util.concurrent.RejectedExecutionException e) {
+            PairingLog.log("ble", "verification skipped after shutdown");
+        }
+    }
+
+    private void verifyOnlineInBackground(ApiCredentials credentials, String uuid,
+                                           String mac, String requestedName) {
+        final Handler main = handler;
+        {
             MerossHttpClient client = new MerossHttpClient(credentials);
             boolean renamed = requestedName.isEmpty();
             // Re-pairing a forgotten device must lift its broker revocation
@@ -413,9 +426,13 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
                             } catch (Exception renameError) {
                                 PairingLog.log("ble", "rename failed: "
                                         + renameError.getMessage());
-                                main.post(() -> setStatus("Name not saved: "
-                                        + renameError.getMessage()
-                                        + "\nRename the device from the device list."));
+                                main.post(() -> {
+                                    if (!destroyed) {
+                                        setStatus("Name not saved: "
+                                                + renameError.getMessage()
+                                                + "\nRename the device from the device list.");
+                                    }
+                                });
                             }
                         }
                         if (info.getOnlineStatus() == OnlineStatus.ONLINE) {
@@ -453,7 +470,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
                             + uuid + "\nCheck the broker and the device Wi-Fi.");
                 }
             });
-        });
+        }
     }
 
     private void setStatus(String message) {
@@ -523,10 +540,11 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
     @Override
     protected void onDestroy() {
         destroyed = true;
-        verifyExecutor.shutdownNow();
+        handler.removeCallbacksAndMessages(null);
         if (ble != null) {
             ble.disconnect();
         }
+        verifyExecutor.shutdownNow();
         super.onDestroy();
     }
 
@@ -534,7 +552,13 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
 
     @Override
     public void onDeviceFound(BluetoothDevice device, String name) {
+        if (destroyed) {
+            return;
+        }
         runOnUiThread(() -> {
+            if (destroyed) {
+                return;
+            }
             for (BluetoothDevice known : devices) {
                 if (known.getAddress().equals(device.getAddress())) {
                     return;
@@ -550,7 +574,13 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
 
     @Override
     public void onReady() {
+        if (destroyed) {
+            return;
+        }
         runOnUiThread(() -> {
+            if (destroyed) {
+                return;
+            }
             setStatus("Connected. Reading device information...");
             deviceInfoView.setText("");
             ble.send(MerossBleProtocol.packet("Appliance.System.All", "GET", null));
@@ -559,7 +589,13 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
 
     @Override
     public void onPacket(JSONObject packet) {
+        if (destroyed) {
+            return;
+        }
         runOnUiThread(() -> {
+            if (destroyed) {
+                return;
+            }
             try {
                 String namespace = packet.getJSONObject("header").getString("namespace");
                 JSONObject payload = packet.optJSONObject("payload");
@@ -689,11 +725,30 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
 
     @Override
     public void onError(String message) {
-        runOnUiThread(() -> setStatus("BLE error: " + message));
+        if (destroyed) {
+            return;
+        }
+        runOnUiThread(() -> {
+            if (destroyed) {
+                return;
+            }
+            pairingSent = false;
+            if (pairButton != null) {
+                pairButton.setEnabled(true);
+            }
+            setStatus("BLE error: " + message);
+        });
     }
 
     @Override
     public void onDisconnected() {
-        runOnUiThread(() -> PairingLog.log("ble", "BLE disconnected"));
+        if (destroyed) {
+            return;
+        }
+        runOnUiThread(() -> {
+            if (!destroyed) {
+                PairingLog.log("ble", "BLE disconnected");
+            }
+        });
     }
 }

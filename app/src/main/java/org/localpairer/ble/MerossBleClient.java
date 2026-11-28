@@ -62,6 +62,7 @@ public class MerossBleClient {
 
     private final Context context;
     private final Callback callback;
+    private volatile boolean closed;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ExecutorService writer = Executors.newSingleThreadExecutor();
 
@@ -93,6 +94,9 @@ public class MerossBleClient {
 
     @SuppressLint("MissingPermission")
     public void startScan() {
+        if (closed) {
+            return;
+        }
         if (adapter == null || !adapter.isEnabled()) {
             callback.onError("Bluetooth is disabled");
             return;
@@ -149,6 +153,9 @@ public class MerossBleClient {
 
     @SuppressLint("MissingPermission")
     public void connect(String address) {
+        if (closed) {
+            return;
+        }
         stopScan();
         closeGatt();
         try {
@@ -287,8 +294,12 @@ public class MerossBleClient {
     }
 
     public void send(JSONObject packet) {
+        if (closed) {
+            return;
+        }
         byte[] framed = frame(packet);
-        writer.execute(() -> {
+        try {
+            writer.execute(() -> {
             List<byte[]> chunks = new ArrayList<>();
             for (int offset = 0; offset < framed.length; offset += maxPacketSize) {
                 int length = Math.min(maxPacketSize, framed.length - offset);
@@ -309,7 +320,10 @@ public class MerossBleClient {
                     }
                 }
             }
-        });
+            });
+        } catch (java.util.concurrent.RejectedExecutionException e) {
+            callback.onError("BLE transport is closed");
+        }
     }
 
     private boolean write(byte[] data) {
@@ -362,6 +376,8 @@ public class MerossBleClient {
 
     @SuppressLint("MissingPermission")
     public void disconnect() {
+        closed = true;
+        handler.removeCallbacksAndMessages(null);
         stopScan();
         if (gatt != null) {
             try {
