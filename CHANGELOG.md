@@ -1,3 +1,29 @@
+## 2.3.0
+
+- **Sécurité de l’appairage**
+  - HTTPS obligatoire pour l’API broker, y compris pour les noms `.local` et
+    `.lan` ; seul l’AP d’appairage `10.10.10.1` reste en HTTP clair.
+  - Confirmation explicite d’un broker découvert en mDNS : hôte, port et
+    empreinte SHA-256 du certificat TLS avant de remplir les identifiants.
+  - Vérification de l’identité du broker MQTT par comparaison avec l’empreinte
+    HTTPS épinglée.
+  - Avertissement explicite avant l’appairage AP en HTTP clair, avec sortie
+    possible sans envoyer les identifiants.
+- **Robustesse**
+  - Correction du `ConcurrentModificationException` lors du remplacement d’une
+    configuration MQTT.
+  - Validation stricte de la configuration manuelle (UserId et UserKey).
+  - Les credentials ne sont plus réutilisés après un changement d’hôte broker.
+  - Token HTTP et clé MQTT masqués.
+  - Cycle de vie BLE : callbacks et vérifications arrêtés avec l’activité.
+- **Stockage**
+  - Nouvelles valeurs chiffrées en **AES-256-GCM** avec une clé Android
+    Keystore non exportable.
+  - Migration unique des données `EncryptedSharedPreferences` et adorsys.
+- **Tests**
+  - Tests de lancement Robolectric et émulateur.
+  - Tests instrumentés du stockage chiffré.
+
 ## 2.2.2
 
 - Correctif urgent de démarrage : retour au `<fragment>` compatible avec le
