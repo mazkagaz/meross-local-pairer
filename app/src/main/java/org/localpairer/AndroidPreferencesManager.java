@@ -179,11 +179,10 @@ public class AndroidPreferencesManager {
 
     public static void storeNewMqttConfiguration(Context context, MqttConfiguration conf) {
         List<MqttConfiguration> allConfs = loadAllMqttConfigurations(context);
-        for (MqttConfiguration c : allConfs) {
-            if (c.getName().toLowerCase(Locale.ROOT).trim().compareTo(conf.getName().toLowerCase(Locale.ROOT).trim())==0) {
-                allConfs.remove(c);
-            }
-        }
+        String newName = conf.getName() == null ? ""
+                : conf.getName().toLowerCase(Locale.ROOT).trim();
+        allConfs.removeIf(c -> c.getName() != null
+                && c.getName().toLowerCase(Locale.ROOT).trim().equals(newName));
         allConfs.add(conf);
 
         SharedPreferences settings = context.getSharedPreferences(PREFS_CONFS, Context.MODE_PRIVATE);
@@ -209,8 +208,8 @@ public class AndroidPreferencesManager {
 
     }
 
-    public static void storeHttpCredentials(Context c, ApiCredentials httpCredentials) {
-        SecureStore.put(c, KEY_HTTP_CONF, g.toJson(httpCredentials));
+    public static boolean storeHttpCredentials(Context c, ApiCredentials httpCredentials) {
+        return SecureStore.put(c, KEY_HTTP_CONF, g.toJson(httpCredentials));
     }
 
     public static void removeHttpCredentials(Context c) {
@@ -289,8 +288,9 @@ public class AndroidPreferencesManager {
             json = settings.getString(KEY_HTTP_CONF, null);
             if (json != null) {
                 ApiCredentials legacy = g.fromJson(json, ApiCredentials.class);
-                if (legacy != null) {
-                    storeHttpCredentials(c, legacy);
+                if (legacy != null && !storeHttpCredentials(c, legacy)) {
+                    Log.e(LOG_TAG, "Could not migrate legacy credentials; keeping plaintext copy.");
+                    return legacy;
                 }
                 settings.edit().remove(KEY_HTTP_CONF).apply();
             }

@@ -38,13 +38,13 @@ final class SecureStore {
         return store == null ? null : store.getString(key, null);
     }
 
-    static synchronized void put(Context context, String key, String value) {
+    static synchronized boolean put(Context context, String key, String value) {
         SharedPreferences store = open(context);
         if (store == null) {
             Log.e(TAG, "Secure storage unavailable; refusing to persist a secret.");
-            return;
+            return false;
         }
-        store.edit().putString(key, value).apply();
+        return store.edit().putString(key, value).commit();
     }
 
     static synchronized void remove(Context context, String key) {
@@ -106,8 +106,8 @@ final class SecureStore {
         if (!failed) {
             editor.putBoolean(MIGRATED, true);
         }
-        editor.apply();
-        if (!failed) {
+        boolean committed = editor.commit();
+        if (!failed && committed) {
             legacy.edit().clear().apply();
         }
     }

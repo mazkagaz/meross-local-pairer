@@ -60,6 +60,10 @@ public class ManualSetupFragment extends Fragment {
                 mManualUserIdEditText.setError("Missing UserId");
                 return;
             }
+            if (userKey == null || userKey.trim().isEmpty()) {
+                mManualUserKeyEditText.setError("Missing UserKey");
+                return;
+            }
             else {
                 try {
                     userIdInt = Integer.parseInt(userId);
@@ -69,6 +73,7 @@ public class ManualSetupFragment extends Fragment {
                         mManualUserIdEditText.setError(null);
                 } catch (NumberFormatException ex) {
                     mManualUserIdEditText.setError("UserId must be a positive integer");
+                    return;
                 }
             }
 

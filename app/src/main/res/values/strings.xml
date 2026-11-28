@@ -183,4 +183,5 @@
     <string name="ap_plain_http_title">Pairing uses plain HTTP</string>
     <string name="ap_plain_http_message">The device pairs through its local Wi-Fi access point using plain HTTP. Your Wi-Fi password and broker key are sent only to the device at 10.10.10.1 during this step. Use Bluetooth pairing when available, or continue if you trust the device.</string>
     <string name="action_continue_pairing">Continue pairing</string>
+    <string name="broker_changed_login_again">Broker address changed. Please log in again.</string>
 </resources>
