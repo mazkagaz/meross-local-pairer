@@ -16,6 +16,14 @@ import org.robolectric.annotation.Config;
 public class AndroidTlsPolicyTest {
 
     @Test
+    public void fingerprintComparisonIsCaseInsensitive() {
+        org.junit.Assert.assertTrue(TlsProbe.matchesFingerprint("ABC", "abc"));
+        org.junit.Assert.assertFalse(TlsProbe.matchesFingerprint("ABC", null));
+        org.junit.Assert.assertFalse(TlsProbe.matchesFingerprint(null, "ABC"));
+        org.junit.Assert.assertFalse(TlsProbe.matchesFingerprint("ABC", "DEF"));
+    }
+
+    @Test
     public void confirmedFingerprintIsPinnedAndCanBeCleared() {
         Context context = RuntimeEnvironment.getApplication();
         String url = "https://broker.local:2004";
