@@ -12,7 +12,7 @@
   sur `TlsProbe` et `AndroidTlsPolicy`, qui implémentent volontairement le
   probe TLS et le pinning TOFU.
 
-## Remaining budget: 11 warnings
+## Remaining budget: 10 warnings
 
 | Category | Count | Decision |
 |---|---:|---|
@@ -22,7 +22,6 @@
 | StaticFieldLeak | 1 | cycle de vie du callback HTTP à revoir |
 | VectorPath | 1 | simplification du tracé de l’icône satellite |
 | MergeRootFrame | 1 | hiérarchie de layout à simplifier |
-| IconMissingDensityFolder | 1 | PNG question_mark à décliner par densité |
 
 Ces avertissements ne sont pas désactivés globalement. Le budget CI les rend
-visibles et empêche toute nouvelle régression au-delà de 11.
+visibles et empêche toute nouvelle régression au-delà de 10.
