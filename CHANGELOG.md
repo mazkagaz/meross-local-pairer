@@ -1,3 +1,8 @@
+## Unreleased
+
+- Android 7.0 minimum (`minSdk 24`), required by androidx.navigation 2.10.2.
+- Android 6.0 is no longer supported.
+
 ## 2.1.1
 
 - Écran d'information d'appairage : suppression du texte « volet », remplacé

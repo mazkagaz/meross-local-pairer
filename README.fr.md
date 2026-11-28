@@ -52,7 +52,7 @@ Appareil Meross ──MQTT/TLS──> add-on Meross Local Broker ──API/MQTT�
    [Releases](https://github.com/mazkagaz/meross-local-pairer/releases/latest).
 2. Télécharger le fichier `Meross-Local-Pairer-<version>.apk` de la dernière
    release (APK signé).
-3. Sur Android 6.0 ou plus récent, autoriser l'installation depuis cette source
+3. Sur Android 7.0 ou plus récent, autoriser l'installation depuis cette source
    si demandé.
 4. Installer l'APK.
 
