@@ -1,6 +1,7 @@
 package org.localpairer.ui.fragments.account;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -470,7 +471,10 @@ public class AccountFragment extends Fragment {
         Toast.makeText(requireContext(), "Allowed " + current.ssid, Toast.LENGTH_SHORT).show();
     }
 
+    @SuppressLint("MissingPermission")
     private void showManageWifiDialog(TextView summary) {
+        // ensureWifiReady() has already checked/requested the Wi-Fi scan
+        // permissions; the scan results calls are also failure-tolerant.
         if (!ensureWifiReady(() -> showManageWifiDialog(summary))) {
             return;
         }

@@ -27,7 +27,7 @@ jobs:
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/pairer-release.jks"
 
       - name: Build signed APK
-        run: ./gradlew testDebugUnitTest assembleRelease --stacktrace
+        run: ./gradlew testDebugUnitTest lintDebug assembleRelease --stacktrace
         env:
           ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/pairer-release.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}

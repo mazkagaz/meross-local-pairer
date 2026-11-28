@@ -1,6 +1,7 @@
 package org.localpairer;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
@@ -243,7 +244,10 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         startBluetooth();
     }
 
+    @SuppressLint("MissingPermission")
     private void startBluetooth() {
+        // requestPermissionsAndStart() has already granted BLUETOOTH_CONNECT
+        // before this method can request the system enable dialog.
         if (!ble.isEnabled()) {
             setStatus("Bluetooth is disabled. Enable it to continue.");
             Intent enable = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
