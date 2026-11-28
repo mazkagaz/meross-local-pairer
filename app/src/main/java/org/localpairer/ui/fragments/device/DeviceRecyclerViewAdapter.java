@@ -1,5 +1,6 @@
 package org.localpairer.ui.fragments.device;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -32,6 +33,7 @@ public class DeviceRecyclerViewAdapter extends RecyclerView.Adapter<DeviceRecycl
         this.listener = listener;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setItems(List<DeviceInfo> items) {
         mValues.clear();
         mValues.addAll(items);

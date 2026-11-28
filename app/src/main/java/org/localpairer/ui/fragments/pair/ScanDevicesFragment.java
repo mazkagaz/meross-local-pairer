@@ -683,6 +683,7 @@ public class ScanDevicesFragment extends Fragment {
             this.scanResult = new ArrayList<>();
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         public void updateData(List<ScanResult> data) {
             this.scanResult.clear();
             this.scanResult.addAll(data);
