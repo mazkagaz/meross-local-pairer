@@ -1,5 +1,6 @@
 package org.localpairer.ui.fragments.pair;
 
+import android.app.AlertDialog;
 import android.net.MacAddress;
 import android.os.Bundle;
 import android.os.Handler;
@@ -63,6 +64,7 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
     private ApiCredentials mCreds;
     private String targetUuid;
     private volatile boolean destroyed;
+    private boolean apPlainHttpWarningAccepted = false;
     private Runnable pendingWifiConnectedCheck;
     private long pairingSessionId;
 
@@ -308,6 +310,21 @@ public class ExecutePairingFragment extends AbstractWifiFragment {
 
     private void configureDevice() {
         state = State.SENDING_PAIRING_COMMAND;
+        if (!apPlainHttpWarningAccepted) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.ap_plain_http_title)
+                    .setMessage(R.string.ap_plain_http_message)
+                    .setPositiveButton(R.string.action_continue_pairing,
+                            (dialog, which) -> {
+                                apPlainHttpWarningAccepted = true;
+                                configureDevice();
+                            })
+                    .setNegativeButton(android.R.string.cancel,
+                            (dialog, which) -> requireActivity().finish())
+                    .setCancelable(false)
+                    .show();
+            return;
+        }
         if (mApDevice == null || mCreds == null
                 || pairActivityViewModel.getTargetMqttConfig().getValue() == null
                 || pairActivityViewModel.getMerossConfiguredWifi().getValue() == null) {
