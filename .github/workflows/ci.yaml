@@ -154,9 +154,39 @@ jobs:
             abort "missing NOTICE" unless File.exist?("NOTICE")
           '
 
+  android-smoke:
+    name: Android smoke
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-android
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run instrumented launch tests
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: ./gradlew connectedDebugAndroidTest --stacktrace
+      - name: Upload instrumented test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-test-reports
+          path: app/build/reports/androidTests/connected
+          if-no-files-found: ignore
+
   gate:
     name: CI
-    needs: [changes, build, docs, workflow, meta]
+    needs: [changes, build, docs, workflow, meta, android-smoke]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -167,7 +197,8 @@ jobs:
             "${{ needs.build.result }}" \
             "${{ needs.docs.result }}" \
             "${{ needs.workflow.result }}" \
-            "${{ needs.meta.result }}"; do
+            "${{ needs.meta.result }}" \
+            "${{ needs.android-smoke.result }}"; do
             case "$result" in
               success|skipped) ;;
               *) echo "CI job result: $result" >&2; exit 1 ;;
