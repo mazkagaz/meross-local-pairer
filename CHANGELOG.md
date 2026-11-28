@@ -1,3 +1,11 @@
+## 2.2.2
+
+- Correctif urgent de démarrage : retour au `<fragment>` compatible avec le
+  `NavController` après l’écran d’avertissement.
+- Ajout de tests de lancement **SplashActivity** et **MainActivity** exécutés
+  dans la tâche de test standard.
+- Aucun changement du protocole d’appairage.
+
 ## 2.2.1
 
 - Lint Android ramené à **0 warning / 0 erreur** avec un gate bloquant à zéro.
