@@ -1,3 +1,13 @@
+## 2.2.1
+
+- Lint Android ramené à **0 warning / 0 erreur** avec un gate bloquant à zéro.
+- Textes et hints des layouts externalisés dans `strings.xml` ; messages
+  `setText` et concaténations remplacés par des ressources.
+- Corrections RTL, accessibilité, densité des icônes, ressources inutilisées et
+  attributs obsolètes.
+- Gradle porté à **9.9.3**.
+- Aucun changement du protocole d’appairage.
+
 ## 2.2.0
 
 - Android 7.0 minimum (`minSdk 24`), required by androidx.navigation 2.10.2.
