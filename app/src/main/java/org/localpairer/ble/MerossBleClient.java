@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothStatusCodes;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
@@ -322,7 +323,7 @@ public class MerossBleClient {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ok = current.writeCharacteristic(characteristic, data,
                     BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE)
-                    == BluetoothGatt.GATT_SUCCESS;
+                    == BluetoothStatusCodes.SUCCESS;
         } else {
             characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
             characteristic.setValue(data);
