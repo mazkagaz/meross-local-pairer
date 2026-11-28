@@ -169,4 +169,10 @@
     <string name="text_ble_device_info">Device: %1$s\nUUID: %2$s\nMAC: %3$s\nFirmware: %4$s</string>
     <string name="status_ble_identified">Device identified. Reading its Wi-Fi list…</string>
     <string name="error_ble_parse_format">Could not parse device info: %1$s</string>
+    <string name="broker_found_title">Local broker found</string>
+    <string name="broker_found_message">Broker: %1$s:%2$d\nTLS SHA-256: %3$s</string>
+    <string name="action_use_broker">Use this broker</string>
+    <string name="action_enter_manually">Enter manually</string>
+    <string name="broker_found_used">Broker confirmed and TLS certificate pinned.</string>
+    <string name="broker_certificate_unavailable">Found the broker, but its TLS certificate could not be verified. Enter the address manually.</string>
 </resources>
