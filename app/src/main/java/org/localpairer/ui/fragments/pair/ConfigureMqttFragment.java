@@ -1,5 +1,6 @@
 package org.localpairer.ui.fragments.pair;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.AndroidPreferencesManager;
+import org.localpairer.AndroidTlsPolicy;
 import org.localpairer.PairingLog;
 import org.localpairer.R;
 import org.localpairer.TlsProbe;
@@ -369,22 +371,60 @@ public class ConfigureMqttFragment extends Fragment {
         dialog.setMessage("Checking that the broker accepts MQTT over TLS...");
         dialog.show();
 
+        final ApiCredentials credentials =
+                AndroidPreferencesManager.loadHttpCredentials(requireContext());
+        final String apiServer = credentials == null ? null : credentials.getApiServer();
+        final String expectedPin = apiServer == null ? null
+                : AndroidTlsPolicy.pinnedFingerprint(requireContext(), apiServer);
+
         new Thread(() -> {
             final TlsProbe.Result result = TlsProbe.probe(host, port);
+            final String fingerprint = result == TlsProbe.Result.OK
+                    ? TlsProbe.certificateFingerprint(host, port) : null;
             activity.runOnUiThread(() -> {
                 if (!isAdded()) {
                     return;
                 }
                 dialog.dismiss();
-                if (result == TlsProbe.Result.OK) {
-                    navigateToPairing();
-                } else if (result == TlsProbe.Result.NOT_TLS) {
+                if (result == TlsProbe.Result.NOT_TLS) {
                     mqttPortEditText.setError("This broker does not accept MQTT over TLS. "
                             + "Meross devices require TLS; use the TLS port "
                             + "(Meross Local Broker: 2001).");
-                } else {
-                    mqttHostEditText.setError("Broker unreachable at " + host + ":" + port);
+                    return;
                 }
+                if (result != TlsProbe.Result.OK) {
+                    mqttHostEditText.setError("Broker unreachable at " + host + ":" + port);
+                    return;
+                }
+                if (fingerprint == null) {
+                    mqttHostEditText.setError(getString(
+                            R.string.mqtt_certificate_unavailable));
+                    return;
+                }
+                if (expectedPin != null) {
+                    if (!TlsProbe.matchesFingerprint(expectedPin, fingerprint)) {
+                        mqttHostEditText.setError(getString(
+                                R.string.mqtt_certificate_mismatch));
+                        return;
+                    }
+                    navigateToPairing();
+                    return;
+                }
+                new AlertDialog.Builder(activity)
+                        .setTitle(R.string.mqtt_certificate_title)
+                        .setMessage(getString(R.string.mqtt_certificate_message,
+                                host, port, fingerprint))
+                        .setPositiveButton(R.string.action_use_mqtt_broker,
+                                (d, which) -> {
+                                    AndroidTlsPolicy.pinFingerprint(
+                                            requireContext(),
+                                            "mqtts://" + host + ":" + port,
+                                            fingerprint);
+                                    navigateToPairing();
+                                })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setCancelable(false)
+                        .show();
             });
         }).start();
     }

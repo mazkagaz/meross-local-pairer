@@ -33,6 +33,13 @@ public final class TlsProbe {
     }
 
 
+
+    /** Returns true when the presented fingerprint matches the pinned one. */
+    public static boolean matchesFingerprint(String expected, String presented) {
+        return expected != null && presented != null
+                && expected.equalsIgnoreCase(presented);
+    }
+
     /** Returns the SHA-256 fingerprint of the TLS leaf certificate, or null. */
     public static String certificateFingerprint(String host, int port) {
         SSLSocket socket = null;

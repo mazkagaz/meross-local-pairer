@@ -175,4 +175,9 @@
     <string name="action_enter_manually">Enter manually</string>
     <string name="broker_found_used">Broker confirmed and TLS certificate pinned.</string>
     <string name="broker_certificate_unavailable">Found the broker, but its TLS certificate could not be verified. Enter the address manually.</string>
+    <string name="mqtt_certificate_title">Verify the MQTT broker</string>
+    <string name="mqtt_certificate_message">MQTT broker: %1$s:%2$d\nTLS SHA-256: %3$s</string>
+    <string name="action_use_mqtt_broker">Use this MQTT broker</string>
+    <string name="mqtt_certificate_mismatch">The MQTT certificate does not match the HTTPS broker. Verify the broker before pairing.</string>
+    <string name="mqtt_certificate_unavailable">Could not verify the MQTT certificate. Check the broker address.</string>
 </resources>
