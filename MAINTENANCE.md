@@ -15,7 +15,7 @@ Dernière revue : **2026-11-27**
 
 | Fréquence | Action |
 |---|---|
-| Chaque PR | build, lint Android, tests unitaires, traductions ; budget lint de 169 warnings maximum |
+| Chaque PR | build, lint Android, tests unitaires, traductions ; budget lint de 114 warnings maximum |
 | Hebdomadaire | rebuild planifié pour détecter les changements d’environnement |
 | Mensuel | revue des PR Dependabot Gradle et GitHub Actions |
 | Trimestriel | revue SDK Android, AGP, Gradle, JDK |
