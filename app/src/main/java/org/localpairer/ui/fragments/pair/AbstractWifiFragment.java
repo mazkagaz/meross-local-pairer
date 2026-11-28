@@ -141,14 +141,7 @@ public abstract class AbstractWifiFragment extends Fragment {
         }
 
         // Reset Network process bindings
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // To make sure that requests don't go over mobile data
-            mConnectivityManager.bindProcessToNetwork(null);
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                ConnectivityManager.setProcessDefaultNetwork(null);
-            }
-        }
+        mConnectivityManager.bindProcessToNetwork(null);
 
         // Unregister network callbacks
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -386,12 +379,8 @@ public abstract class AbstractWifiFragment extends Fragment {
                 }
 
                 mNetworkAttemptCompleted = true;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    // To make sure that requests don't go over mobile data
-                    mConnectivityManager.bindProcessToNetwork(network);
-                } else {
-                    ConnectivityManager.setProcessDefaultNetwork(network);
-                }
+                // To make sure that requests don't go over mobile data
+                mConnectivityManager.bindProcessToNetwork(network);
                 notifyWifiConnected();
             }
         };
@@ -563,15 +552,13 @@ public abstract class AbstractWifiFragment extends Fragment {
                     String quotedSsid = "\"" + mTargetSsid + "\"";
                     if (quotedSsid.compareTo(connectedSsid) == 0) {
                         // Bind HTTP traffic to the target WiFi so it does not
-                        // leak over mobile data on pre-Android-Q devices.
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            for (Network network : mConnectivityManager.getAllNetworks()) {
-                                NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
-                                if (capabilities != null
-                                        && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                                    mConnectivityManager.bindProcessToNetwork(network);
-                                    break;
-                                }
+                        // leak over mobile data.
+                        for (Network network : mConnectivityManager.getAllNetworks()) {
+                            NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
+                            if (capabilities != null
+                                    && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                                mConnectivityManager.bindProcessToNetwork(network);
+                                break;
                             }
                         }
                         // Ok, we found the network we were looking for.

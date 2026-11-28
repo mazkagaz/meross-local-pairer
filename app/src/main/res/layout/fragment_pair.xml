@@ -76,7 +76,7 @@
         android:id="@+id/errorDetailTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_error_outline_black_24dp"
+        app:drawableStartCompat="@drawable/ic_error_outline_black_24dp"
         android:drawablePadding="10dp"
         android:text="TextView"
         android:visibility="gone"

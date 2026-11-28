@@ -48,6 +48,7 @@ import org.localpairer.merosslib.model.http.ApiCredentials;
 
 
 
+import java.util.Locale;
 import java.util.List;
 
 public class AccountFragment extends Fragment {
@@ -651,7 +652,7 @@ public class AccountFragment extends Fragment {
             tlsPinSummaryView.setText("TLS pin: no broker configured");
             return;
         }
-        if (!stored.getApiServer().toLowerCase().startsWith("https://")) {
+        if (!stored.getApiServer().toLowerCase(Locale.ROOT).startsWith("https://")) {
             tlsPinSummaryView.setText("TLS pin: broker uses plain HTTP");
             return;
         }

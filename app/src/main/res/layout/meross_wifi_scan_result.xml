@@ -25,9 +25,9 @@
         android:layout_row="0"
         android:layout_column="1"
         android:layout_gravity="fill_horizontal"
-        android:paddingLeft="5dp"
         android:text="@string/na"
-        android:paddingStart="5dp" />
+        android:paddingStart="5dp"
+        android:paddingEnd="0dp" />
 
     <ImageView
         android:id="@+id/wifiSignalStrength"
@@ -57,8 +57,8 @@
         android:layout_row="1"
         android:layout_column="1"
         android:layout_gravity="fill_horizontal"
-        android:paddingLeft="5dp"
         android:text="@string/na"
-        android:paddingStart="5dp" />
+        android:paddingStart="5dp"
+        android:paddingEnd="0dp" />
 </GridLayout>
 

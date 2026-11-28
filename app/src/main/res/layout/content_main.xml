@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableLeft="@drawable/ic_signal_wifi_off_black_24dp"
+            app:drawableLeftCompat="@drawable/ic_signal_wifi_off_black_24dp"
             android:drawablePadding="5dp"
             android:text="Wifi is OFF or unconnected. \nPlease connect to your Local Wifi."
             android:textColor="#FFFFFF"
@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableLeft="@android:drawable/stat_sys_warning"
+            app:drawableLeftCompat="@android:drawable/stat_sys_warning"
             android:drawablePadding="5dp"
             android:text="You are connected to a Meross AP. Connect to your WIFI instead."
             android:textColor="#FFFFFF"
@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableLeft="@drawable/ic_location_off_black_24dp"
+            app:drawableLeftCompat="@drawable/ic_location_off_black_24dp"
             android:drawablePadding="5dp"
             android:text="Location is OFF. \nPlease enable it."
             android:textColor="#FFFFFF"
@@ -67,7 +67,7 @@
         android:layout_weight="1"
         android:fillViewport="true">
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_host_fragment"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"

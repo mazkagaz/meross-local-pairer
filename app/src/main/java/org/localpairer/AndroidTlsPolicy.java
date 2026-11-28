@@ -1,5 +1,6 @@
 package org.localpairer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
@@ -31,6 +32,7 @@ import javax.net.ssl.X509TrustManager;
  * verification is replaced by that pin, which also allows reaching the broker
  * through an IP address.
  */
+@SuppressLint({"TrustAllX509TrustManager", "CustomX509TrustManager"})
 public final class AndroidTlsPolicy implements TlsPolicy {
     private static final String TAG = "LocalPairerTls";
     static final String PIN_MISMATCH = "MEROSS_PIN_MISMATCH";
@@ -160,7 +162,7 @@ public final class AndroidTlsPolicy implements TlsPolicy {
             if (port <= 0) {
                 port = "https".equalsIgnoreCase(uri.getScheme()) ? 443 : 80;
             }
-            return host.toLowerCase() + ":" + port;
+            return host.toLowerCase(Locale.ROOT) + ":" + port;
         } catch (Exception e) {
             return null;
         }

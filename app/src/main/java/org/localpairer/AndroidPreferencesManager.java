@@ -13,6 +13,7 @@ import org.localpairer.merosslib.model.http.ApiCredentials;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -179,7 +180,7 @@ public class AndroidPreferencesManager {
     public static void storeNewMqttConfiguration(Context context, MqttConfiguration conf) {
         List<MqttConfiguration> allConfs = loadAllMqttConfigurations(context);
         for (MqttConfiguration c : allConfs) {
-            if (c.getName().toLowerCase().trim().compareTo(conf.getName().toLowerCase().trim())==0) {
+            if (c.getName().toLowerCase(Locale.ROOT).trim().compareTo(conf.getName().toLowerCase(Locale.ROOT).trim())==0) {
                 allConfs.remove(c);
             }
         }
@@ -221,11 +222,11 @@ public class AndroidPreferencesManager {
 
     @Nullable
     public static String getWifiStoredPassword(@NonNull Context c, @NonNull String bssid) {
-        return SecureStore.get(c, bssid.trim().toLowerCase());
+        return SecureStore.get(c, bssid.trim().toLowerCase(Locale.ROOT));
     }
 
     public static void storeWifiStoredPassword(@NonNull Context c, @NonNull String bssid, @NonNull String password) {
-        SecureStore.put(c, bssid.trim().toLowerCase(), password);
+        SecureStore.put(c, bssid.trim().toLowerCase(Locale.ROOT), password);
     }
 
     /**
@@ -276,7 +277,7 @@ public class AndroidPreferencesManager {
     }
 
     private static String wifiPasswordKey(String ssid) {
-        return "ssid:" + ssid.trim().toLowerCase();
+        return "ssid:" + ssid.trim().toLowerCase(Locale.ROOT);
     }
 
     @Nullable

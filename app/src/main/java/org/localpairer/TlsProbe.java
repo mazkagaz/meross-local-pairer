@@ -1,5 +1,7 @@
 package org.localpairer;
 
+import android.annotation.SuppressLint;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.security.SecureRandom;
@@ -17,6 +19,7 @@ import javax.net.ssl.X509TrustManager;
  * silently fail later. The probe only performs the TLS handshake; it accepts
  * any certificate because it verifies the transport, not the broker identity.
  */
+@SuppressLint({"TrustAllX509TrustManager", "CustomX509TrustManager"})
 public final class TlsProbe {
     public enum Result {
         OK,

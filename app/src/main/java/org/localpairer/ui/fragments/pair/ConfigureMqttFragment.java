@@ -32,6 +32,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Locale;
 import java.util.List;
 
 
@@ -270,7 +271,7 @@ public class ConfigureMqttFragment extends Fragment {
 
                     // Make sure the name is populated
                     String name = mqttConfigurationNameEditText.getEditText().getText().toString().trim();
-                    if (save && (name.isEmpty() || name.trim().toLowerCase().compareTo("add new...")==0)) {
+                    if (save && (name.isEmpty() || name.trim().toLowerCase(Locale.ROOT).compareTo("add new...")==0)) {
                         error = true;
                         mqttConfigurationNameEditText.setError("Invalid name");
                     } else {

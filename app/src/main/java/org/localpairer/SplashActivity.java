@@ -1,5 +1,7 @@
 package org.localpairer;
 
+import android.annotation.SuppressLint;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +19,7 @@ import org.localpairer.merosslib.MerossHttpClient;
 import org.localpairer.merosslib.model.http.ApiCredentials;
 import com.google.android.material.button.MaterialButton;
 
+@SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
 
     @Override
