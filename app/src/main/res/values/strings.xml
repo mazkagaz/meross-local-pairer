@@ -180,4 +180,7 @@
     <string name="action_use_mqtt_broker">Use this MQTT broker</string>
     <string name="mqtt_certificate_mismatch">The MQTT certificate does not match the HTTPS broker. Verify the broker before pairing.</string>
     <string name="mqtt_certificate_unavailable">Could not verify the MQTT certificate. Check the broker address.</string>
+    <string name="ap_plain_http_title">Pairing uses plain HTTP</string>
+    <string name="ap_plain_http_message">The device pairs through its local Wi-Fi access point using plain HTTP. Your Wi-Fi password and broker key are sent only to the device at 10.10.10.1 during this step. Use Bluetooth pairing when available, or continue if you trust the device.</string>
+    <string name="action_continue_pairing">Continue pairing</string>
 </resources>
