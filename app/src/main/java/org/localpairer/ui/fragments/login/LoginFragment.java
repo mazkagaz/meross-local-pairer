@@ -379,7 +379,7 @@ public class LoginFragment extends Fragment {
             return;
         }
         if (endpoint.requiresHttps()) {
-            mHttpHostnameEditText.setError("Use HTTPS for an IP address");
+            mHttpHostnameEditText.setError("HTTPS is required for the broker API");
             return;
         }
         int selectedPort = endpoint.isHttps()
