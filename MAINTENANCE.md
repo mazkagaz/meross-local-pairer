@@ -1,11 +1,11 @@
 # Maintenance — Meross Local Pairer
 
-Dernière revue : **2026-11-27**
+Dernière revue : **2026-10-27**
 
 ## Politique de support
 
 - **Android** : `compileSdk`/`targetSdk` 37, `minSdk` 24.
-- **JDK CI** : 17 ; source/toolchain Java 11.
+- **JDK CI** : 17 ; source/toolchain Java 10.
 - **Gradle / AGP** : versions épinglées dans le wrapper et `build.gradle`.
 - **F-Droid** : recette différée après le 2027-02-15 ; ne pas la considérer
   comme maintenue avant cette date.
@@ -15,7 +15,7 @@ Dernière revue : **2026-11-27**
 
 | Fréquence | Action |
 |---|---|
-| Chaque PR | build, lint Android, tests unitaires, traductions ; budget lint de 11 warnings maximum |
+| Chaque PR | build, lint Android, tests unitaires, traductions ; budget lint de 10 warnings maximum |
 | Hebdomadaire | rebuild planifié pour détecter les changements d’environnement |
 | Mensuel | revue des PR Dependabot Gradle et GitHub Actions |
 | Trimestriel | revue SDK Android, AGP, Gradle, JDK |
