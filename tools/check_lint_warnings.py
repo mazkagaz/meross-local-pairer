@@ -10,7 +10,7 @@ REPORT = Path("app/build/reports/lint-results-debug.xml")
 
 
 def main() -> int:
-    limit = int(sys.argv[1]) if len(sys.argv) > 1 else 114
+    limit = int(sys.argv[1]) if len(sys.argv) > 1 else 11
     if not REPORT.is_file():
         print(f"lint report not found: {REPORT}", file=sys.stderr)
         return 2

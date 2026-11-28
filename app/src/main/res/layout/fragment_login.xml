@@ -31,7 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:ems="10"
-            android:hint="Home Assistant address (homeassistant.local or IP)"
+            android:hint="@string/hint_ha_address"
             android:inputType="textUri"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Entering the Home Assistant address…"
+            android:text="@string/text_entering_ha_address"
             android:gravity="center_horizontal"
             android:textColor="@color/design_default_color_secondary_variant"
             app:layout_constraintEnd_toEndOf="@+id/httpHostnameInputLayout"
@@ -64,7 +64,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Use HTTPS (port 2004)"
+            android:text="@string/text_use_https_port"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hintForDiscovery" />
@@ -84,7 +84,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="HTTP API port (default 2003)">
+                android:hint="@string/hint_http_api_port">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -99,7 +99,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="HTTPS API port (default 2004)">
+                android:hint="@string/hint_https_api_port">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -121,7 +121,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Username / email"
+            android:hint="@string/hint_username_email"
             android:autofillHints="emailAddress"
             android:inputType="textPersonName"
             android:visibility="visible"
@@ -146,7 +146,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Password"
+            android:hint="@string/hint_password"
             android:autofillHints="password"
             android:inputType="textPersonName"
             android:visibility="visible"
@@ -174,7 +174,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="124dp"
-        android:text="Login"
+        android:text="@string/action_login"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

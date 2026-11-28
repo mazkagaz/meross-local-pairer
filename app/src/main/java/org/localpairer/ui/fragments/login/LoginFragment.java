@@ -258,11 +258,11 @@ public class LoginFragment extends Fragment {
         }
         BrokerEndpoint endpoint = readEndpoint();
         if (!endpoint.isValid()) {
-            mEndpointSummary.setText("Endpoint: enter a Home Assistant address");
+            mEndpointSummary.setText(R.string.endpoint_enter_address);
         } else if (endpoint.requiresHttps()) {
-            mEndpointSummary.setText("Endpoint: HTTPS is required for an IP address");
+            mEndpointSummary.setText(R.string.endpoint_https_required);
         } else {
-            mEndpointSummary.setText("Endpoint: " + endpoint.baseUrl());
+            mEndpointSummary.setText(getString(R.string.endpoint_format, endpoint.baseUrl()));
         }
     }
 

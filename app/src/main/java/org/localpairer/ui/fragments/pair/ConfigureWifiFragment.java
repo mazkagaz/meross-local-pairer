@@ -482,7 +482,7 @@ public class ConfigureWifiFragment extends AbstractWifiFragment {
 
             wifiName.setText(value.getSsid());
             bssid.setText(value.getBssid());
-            channel.setText("" + value.getChannel());
+            channel.setText(String.valueOf(value.getChannel()));
             signal.setIndeterminate(false);
             signal.setProgress((int)quality);
 
