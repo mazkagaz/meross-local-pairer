@@ -4,7 +4,7 @@ Dernière revue : **2026-11-27**
 
 ## Politique de support
 
-- **Android** : `compileSdk`/`targetSdk` 37, `minSdk` 23.
+- **Android** : `compileSdk`/`targetSdk` 37, `minSdk` 24.
 - **JDK CI** : 17 ; source/toolchain Java 11.
 - **Gradle / AGP** : versions épinglées dans le wrapper et `build.gradle`.
 - **F-Droid** : recette différée après le 2027-02-15 ; ne pas la considérer

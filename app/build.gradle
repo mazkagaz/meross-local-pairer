@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "org.localpairer"
-        minSdk 23
+        minSdk 24
         targetSdk 37
         versionCode 74
         versionName "2.1.1"
