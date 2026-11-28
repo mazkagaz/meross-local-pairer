@@ -55,6 +55,15 @@ public final class AndroidTlsPolicy implements TlsPolicy {
         return key == null ? null : TlsPinStore.get(context, key);
     }
 
+
+    /** Pin a certificate fingerprint after an explicit user confirmation. */
+    public static void pinFingerprint(Context context, String url, String fingerprint) {
+        String key = hostKey(url);
+        if (key != null && fingerprint != null && !fingerprint.isEmpty()) {
+            TlsPinStore.store(context, key, fingerprint);
+        }
+    }
+
     public static void clearPin(Context context, String url) {
         String key = hostKey(url);
         if (key != null) {

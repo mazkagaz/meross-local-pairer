@@ -1,6 +1,7 @@
 package org.localpairer.ui.fragments.login;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -34,11 +35,13 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import org.localpairer.AndroidPreferencesManager;
+import org.localpairer.AndroidTlsPolicy;
 import org.localpairer.AndroidUtils;
 import org.localpairer.BrokerDiscovery;
 import org.localpairer.BrokerEndpoint;
 import org.localpairer.MainActivity;
 import org.localpairer.NetworkPolicy;
+import org.localpairer.TlsProbe;
 import org.localpairer.R;
 import org.localpairer.model.HttpClientManager;
 import org.localpairer.ui.MainActivityViewModel;
@@ -558,20 +561,47 @@ public class LoginFragment extends Fragment {
                     boolean fieldEmpty =
                             mHttpHostnameEditText.getText().toString().trim().isEmpty();
                     if (fieldEmpty) {
-                        if (updateEndpoint) {
-                            mHttpsSwitch.setChecked(true);
-                            mHttpsPortEditText.setText(String.valueOf(httpsPort));
+                        String fingerprint = TlsProbe.certificateFingerprint(
+                                resultHost, httpsPort);
+                        if (fingerprint == null) {
+                            configureUi(true, false, null,
+                                    getString(R.string.broker_certificate_unavailable));
+                            setDiscoveryHint(getString(
+                                    R.string.broker_certificate_unavailable));
+                            return;
                         }
-                        configureUi(true, false, resultHost, "Found local API service!");
-                        updateEndpointSummary();
+                        showDiscoveredBroker(resultHost, httpsPort, fingerprint);
                     } else {
                         configureUi(true, false, null, "Found local API service.");
+                        setDiscoveryHint("Local broker found.");
                     }
-                    setDiscoveryHint("Local broker found.");
                 });
             }).start();
         }
     };
+
+    private void showDiscoveredBroker(String host, int port, String fingerprint) {
+        String url = new BrokerEndpoint(host, true,
+                BrokerEndpoint.DEFAULT_HTTP_PORT, port).baseUrl();
+        new AlertDialog.Builder(requireActivity())
+                .setTitle(R.string.broker_found_title)
+                .setMessage(getString(R.string.broker_found_message,
+                        host, port, fingerprint))
+                .setPositiveButton(R.string.action_use_broker, (dialog, which) -> {
+                    AndroidTlsPolicy.pinFingerprint(requireContext(), url, fingerprint);
+                    mHttpsSwitch.setChecked(true);
+                    mHttpsPortEditText.setText(String.valueOf(port));
+                    configureUi(true, false, host,
+                            getString(R.string.broker_found_used));
+                    updateEndpointSummary();
+                    setDiscoveryHint(getString(R.string.broker_found_used));
+                })
+                .setNegativeButton(R.string.action_enter_manually,
+                        (dialog, which) -> setDiscoveryHint(
+                                getString(R.string.broker_certificate_unavailable)))
+                .setCancelable(false)
+                .show();
+    }
 
     private static boolean reachable(String host, int port) {
         String address = host;
