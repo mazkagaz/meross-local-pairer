@@ -17,6 +17,8 @@ jobs:
     outputs:
       code: ${{ steps.filter.outputs.code == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
       docs: ${{ steps.filter.outputs.docs == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+      workflow: ${{ steps.filter.outputs.workflow == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+      meta: ${{ steps.filter.outputs.meta == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -24,18 +26,61 @@ jobs:
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
         with:
+          predicate-quantifier: some-with-excludes
           filters: |
             code:
-              - 'app/**'
-              - 'merosslib/**'
-              - '*.gradle'
-              - 'gradle/**'
-              - 'gradlew*'
-              - 'gradle.properties'
+              - '**'
+              - '!**.md'
+              - '!docs/**'
+              - '!tools/**'
+              - '!.github/**'
+              - '!fdroid/**'
+              - '!fastlane/**'
+              - '!LICENSE'
+              - '!NOTICE'
             docs:
               - '**.md'
               - 'docs/**'
               - 'tools/**'
+            workflow:
+              - '.github/**'
+            meta:
+              - 'fdroid/**'
+              - 'fastlane/**'
+              - 'LICENSE'
+              - 'NOTICE'
+      - name: Summarize change detection
+        env:
+          CODE: ${{ steps.filter.outputs.code == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+          DOCS: ${{ steps.filter.outputs.docs == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+          WORKFLOW: ${{ steps.filter.outputs.workflow == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+          META: ${{ steps.filter.outputs.meta == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          {
+            echo "### CI change detection"
+            echo ""
+            echo "| Category | Selected |"
+            echo "|---|---|"
+            echo "| code | $CODE |"
+            echo "| docs | $DOCS |"
+            echo "| workflow | $WORKFLOW |"
+            echo "| meta | $META |"
+            echo ""
+            echo "Changed files:"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only "origin/${{ github.base_ref }}...HEAD" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ github.event_name }}" = "push" ] && \
+               [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            git diff-tree --no-commit-id --name-only -r "${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "(scheduled or manual run: all categories selected)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
 
   build:
     name: Build
@@ -65,9 +110,46 @@ jobs:
       - uses: actions/checkout@v7
       - run: python3 tools/check_docs_translations.py
 
+  workflow:
+    name: Workflow
+    needs: changes
+    if: needs.changes.outputs.workflow == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate workflow and action YAML
+        run: |
+          ruby -ryaml -e '
+            files = Dir.glob(".github/**/*.{yml,yaml}")
+            abort "no YAML files found" if files.empty?
+            files.each do |file|
+              YAML.load_file(file)
+              puts "OK #{file}"
+            end
+          '
+
+  meta:
+    name: Metadata
+    needs: changes
+    if: needs.changes.outputs.meta == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate metadata YAML and required files
+        run: |
+          ruby -ryaml -e '
+            files = Dir.glob("fdroid/**/*.{yml,yaml}") + Dir.glob("fastlane/**/*.{yml,yaml}")
+            files.each do |file|
+              YAML.load_file(file)
+              puts "OK #{file}"
+            end
+            abort "missing LICENSE" unless File.exist?("LICENSE")
+            abort "missing NOTICE" unless File.exist?("NOTICE")
+          '
+
   gate:
     name: CI
-    needs: [changes, build, docs]
+    needs: [changes, build, docs, workflow, meta]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -76,9 +158,31 @@ jobs:
           for result in \
             "${{ needs.changes.result }}" \
             "${{ needs.build.result }}" \
-            "${{ needs.docs.result }}"; do
+            "${{ needs.docs.result }}" \
+            "${{ needs.workflow.result }}" \
+            "${{ needs.meta.result }}"; do
             case "$result" in
               success|skipped) ;;
               *) echo "CI job result: $result" >&2; exit 1 ;;
             esac
           done
+
+          if [ "${{ needs.build.result }}" = "skipped" ] && \
+             [ "${{ needs.docs.result }}" = "skipped" ] && \
+             [ "${{ needs.workflow.result }}" = "skipped" ] && \
+             [ "${{ needs.meta.result }}" = "skipped" ]; then
+            echo "No validation job ran; refusing a green gate." >&2
+            exit 1
+          fi
+
+          {
+            echo "### CI results"
+            echo ""
+            echo "| Job | Result |"
+            echo "|---|---|"
+            echo "| changes | ${{ needs.changes.result }} |"
+            echo "| build | ${{ needs.build.result }} |"
+            echo "| docs | ${{ needs.docs.result }} |"
+            echo "| workflow | ${{ needs.workflow.result }} |"
+            echo "| meta | ${{ needs.meta.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
