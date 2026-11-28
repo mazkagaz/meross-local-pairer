@@ -161,7 +161,6 @@
                             android:id="@+id/userIdEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:editable="false"
                             android:text="N/A"
                             android:textIsSelectable="true" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -178,7 +177,6 @@
                             android:id="@+id/httpTokenEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:editable="false"
                             android:text="N/A"
                             android:textIsSelectable="true" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -195,7 +193,6 @@
                             android:id="@+id/mqttKeyEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:editable="false"
                             android:text="N/A"
                             android:textIsSelectable="true" />
                     </com.google.android.material.textfield.TextInputLayout>

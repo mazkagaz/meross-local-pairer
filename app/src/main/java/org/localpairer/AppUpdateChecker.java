@@ -74,8 +74,7 @@ public final class AppUpdateChecker {
     }
 
     private static void showIfNeeded(Activity activity, String latest) {
-        if (activity.isFinishing()
-                || (Build.VERSION.SDK_INT >= 17 && activity.isDestroyed())) {
+        if (activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
         SharedPreferences prefs = activity.getSharedPreferences(

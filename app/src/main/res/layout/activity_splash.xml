@@ -55,6 +55,7 @@
 
     <TextView
         android:justificationMode="inter_word"
+        tools:targetApi="o"
         android:id="@+id/textView29"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

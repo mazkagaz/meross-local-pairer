@@ -2,10 +2,10 @@
     <string name="app_name">Meross Local Pairer</string>
     <string name="scan">Scan Wi-Fi</string>
     <string name="title_activity_pair">Pair new device</string>
-    <string name="enabling_wifi">Enabling Wi-Fi...</string>
-    <string name="connecting_to_ap">Connecting to AP...</string>
-    <string name="fetching_device_info">Fetching device info...</string>
-    <string name="scanning_wifi">Scanning Wi-Fi...</string>
+    <string name="enabling_wifi">Enabling Wi-Fi…</string>
+    <string name="connecting_to_ap">Connecting to AP…</string>
+    <string name="fetching_device_info">Fetching device info…</string>
+    <string name="scanning_wifi">Scanning Wi-Fi…</string>
     <string name="scan_fragment_text">Please be patient while the app connects to the Meross Device. This operation requires Wi-Fi and location services enabled in order to succeed.</string>
     <string name="type">Type:</string>
     <string name="firmware_ver">Firmware ver:</string>
@@ -22,14 +22,15 @@
     <string name="colon">:</string>
     <string name="configure_btn">Configure this device</string>
     <string name="device_icon_description">Device Icon</string>
+    <string name="satellite_icon_description">Pairing in progress illustration</string>
     <string name="pairing_done_icon_description">Pairing completed icon</string>
     <string name="fragment_info_text">"The discovery process has queried the device and obtained the following information. "</string>
     <string name="pair_device_in_progress">Device being paired: %1$s\nBSSID: %2$s\n\nCheck that this is the expected device before continuing.</string>
     <string name="paired_uuid">\n\nPaired UUID: %1$s</string>
     <string name="pair_btn">Pair!</string>
     <string name="pair_done_back">Back to devices</string>
-    <string name="configuring_mqtt">Configuring MQTT info...</string>
-    <string name="configuring_wifi">Configuring Wi-Fi...</string>
+    <string name="configuring_mqtt">Configuring MQTT info…</string>
+    <string name="configuring_wifi">Configuring Wi-Fi…</string>
     <string name="pair_fragment_text">"Please be patient while the app connects to the Meross Device. "</string>
     <string name="paring_done_title">PAIRING COMPLETED!</string>
     <string name="pairing_done_unverified">The device should now reboot itself and connect to the specific Wi-Fi/MQTT broker. \n\nWhen the connection succeeds, the device LED will turn solid green. That means the device has paired successfully. If that does not happen, then you need to start over again and double-check the Wi-Fi, MQTT and credential configuration.</string>
@@ -63,8 +64,8 @@
     <string name="login_intro_ha_broker">Make sure the Meross Local Broker add-on in Home Assistant is started, then log in with the credentials configured in that add-on.</string>
 
     <string name="mqtt_fragment_title">MQTT Server</string>
-    <string name="mqtt_conf_name">Configuration Name...</string>
-    <string name="mqtt_host_name">Server hostname or IP...</string>
+    <string name="mqtt_conf_name">Configuration Name…</string>
+    <string name="mqtt_host_name">Server hostname or IP…</string>
     <string name="mqtt_port">Server Port</string>
     <string name="save_checkbox">Save for future use</string>
     <string name="mqtt_key_override_message">Override USER-ID/KEY parameters.</string>
@@ -87,7 +88,7 @@
     <string name="manual_setup_info">Use this option to set the User ID and Key manually. These values are normally provided by the Meross Local Broker add-on. Only set them manually when pairing with a third-party broker and when you know what you are doing.</string>
 
     <string name="user_key">User Key</string>
-    <string name="menu_about">About...</string>
+    <string name="menu_about">About…</string>
     <string name="about_text_title">What it does</string>
     <string name="about_text_body">Pairs Meross devices with a local MQTT broker instead of the Meross cloud. Use it once per device; Home Assistant then controls the device on your local network.</string>
     <string name="about_version_format">Version %1$s</string>

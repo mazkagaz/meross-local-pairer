@@ -180,8 +180,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
-        app:layout_constraintVertical_bias="0.0"
-        android:drawableRight="@drawable/ic_baseline_login_24" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/httpLoginIntroText"
@@ -193,6 +192,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:justificationMode="inter_word"
+        tools:targetApi="o"
         android:text="@string/login_intro_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

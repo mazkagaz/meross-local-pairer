@@ -90,10 +90,6 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         setTitle("Bluetooth pairing");
         getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         buildUi();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            setStatus("Bluetooth LE pairing requires Android 5.0 or newer.");
-            return;
-        }
         ble = new MerossBleClient(this, this);
         PairingLog.log("ble", "BLE pairing screen opened");
         if (!ble.isSupported()) {

@@ -521,8 +521,7 @@ public class LoginFragment extends Fragment {
             }
 
             Map<String, byte[]> attributes = Collections.emptyMap();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                    && serviceInfo.getAttributes() != null) {
+            if (serviceInfo.getAttributes() != null) {
                 attributes = serviceInfo.getAttributes();
             }
             String hostTxt = BrokerDiscovery.decode(attributes, "host");
