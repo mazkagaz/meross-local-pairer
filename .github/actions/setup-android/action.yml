@@ -1,0 +1,14 @@
+name: Setup Android build
+description: Install the JDK, Android SDK packages and Gradle cache.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v6
+      with:
+        java-version: 17
+        distribution: temurin
+    - uses: android-actions/setup-android@v4
+      with:
+        packages: 'platforms;android-37.0 build-tools;37.0.0'
+    - uses: gradle/actions/setup-gradle@v6
