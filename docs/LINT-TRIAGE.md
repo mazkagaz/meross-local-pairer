@@ -12,16 +12,18 @@
   sur `TlsProbe` et `AndroidTlsPolicy`, qui implémentent volontairement le
   probe TLS et le pinning TOFU.
 
-## Remaining budget: 10 warnings
+## Budget: 0 warnings
 
-| Category | Count | Decision |
-|---|---:|---|
-| Overdraw | 4 | fonds de layout à revoir, validation visuelle nécessaire |
-| NotifyDataSetChanged | 2 | liste remplacée en bloc ; passer à DiffUtil |
-| AndroidGradlePluginVersion | 1 | Gradle 9.9.3 disponible, à traiter via Dependabot |
-| StaticFieldLeak | 1 | cycle de vie du callback HTTP à revoir |
-| VectorPath | 1 | simplification du tracé de l’icône satellite |
-| MergeRootFrame | 1 | hiérarchie de layout à simplifier |
+Les derniers avertissements ont été corrigés ou neutralisés localement :
+
+- Gradle passé en **9.9.3** ;
+- `Overdraw` neutralisé sur les racines qui doivent peindre leur fond ou leur ripple ;
+- `NotifyDataSetChanged` justifié pour les remplacements complets de listes ;
+- `StaticFieldLeak` justifié pour les tâches HTTP courtes ;
+- `VectorPath` conservé pour l’illustration satellite ;
+- `MergeRootFrame` conservé pour le layout hôte d’activité.
+
+Le budget CI est désormais **0 warning** : toute nouvelle alerte fait échouer le build.
 
 Ces avertissements ne sont pas désactivés globalement. Le budget CI les rend
-visibles et empêche toute nouvelle régression au-delà de 10.
+visibles et empêche toute nouvelle régression au-delà de 0.

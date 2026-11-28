@@ -1,5 +1,7 @@
 package org.localpairer.model;
 
+import android.annotation.SuppressLint;
+
 import android.os.AsyncTask;
 
 import androidx.annotation.Nullable;
@@ -75,6 +77,7 @@ public class HttpClientManager {
         t.execute(mClient);
     }
 
+    @SuppressLint("StaticFieldLeak")
     private static abstract class CallbackTask<T> {
         private Callback<T> mCallback;
 
