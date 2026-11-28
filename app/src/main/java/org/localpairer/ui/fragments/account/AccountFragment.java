@@ -129,27 +129,27 @@ public class AccountFragment extends Fragment {
             @Override
             public void onChanged(ApiCredentials apiCredentials) {
                 if (apiCredentials == null || TextUtils.isEmpty(apiCredentials.getUserId())) {
-                    userIdEditText.setText("Not set");
+                    userIdEditText.setText(R.string.text_not_set);
                 } else {
                     userIdEditText.setText(apiCredentials.getUserId());
                 }
 
                 if (apiCredentials == null || TextUtils.isEmpty(apiCredentials.getToken())) {
-                    httpTokenEditText.setText("Not set");
+                    httpTokenEditText.setText(R.string.text_not_set);
                 } else {
                     httpTokenEditText.setText(apiCredentials.getToken());
                 }
 
                 if (apiCredentials == null || TextUtils.isEmpty(apiCredentials.getKey())) {
-                    mqttKeyEditText.setText("Not set (empty string)");
+                    mqttKeyEditText.setText(R.string.text_not_set_empty);
                 } else {
                     mqttKeyEditText.setText(apiCredentials.getKey());
                 }
 
                 if (apiCredentials != null && apiCredentials.isManuallySet()) {
-                    httpLogoutButton.setText("Discard");
+                    httpLogoutButton.setText(R.string.action_discard);
                 } else {
-                    httpLogoutButton.setText("Logout");
+                    httpLogoutButton.setText(R.string.action_logout);
                 }
 
                 httpLogoutButton.setEnabled(apiCredentials != null);
@@ -366,7 +366,7 @@ public class AccountFragment extends Fragment {
         diagnosticsHeader.setVisibility(visibility);
         if (!advanced) {
             root.findViewById(R.id.diagnosticsCard).setVisibility(View.GONE);
-            ((TextView) root.findViewById(R.id.diagnosticsSectionArrow)).setText("▸");
+            ((TextView) root.findViewById(R.id.diagnosticsSectionArrow)).setText(R.string.text_chevron_collapsed);
         }
         ApiCredentials credentials =
                 AndroidPreferencesManager.loadHttpCredentials(requireContext());
@@ -402,11 +402,12 @@ public class AccountFragment extends Fragment {
         BrokerEndpoint endpoint =
                 readEndpoint(hostField, httpsSwitch, httpPortField, httpsPortField);
         if (!endpoint.isValid()) {
-            summary.setText("Endpoint: enter a Home Assistant address");
+            summary.setText(R.string.endpoint_enter_address);
         } else if (endpoint.requiresHttps()) {
-            summary.setText("Endpoint: HTTPS is required for an IP address");
+            summary.setText(R.string.endpoint_https_required);
         } else {
-            summary.setText("Endpoint: " + endpoint.baseUrl());
+            summary.setText(summary.getContext().getString(
+                    R.string.endpoint_format, endpoint.baseUrl()));
         }
     }
 
@@ -625,7 +626,7 @@ public class AccountFragment extends Fragment {
     private void refreshAllowedWifiSummary(TextView summary) {
         List<AllowedWifiNetworks.Entry> entries = AllowedWifiNetworks.load(requireContext());
         if (entries.isEmpty()) {
-            summary.setText("No network validated. Broker traffic is blocked.");
+            summary.setText(R.string.text_allowed_networks_blocked);
             return;
         }
         StringBuilder builder = new StringBuilder();
@@ -649,11 +650,11 @@ public class AccountFragment extends Fragment {
         }
         ApiCredentials stored = AndroidPreferencesManager.loadHttpCredentials(requireContext());
         if (stored == null || stored.getApiServer() == null) {
-            tlsPinSummaryView.setText("TLS pin: no broker configured");
+            tlsPinSummaryView.setText(R.string.text_tls_pin_no_broker);
             return;
         }
         if (!stored.getApiServer().toLowerCase(Locale.ROOT).startsWith("https://")) {
-            tlsPinSummaryView.setText("TLS pin: broker uses plain HTTP");
+            tlsPinSummaryView.setText(R.string.text_tls_pin_plain_http);
             return;
         }
         String pin = AndroidTlsPolicy.pinnedFingerprint(requireContext(), stored.getApiServer());

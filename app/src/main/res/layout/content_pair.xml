@@ -32,7 +32,7 @@
             android:layout_weight="1"
             app:drawableLeftCompat="@drawable/ic_signal_wifi_off_black_24dp"
             android:drawablePadding="5dp"
-            android:text="Wifi is OFF. \nPlease enable it."
+            android:text="@string/text_wifi_off"
             android:textColor="#FFFFFF" />
 
         <TextView
@@ -42,7 +42,7 @@
             android:layout_weight="1"
             app:drawableLeftCompat="@drawable/ic_location_off_black_24dp"
             android:drawablePadding="5dp"
-            android:text="Location is OFF. \nPlease enable it."
+            android:text="@string/text_location_off"
             android:textColor="#FFFFFF" />
 
     </LinearLayout>

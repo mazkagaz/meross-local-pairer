@@ -108,11 +108,15 @@ public class ShowDeviceInfoFragment extends Fragment {
             discoveredChip.setText(hwinfo.getChipType());
             discoveredMAC.setText(hwinfo.getMacAddress());
             discoveredUUID.setText(hwinfo.getUuid());
-            discoveredUserID.setText("" + (fwinfo.getUserId() == 0 ? "N/A" : fwinfo.getUserId()));
+            discoveredUserID.setText(fwinfo.getUserId() == 0
+                    ? getString(R.string.na) : String.valueOf(fwinfo.getUserId()));
             discoveredFWVer.setText(fwinfo.getVersion());
-            discoveredMQTTServer.setText(fwinfo.getServer().isEmpty() ? "N/A" : fwinfo.getServer());
-            discoveredMQTTServerPort.setText("" + (fwinfo.getPort() == 0 ? "N/A" : fwinfo.getPort()));
-            discoveredInnerIP.setText(fwinfo.getInnerIp().compareTo("0.0.0.0")==0 ? "N/A" : fwinfo.getInnerIp());
+            discoveredMQTTServer.setText(fwinfo.getServer().isEmpty()
+                    ? getString(R.string.na) : fwinfo.getServer());
+            discoveredMQTTServerPort.setText(fwinfo.getPort() == 0
+                    ? getString(R.string.na) : String.valueOf(fwinfo.getPort()));
+            discoveredInnerIP.setText(fwinfo.getInnerIp().compareTo("0.0.0.0")==0
+                    ? getString(R.string.na) : fwinfo.getInnerIp());
             discoveredWifiMac.setText(fwinfo.getWifiMac());
         }
     }

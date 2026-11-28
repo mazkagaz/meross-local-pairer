@@ -21,7 +21,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="10dp"
-        android:text="Advanced settings" />
+        android:text="@string/text_advanced_settings" />
 
     <LinearLayout
         android:id="@+id/accountSectionHeader"
@@ -35,7 +35,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Account &amp; Login"
+            android:text="@string/text_account_login"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -43,7 +43,7 @@
             android:id="@+id/accountSectionArrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="▸"
+            android:text="@string/text_chevron_collapsed"
             android:textSize="18sp" />
     </LinearLayout>
 
@@ -63,7 +63,7 @@
                 android:id="@+id/networkCardTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Active configuration info"
+                android:text="@string/text_active_configuration_info"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -80,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4sp"
-                android:hint="Home Assistant address (homeassistant.local or IP)">
+                android:hint="@string/hint_ha_address">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/brokerHostEditText"
@@ -95,7 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Use HTTPS" />
+                android:text="@string/text_use_https" />
 
             <TextView
                 android:id="@+id/endpointSummary"
@@ -117,7 +117,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4sp"
-                    android:hint="HTTP API port (default 2003)">
+                    android:hint="@string/hint_http_api_port">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/httpPortEditText"
@@ -133,7 +133,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4sp"
-                    android:hint="HTTPS API port (default 2004)">
+                    android:hint="@string/hint_https_api_port">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/httpsPortEditText"
@@ -155,13 +155,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4sp"
-                        android:hint="User ID">
+                        android:hint="@string/label_user_id">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/userIdEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="N/A"
+                            android:text="@string/na"
                             android:textIsSelectable="true" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -171,13 +171,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4sp"
-                        android:hint="HTTP Token">
+                        android:hint="@string/label_http_token">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/httpTokenEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="N/A"
+                            android:text="@string/na"
                             android:textIsSelectable="true" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -187,13 +187,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4sp"
-                        android:hint="MQTT Key">
+                        android:hint="@string/label_mqtt_key">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/mqttKeyEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="N/A"
+                            android:text="@string/na"
                             android:textIsSelectable="true" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
@@ -204,21 +204,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Save broker address" />
+                android:text="@string/action_save_broker_address" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/reloginButton"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Log in again"
+                android:text="@string/action_login_again"
                 android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/httpLogoutButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Logout" />
+                android:text="@string/action_logout" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -239,7 +239,7 @@
                 android:id="@+id/haBrokerLoginButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Login to (HA) Meross Local Addon" />
+                android:text="@string/action_login_ha_broker" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/setManualButton"
@@ -247,7 +247,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                android:text="Manual User/Key setup" />
+                android:text="@string/action_manual_setup" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -264,7 +264,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Wi-Fi network"
+            android:text="@string/label_wifi_network"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -272,7 +272,7 @@
             android:id="@+id/wifiSectionArrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="▸"
+            android:text="@string/text_chevron_collapsed"
             android:textSize="18sp" />
     </LinearLayout>
 
@@ -292,27 +292,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="The app only contacts the local broker on networks validated here. Device APs (Meross_*) are allowed during pairing." />
+                android:text="@string/text_allowed_networks_help" />
 
             <TextView
                 android:id="@+id/allowedWifiSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="No network validated." />
+                android:text="@string/text_no_network_validated" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/allowCurrentWifiButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Trust current Wi-Fi network" />
+                android:text="@string/action_trust_current_wifi" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/manageAllowedWifiButton"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Manage allowed networks" />
+                android:text="@string/action_manage_allowed_networks" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -329,7 +329,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Pairing diagnostics"
+            android:text="@string/text_pairing_diagnostics"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -337,7 +337,7 @@
             android:id="@+id/diagnosticsSectionArrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="▸"
+            android:text="@string/text_chevron_collapsed"
             android:textSize="18sp" />
     </LinearLayout>
 
@@ -357,41 +357,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Enable verbose pairing logs, reproduce the problem, then copy the log and paste it elsewhere." />
+                android:text="@string/text_pairing_logs_help" />
 
             <TextView
                 android:id="@+id/tlsPinSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="TLS pin: none" />
+                android:text="@string/text_tls_pin_none" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/resetTlsPinButton"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Reset pinned broker certificate" />
+                android:text="@string/action_reset_tls_pin" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/pairingDebugSwitch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Enable pairing logs" />
+                android:text="@string/action_enable_pairing_logs" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/copyPairingLogsButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Copy pairing logs" />
+                android:text="@string/action_copy_pairing_logs" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/clearPairingLogsButton"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Clear pairing logs" />
+                android:text="@string/action_clear_pairing_logs" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

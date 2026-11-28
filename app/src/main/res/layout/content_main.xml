@@ -33,7 +33,7 @@
             android:layout_weight="1"
             app:drawableLeftCompat="@drawable/ic_signal_wifi_off_black_24dp"
             android:drawablePadding="5dp"
-            android:text="Wifi is OFF or unconnected. \nPlease connect to your Local Wifi."
+            android:text="@string/text_wifi_off_unconnected"
             android:textColor="#FFFFFF"
             android:visibility="gone" />
 
@@ -44,7 +44,7 @@
             android:layout_weight="1"
             app:drawableLeftCompat="@android:drawable/stat_sys_warning"
             android:drawablePadding="5dp"
-            android:text="You are connected to a Meross AP. Connect to your WIFI instead."
+            android:text="@string/text_meross_ap_warning"
             android:textColor="#FFFFFF"
             android:visibility="gone" />
 
@@ -55,7 +55,7 @@
             android:layout_weight="1"
             app:drawableLeftCompat="@drawable/ic_location_off_black_24dp"
             android:drawablePadding="5dp"
-            android:text="Location is OFF. \nPlease enable it."
+            android:text="@string/text_location_off"
             android:textColor="#FFFFFF"
             android:visibility="gone" />
 

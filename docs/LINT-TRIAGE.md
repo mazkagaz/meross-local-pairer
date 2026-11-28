@@ -12,20 +12,17 @@
   sur `TlsProbe` et `AndroidTlsPolicy`, qui implémentent volontairement le
   probe TLS et le pinning TOFU.
 
-## Remaining budget: 114 warnings
+## Remaining budget: 11 warnings
 
 | Category | Count | Decision |
 |---|---:|---|
-| HardcodedText | 73 | dette de traduction ; à externaliser dans les ressources |
-| SetTextI18n | 28 | formatage/ressources à reprendre |
-| Overdraw | 4 | fonds de layout à revoir |
-| VectorRaster | 2 | icônes à redimensionner ou à valider |
-| NotifyDataSetChanged | 2 | optimisation RecyclerView |
-| AndroidGradlePluginVersion | 1 | version AGP à aligner |
+| Overdraw | 4 | fonds de layout à revoir, validation visuelle nécessaire |
+| NotifyDataSetChanged | 2 | liste remplacée en bloc ; passer à DiffUtil |
+| AndroidGradlePluginVersion | 1 | Gradle 9.9.3 disponible, à traiter via Dependabot |
 | StaticFieldLeak | 1 | cycle de vie du callback HTTP à revoir |
-| VectorPath | 1 | simplification du tracé |
+| VectorPath | 1 | simplification du tracé de l’icône satellite |
 | MergeRootFrame | 1 | hiérarchie de layout à simplifier |
-| IconLocation | 1 | PNG à placer dans un dossier de densité |
+| IconMissingDensityFolder | 1 | PNG question_mark à décliner par densité |
 
 Ces avertissements ne sont pas désactivés globalement. Le budget CI les rend
-visibles et empêche toute nouvelle régression au-delà de 114.
+visibles et empêche toute nouvelle régression au-delà de 11.

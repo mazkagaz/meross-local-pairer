@@ -109,7 +109,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
 
         statusView = new TextView(this);
         statusView.setTextSize(15);
-        statusView.setText("Preparing Bluetooth...");
+        statusView.setText(R.string.status_ble_preparing);
         root.addView(statusView);
 
         deviceInfoView = new TextView(this);
@@ -126,17 +126,17 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             root.addView(deviceSpinner);
 
             Button scanButton = new Button(this);
-            scanButton.setText("Rescan Bluetooth");
+            scanButton.setText(R.string.action_rescan_bluetooth);
             scanButton.setOnClickListener(v -> startScan());
             root.addView(scanButton);
 
             Button connectButton = new Button(this);
-            connectButton.setText("Connect to selected device");
+            connectButton.setText(R.string.action_connect_selected);
             connectButton.setOnClickListener(v -> connectSelected());
             root.addView(connectButton);
         } else {
-            setStatus("Bluetooth device " + (initialName != null ? initialName : initialAddress)
-                    + " selected. Connecting...");
+            setStatus(getString(R.string.text_ble_device_selected,
+                    initialName != null ? initialName : initialAddress));
         }
 
         root.addView(label("2. Home Wi-Fi"));
@@ -147,13 +147,13 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         root.addView(wifiSpinner);
 
         passwordInput = new EditText(this);
-        passwordInput.setHint("Wi-Fi password");
+        passwordInput.setHint(R.string.wifi_password);
         passwordInput.setInputType(InputType.TYPE_CLASS_TEXT
                 | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         root.addView(passwordInput);
 
         CheckBox showPasswordCheckBox = new CheckBox(this);
-        showPasswordCheckBox.setText("Show password");
+        showPasswordCheckBox.setText(R.string.show_password);
         showPasswordCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 passwordInput.setTransformationMethod(
@@ -166,7 +166,7 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         root.addView(showPasswordCheckBox);
 
         rememberPasswordCheckBox = new CheckBox(this);
-        rememberPasswordCheckBox.setText("Remember this Wi-Fi password");
+        rememberPasswordCheckBox.setText(R.string.text_remember_wifi_password);
         rememberPasswordCheckBox.setChecked(true);
         root.addView(rememberPasswordCheckBox);
 
@@ -182,12 +182,12 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
         });
 
         deviceNameInput = new EditText(this);
-        deviceNameInput.setHint("Device name (required)");
+        deviceNameInput.setHint(R.string.hint_device_name_required);
         deviceNameInput.setInputType(InputType.TYPE_CLASS_TEXT);
         root.addView(deviceNameInput);
 
         pairButton = new Button(this);
-        pairButton.setText("Configure device");
+        pairButton.setText(R.string.action_configure_device);
         pairButton.setEnabled(false);
         pairButton.setOnClickListener(v -> configureDevice());
         root.addView(pairButton);
@@ -584,15 +584,13 @@ public class BlePairActivity extends AppCompatActivity implements MerossBleClien
             deviceUuid = hardware.getString("uuid");
             deviceMac = hardware.getString("macAddress");
             String firmwareVersion = firmware.getString("version");
-            deviceInfoView.setText("Device: " + deviceType
-                    + "\nUUID: " + deviceUuid
-                    + "\nMAC: " + deviceMac
-                    + "\nFirmware: " + firmwareVersion);
-            setStatus("Device identified. Reading its Wi-Fi list...");
+            deviceInfoView.setText(getString(R.string.text_ble_device_info,
+                    deviceType, deviceUuid, deviceMac, firmwareVersion));
+            setStatus(getString(R.string.status_ble_identified));
             ble.send(MerossBleProtocol.packet(
                     "Appliance.Config.WifiList", "GET", null));
         } catch (Exception e) {
-            setStatus("Could not parse device info: " + e.getMessage());
+            setStatus(getString(R.string.error_ble_parse_format, e.getMessage()));
         }
     }
 
